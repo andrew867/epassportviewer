@@ -167,7 +167,7 @@ public class createSod {
 			}
 			else{
 				FileOutputStream envfos = new FileOutputStream(sod);
-				envfos.write(signeddata.toString());
+				envfos.write(signeddata);
 				envfos.close();
 			}
 			
