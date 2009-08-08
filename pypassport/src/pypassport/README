@@ -42,6 +42,24 @@ FEATURES
 		-Create a valid SOD signature (CMS) (!! Need java 1.6)
 	BUG FIX:
 	* Correction of the Finger Print
+	
+1.0 (2009-08-08)
+
+
+	* The pyasn1 LDS Security Object description is moved to asn1.py
+	* DataGroup inherits from DataGroupFile. Use df.file instead of dg.file.file to access the binary content of the data group.
+	* openssl.py generate is work environment to generates the certificates and CRL.
+	* Use the connect method with the directory path when using DumpReader. 
+	* ReaderManager to handle readers. The waitForCard method, tries to guess the reader and the corresponding Reader implementation.
+	* Modification of the genpassport.py script.
+	* Add of the dump method in EPassport class to dump the content of the read ePassport. (datagroups, face/signature image, DS certificate, DG15 public key).
+	* The MRZ is now tested inside the EPassport class.
+	* The simulator can be parameterized to read any kind of notation for dumps (FID, SFI, Golden Reader Tool, ...).
+	* New logging system. 
+	* DataGroupFactory to instantiate the corresponding DataGroup for a DataGroupFile object.
+	* Creation of modules pki, jcop and datagroupcreation to handle the ePassport forgery.
+	* Add functionalities to send the dexlab applet to a JCOP card and send it the forged datagroups.
+	* Add test data in the testData directory with dumps and certificate to test the API.
     
 INSTALLATION
 
@@ -65,9 +83,9 @@ TECHNICAL DETAILS
 	pypassport has been successfully run on Windows, Linux and Mac OSX.
 
 REQUIREMENTS
-	pyscard, pyCrypto, pyasn1, openssl
+	pyscard, pyCrypto, pyasn1, openssl, PIL
 
-	* What smartcard reader are supported by ePassport Viewer ?
+	* What smartcard reader are supported by pyPassport ?
 	At the moment pyPassport handle generic PCSC readers. 
 	Passport reading have been successfully performed with the following 
 	smartcard readers:
@@ -76,7 +94,7 @@ REQUIREMENTS
 	A specific module has been written for the latter.
 
 LICENCE
-	pypassport is released under GNU/LGPL license terms.
+	pyPassport is released under GNU/LGPL license terms.
 	Full text available here in the LICENSE files, present in this package.
 	
 	
