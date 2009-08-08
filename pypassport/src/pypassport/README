@@ -1,0 +1,83 @@
+pypassport
+
+by
+
+Jean-Francois Houzard (jhouzard@gmail.com) 
+Olivier Roger (olivier.roger@gmail.com) 
+
+http://sites.uclouvain.be/security/epassport.html
+
+DISCLAIMER
+	Before using pypassport, you must be sure that you are allowed to read 
+	the contactless chip of your passport, according to the laws and 
+	regulations of the country that issued it.
+
+PURPOSE
+    pypassport is an API writen in python providing functionalities
+    to retrieve information from the biometric passport.
+    It implements the main features as described in the doc9303
+    specification.
+        
+FEATURES
+0.1 (2009-04-29):
+	* Access and reads the passport data groups
+	* Perform security mechanism as explained in DOC 9303 standard:
+		* Basic Access Control (BAC);
+		* Secure Messaging (SM);
+		* Active Authentication (AA);
+		* Passive Authentication (PA).
+	* Save data in binary files.
+	* Extract data contained in the RFID tag (Face, Signature, Public Key, DS Certificate).
+	* Analyse a passport and report specificities generating a 'Finger Print'.
+		
+0.1a (2009-05-18)
+	* Support the iso 19794-5 Face Image Data Interchange. Can now read the DG2 face for every passport
+	* New module pypassport.genpassport.genpassport.py:
+		-Create fake passport with the DG1, DG2, DG7, DG11, DG12, COM, SOD (!! Need java 1.6)
+		-Create fake CSCA, DS et CRL associated to the passport
+	* Modifications in pypassport.openssl.py. It is now possible to:
+		-Create a new CSCA certificate
+		-Create DS Certificates issued by the CSCA
+		-Revoke DS Certificates and generate the CRL associated
+		-Create a valid SOD signature (CMS) (!! Need java 1.6)
+	BUG FIX:
+	* Correction of the Finger Print
+    
+INSTALLATION
+
+The pypassport package uses distutils for installation:
+
+$ unzip pypassport-x.y.z.zip
+$ cd pypassport-x.y.z
+$ python setup.py install
+
+All depencies do not provide installation script for every platform. 
+In that case, the following error will occur:
+" Error: Could not find suitable distribution for Requirement... "
+
+Three possible action are available in this case:
+1- Find a binary build for your platform (should not be a problem for Windows users)
+2- Use a package manager (aptitude (linux), yum (linux), fink (mac), macport (mac), i-installer (mac),...
+3- Install from sources.
+
+TECHNICAL DETAILS
+	This API is cross platform. It only requires Python 2.5/2.6 (and C based modules).
+	pypassport has been successfully run on Windows, Linux and Mac OSX.
+
+REQUIREMENTS
+	pyscard, pyCrypto, pyasn1, openssl
+
+	* What smartcard reader are supported by ePassport Viewer ?
+	At the moment pyPassport handle generic PCSC readers. 
+	Passport reading have been successfully performed with the following 
+	smartcard readers:
+		* Omnikey 5321;
+		* ACS ACR 122.
+	A specific module has been written for the latter.
+
+LICENCE
+	pypassport is released under GNU/LGPL license terms.
+	Full text available here in the LICENSE files, present in this package.
+	
+	
+
