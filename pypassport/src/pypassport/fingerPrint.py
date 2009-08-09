@@ -45,7 +45,6 @@ class FingerPrint(object):
     def analyse(self):
         res = {}
         
-        res["averageDelay"] = 0
         res["activeAuthWithoutBac"] = False
         res["bac"] = False
         res["DSCertificate"] = False
