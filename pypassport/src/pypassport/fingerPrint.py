@@ -61,16 +61,6 @@ class FingerPrint(object):
         except Exception, msg:
             #TODO: Handle error ? Reader don't accept command?
             pass
-            
-        total = 0    
-        cpt = 0
-        for x in range(30):
-            r = self.calculateDelay()
-            if r > 0:
-                cpt += 1
-                total += r
-        total /= cpt
-        res["averageDelay"] = total
         
         res["activeAuthWithoutBac"] = self.checkInternalAuth()
                 
@@ -117,7 +107,9 @@ class FingerPrint(object):
             else:
                 res["generation"] = 2
                 
-        res["DG_size"] = self.calculateDGSize()
+        res["DGs"] = self.calculateDGSize()
+        
+        res["ReadingTime"] = self.calculateReadingTime()
         
         return res
     
@@ -129,14 +121,9 @@ class FingerPrint(object):
     def calculateDGSize(self):
         data = {}
         for x in self._doc:
-            data[toDG(x)+"_size"] = len(self._doc[x].file)
+            data[toDG(x)] = len(self._doc[x].file)
             
         return data
-        
-    def calculateDelay(self):
-        start = time.time()
-        self._doc._selectPassportApp()
-        return time.time() - start
             
     def checkInternalAuth(self):
         rnd_ifd = os.urandom(8)
@@ -146,4 +133,12 @@ class FingerPrint(object):
         except Exception, msg:
             print msg
             return False
+        
+    def calculateReadingTime(self):
+        for x in self._doc.keys():
+            self._doc.__delitem__(x)
+            
+        start = time.time()
+        self._doc.readPassport()
+        return time.time() - start
         
