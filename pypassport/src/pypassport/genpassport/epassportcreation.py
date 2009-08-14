@@ -1,5 +1,6 @@
 from datagroupcreation import * 
 from pypassport.genpassport.jcop import *
+from pypassport.doc9303 import converter
 from pypassport import iso7816
     
 class EPassportCreator(Logger):
@@ -20,6 +21,16 @@ class EPassportCreator(Logger):
         self._openssl = OpenSSL()
         self._forged = None
         self._openssl.register(self._traceOpenssl)
+        
+    def setEPassport(self, ep):
+        self._forged = []
+        
+        for x in ep:
+            if x not in( converter.toTAG("DG15"), converter.toTAG("Common")):
+                self._forged.append(ep[x])
+        
+        #Forge a Common file without DG15
+        self._forged.append(ComCreation().create(self._forged))
         
 
     def toDisk(self, type=converter.types.GRT, ext="", path="."):
@@ -97,4 +108,3 @@ class EPassportCreator(Logger):
     def _traceOpenssl(self, name, msg):
         self.log(msg, name)
         
-    
