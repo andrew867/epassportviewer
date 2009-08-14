@@ -169,7 +169,7 @@ class ResponseAPDU(object):
         return self.res + hexListToBin([self.sw1] + [self.sw2])
     
     def getHexRepAPDU(self):
-        return hexListToHexRep(self.getHexListAPDU())
+        return binToHexRep(self.res) + hexToHexRep(self.sw1) + hexToHexRep(self.sw2)
     
     def __str__(self):
         return "< [" + binToHexRep(self.res) + "] " + hexToHexRep(self.sw1) + " " + hexToHexRep(self.sw2)
