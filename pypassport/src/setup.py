@@ -29,7 +29,7 @@ setup(
 
     # Project uses reStructuredText, so ensure that the docutils get
     # installed or upgraded on the target machine
-    install_requires = ['setuptools', 'pyCrypto'],
+    install_requires = ['setuptools', 'pyCrypto', 'pyasn1', 'pyscard', 'PIL'],
 
     package_data = {'': ['*.py'],
                     'pypassport': ['README', 'LICENSE'],
