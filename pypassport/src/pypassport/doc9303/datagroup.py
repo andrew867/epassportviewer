@@ -442,7 +442,7 @@ class Events(object):
         
     def log(self, msg):
         for listenerFct in self._listeners:
-            listenerFct(self._name, msg)
+            listenerFct(msg)
                 
 class DataGroupReader(Logger):
     """   

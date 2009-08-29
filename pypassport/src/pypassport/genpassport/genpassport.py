@@ -24,7 +24,7 @@ import time
 #Activate the trace log
 TRACE = True
 #Store dump on disk
-DUMP = False
+DUMP = True
 #Install the applet in the JCOP
 INSTALL_APPLET = False
 #Send dump to JCOP
@@ -46,7 +46,7 @@ def trace(name, str):
 CSCA = pki.DistinguishedName(
     C="BE", 
     O="UCL", 
-    CN="CSCA-HOUZARD"
+    CN="CSCA_certif"
 )
 CSCA_KEY_SIZE = 1024
 CSCA_VALIDITY_PERIOD = 720
@@ -55,7 +55,7 @@ CSCA_VALIDITY_PERIOD = 720
 DS = pki.DistinguishedName(
     C="BE", 
     O="UCL", 
-    CN="Document_Signer_ROGER"
+    CN="DS_certif"
 )
 DS_KEY_SIZE = 1024
 DS_VALIDITY_PERIOD = 365
