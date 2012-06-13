@@ -206,7 +206,9 @@ class EPassport(dict, logger.Logger):
         Select the passport application
         """
         self.log("Select Passport Application")
-        return self._iso7816.selectFile("04", "0C", "A0000002471001")
+        # MODIFICATION 6/14/2012 by ANTONIN BEAUJEANT #
+        return self._iso7816.rstConnection()
+        ################################################
     
     def doBasicAccessControl(self):
         """

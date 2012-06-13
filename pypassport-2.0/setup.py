@@ -17,7 +17,7 @@
 # If not, see <http://www.gnu.org/licenses/>.
 
 import os
-from setuptools import setup
+from setuptools import setup, find_packages
 
 def read(fname):
     return open(os.path.join(os.path.dirname(__file__),'pypassport', fname)).read()
@@ -27,20 +27,27 @@ setup(
     name='pypassport',
     version='2.0',
     description='Python Biometric Passport API',
+    long_description=read('README'),
     author='Jean-Francois Houzard, Olivier Roger and Antonin Beaujeant',
     author_email='jhouzard@gmail.com, folkenda@gmail.com and antonin.beaujeant@uclouvain.be',
     url='http://code.google.com/p/pypassport/downloads/list',
-    packages=['pypassport'],
-    long_description=read('README'),
+    keywords='mrtd passport pypassport',
+    license='LGPL',
     classifiers=[
       "License :: OSI Approved :: GNU Lesser General Public License (LGPL)",
       "Programming Language :: Python",
       "Development Status :: 4 - Beta",
       "Intended Audience :: Developers",
-      "Topic :: RFID",
+      "Topic :: RFID"
     ],
-    keywords='mrtd passport pypassport',
-    license='LGPL',
+    
+    packages=find_packages(),
+    package_data = {
+      '': ['*.py'],
+      'pypassport': ['README', 'LICENSE']
+    },
+    
+    
     install_requires=[
         'setuptools', 
         'pyCrypto',
@@ -48,5 +55,6 @@ setup(
         'pyscard', 
         'PIL'
     ],
+
     zip_safe = False
-      )
+)

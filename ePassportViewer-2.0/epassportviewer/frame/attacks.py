@@ -21,6 +21,7 @@ import tkMessageBox
 import Image, ImageTk
 import os
 import re
+import pickle
 from tkFileDialog import askdirectory, askopenfilename
 
 from pypassport.attacks import macTraceability, bruteForce, aaTraceability, signEverything, errorFingerprinting
@@ -29,6 +30,7 @@ from pypassport.iso7816 import Iso7816
 from pypassport.doc9303.mrz import MRZ
 from epassportviewer.util.image import ImageFactory
 from epassportviewer.dialog import InfoBoxWindows
+from epassportviewer.const import *
 
 
 ###################
@@ -685,6 +687,29 @@ class AttacksFrame(Frame):
         else: return 1
     
     
+    # History Functions              
+    def addToHistory(self, mrz):
+        try: 
+            file = open(HISTORY, "r")
+            history = pickle.load(file)
+            file.close()
+        except Exception:
+            history = []
+            
+        name = mrz
+        for name_hist, mrz_hist in history:
+            if mrz==mrz_hist:
+                name = name_hist
+                history.remove((name_hist, mrz_hist))
+        history.insert(0, (name, mrz))
+        if len(history) > MAX_HISTORY:
+            history = history[:MAX_HISTORY]
+        
+        with open(HISTORY, 'w') as file:
+            pickle.dump(history, file)
+            file.close()
+         
+    
     #########################
     # ACTION MAC TRACEABILITY
     #########################
@@ -699,6 +724,7 @@ class AttacksFrame(Frame):
             r = reader.ReaderManager().waitForCard(5, "PcscReader", self.getReader())
             attack = macTraceability.MacTraceability(Iso7816(r))
             if attack.setMRZ(self.mrz.get()):
+                self.addToHistory(self.mrz.get())
                 if self.frenchVar.get(): attack.reachMaxDelay()
                 self.writeToLogMAC("Is vulnerable? : {0}".format(attack.isVulnerable(int(co))))
             else:
@@ -722,6 +748,7 @@ class AttacksFrame(Frame):
                     r = reader.ReaderManager().waitForCard(5, "PcscReader", self.getReader())
                     attack = macTraceability.MacTraceability(Iso7816(r))
                     if attack.setMRZ(self.mrz.get()):
+                        self.addToHistory(self.mrz.get())
                         attack.savePair(directory)
                         tkMessageBox.showinfo("Save successful", "The pair has bee saved in:\n{0}".format(directory))
                     else:

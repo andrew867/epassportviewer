@@ -44,11 +44,7 @@ class SignEverything(Logger):
         if type(self._iso7816) != type(Iso7816(None)):
             raise SignEverythingException("The sublayer iso7816 is not available")
 
-        if self._iso7816.getTypeReader() != type(PcscReader()):
-            raise SignEverythingException("The reader must be a PcscReader for this attack")
-        
-        # Select the passport application using the AID A0000002471001
-        self._iso7816.selectFile("04", "0C", "A0000002471001")
+        self._iso7816.rstConnection()
 
         self._bac = bac.BAC(iso7816)
         self._openssl = OpenSSL()

@@ -340,6 +340,7 @@ class View(Frame):
             else:
                 self._doc.register(self.log)
                 self._readPassport(self._doc, fingerprint)
+
        
     def load(self, event=None):
         directory = askdirectory(title="Select directory", mustexist=1)
@@ -382,8 +383,6 @@ class View(Frame):
         self.footer.clear()
         
     def _detectReader(self, mrz):
-        
-        tkMessageBox.showinfo("Reader", "Remove then drop the passport on a reader")
         reader = None
         
         try:
@@ -516,12 +515,13 @@ class View(Frame):
             self.correctMRZ(mrz)
             mrz = self.checkMRZ()
             self.gotMRZ(mrz)
+            
         except epassport.mrz.MRZException, msg:
             if DEBUG: print msg
             else: tkMessageBox.showerror("Read Error", msg) 
             self.setColor('red')     
     
-    # History Functions      
+    # History Functions 
     def loadHistory(self, filename=HISTORY):
         try: 
             file = open(filename, "r")
@@ -532,17 +532,14 @@ class View(Frame):
             return []
     
     def saveHistory(self, history, filename=HISTORY):
-        try:
-            file = open(filename, "w")
+        with open(filename, 'w') as file:
             pickle.dump(history, file)
             file.close()
-        except Exception,msg:
-            pass
         
     def addToHistory(self, name, mrz):
         history = self.loadHistory()
-        if (name,mrz) in history: 
-            history.remove((name,mrz))
+        for name_hist, mrz_hist in history:
+            if mrz==mrz_hist: history.remove((name_hist, mrz_hist))
         history.insert(0,(name,mrz))
         if len(history) > MAX_HISTORY:
             history = history[:MAX_HISTORY]
@@ -552,3 +549,4 @@ class View(Frame):
         self.historyMenu.delete(0, END)
         for name, mrz in self.loadHistory():
             self.historyMenu.add_command(label=name, command=callback.Callback(self.setMRZ, mrz))
+

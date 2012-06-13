@@ -46,11 +46,7 @@ class ErrorFingerprinting(Logger):
         if type(self._iso7816) != type(Iso7816(None)):
             raise MacTraceabilityException("The sublayer iso7816 is not available")
 
-        if self._iso7816.getTypeReader() != type(PcscReader()):
-            raise MacTraceabilityException("The reader must be a PcscReader for this attack")
-        
-        # Select the passport application using the AID A0000002471001
-        self._iso7816.selectFile("04", "0C", "A0000002471001")
+        self._iso7816.rstConnection()
         
         self._path = path
         

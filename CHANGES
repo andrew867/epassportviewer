@@ -4,7 +4,39 @@
 ===============================
 
 
-From 2.0 to 20.0.1
+From 2.0.1 to 2.0.2
+==================
+
+pypassport > setup.py
+
+ * The install didn't browse the sub directory. Now setup.py
+   uses find_packages()
+   
+   
+ePassportViewer > frame > attacks:
+ 
+ * Add the new methods addToHistory in order to keep the MRZ
+   in history once used in attacks frame
+   
+
+ePassportViewer > mvc:
+
+ * Improve add/load/save history methods in order to update
+   MRZ added from the attacks frame.
+   
+
+pypassport > epassport,
+pypassport > attacks > macTraceability,
+pypassport > attacks > bruteForce,
+pypassport > attacks > errorFingerprinting,
+pypassport > attacks > signEverything,
+pypassport > attacks > aaTraceability:
+
+ * Reset the connection before each communication in order to
+   avoid 'Security status not satisfied' issues.
+
+
+From 2.0 to 2.0.1
 ==================
 
 pypassport > attacks > bruteForce > BruteForce > offlineExploit:
