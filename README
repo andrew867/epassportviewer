@@ -50,5 +50,6 @@ ePassportViewer
                                 "sudo apt-get install python-imaging-tk"
  * Run ePassportViewer:         "cd ePassportViewer-2.0"
                                 "python ePassportViewer.py"
+                                or 'click and run'
 
 

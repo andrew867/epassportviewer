@@ -460,7 +460,7 @@ class BruteForce(Logger):
         rnd_icc = os.urandom(8)
         cmd_data = self._authentication(rnd_icc, kenc, kmac)
         
-        return (binToHexRep(rnd_icc), binToHexRep(cmd_data))
+        return binToHexRep(cmd_data)
     
 
 
@@ -535,7 +535,7 @@ class BruteForce(Logger):
     #        OFFLINE        #
     #########################
 
-    def exploitOffline(self, nonce, response):
+    def exploitOffline(self, response):
         """
         An offline brute force attack takes a nonce and a response.
         Get an encrypted message + mac based on the response
@@ -580,11 +580,8 @@ class BruteForce(Logger):
                     kmac = self._keyDerivation(kseed, BruteForce.KMAC)
                     
                     if  mac_bin == mac(kmac, pad(message_bin)):
-                        tdes= DES3.new(kenc,DES.MODE_CBC)
-                        new_reponse = binToHexRep(tdes.decrypt(message_bin))
-                        if nonce == new_reponse[16:32]:
-                            found = mrz
-                            self.log("\tFound!")
+                        found = mrz
+                        self.log("\tFound!")
 
                     if cur_exp == max_exp:
                         break

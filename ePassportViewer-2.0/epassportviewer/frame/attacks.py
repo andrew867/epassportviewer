@@ -46,8 +46,14 @@ class AttacksFrame(Frame):
         self.mrz = mrz
 
          # MENU
-        menuFrame = Frame(self, borderwidth=1)
+        menuFrame = Frame(self, borderwidth=1, relief=GROOVE)
         menuFrame.pack(fill=BOTH, expand=1)
+        
+        nbLabel = Label(menuFrame, text="Reader #:", justify=LEFT)
+        nbLabel.pack(side=LEFT, padx=5, pady=5)
+        
+        self.nbForm = Entry(menuFrame, width=2)
+        self.nbForm.pack(side=LEFT)
         
         macTraceabilityButton = Button(menuFrame, text="MAC Traceability", command=self.switchMac)
         macTraceabilityButton.pack(side=LEFT, padx=5, pady=5)
@@ -59,32 +65,25 @@ class AttacksFrame(Frame):
         activeAuthenticationButton.pack(side=LEFT, padx=5, pady=5)
         
         errorFingerprintingButton = Button(menuFrame, text="Error Fingerprinting", command=self.switchError)
-        errorFingerprintingButton.pack(side=LEFT, padx=5, pady=5)
-        
-        # CONFIG
-        configFrame = Frame(self, borderwidth=1)
-        configFrame.pack(fill=BOTH, expand=1)
-        
-        nbLabel = Label(configFrame, text="Reader #:", justify=LEFT)
-        nbLabel.pack(side=LEFT, padx=5, pady=5)
-        
-        self.nbForm = Entry(configFrame, width=2)
-        self.nbForm.pack(side=LEFT)
-        
-        self.frenchVar = IntVar()
-        frenchCheck = Checkbutton(configFrame, text="French passport", variable=self.frenchVar)
-        frenchCheck.pack(side=LEFT, padx=20, pady=5)
-        
-        helpconfig = Button(configFrame, image=image, command=self.helpConfigDialog)
-        helpconfig.image = image
-        helpconfig.pack(side=RIGHT, padx=5, pady=5)
-        
+        errorFingerprintingButton.pack(side=LEFT, padx=5, pady=5) 
         
         
         ######################
         ## MAC TRACEABILITY ##
 
-        self.macTraceabilityFrame = Frame(self, borderwidth=1, relief=RIDGE)
+        self.macTraceabilityFrame = Frame(self, borderwidth=1, relief=GROOVE)
+
+        # REACH MAX
+        reachMaxFrame = Frame(self.macTraceabilityFrame)
+        reachMaxFrame.pack(fill=BOTH, expand=1)
+        
+        self.frenchVar = IntVar()
+        reachMaxCheck = Checkbutton(reachMaxFrame, text="Reach max", variable=self.frenchVar)
+        reachMaxCheck.pack(side=LEFT, padx=5, pady=5)
+        
+        helpReachMax = Button(reachMaxFrame, image=image, command=self.helpReachMaxDialog)
+        helpReachMax.image = image
+        helpReachMax.pack(side=RIGHT, padx=5, pady=5)
         
         # IS VULNERABLE?
         vulnFrame = Frame(self.macTraceabilityFrame)
@@ -197,9 +196,9 @@ class AttacksFrame(Frame):
         #################
         ## BRUTE FORCE ##
 
-        self.bruteForceFrame = Frame(self, borderwidth=1, relief=RIDGE)
+        self.bruteForceFrame = Frame(self, borderwidth=1, relief=GROOVE)
         
-        self.nonce = self.response = self.initInfoLabel = None
+        self.response = self.initInfoLabel = None
         
         
         # DOCUMENT NUMBER
@@ -250,11 +249,11 @@ class AttacksFrame(Frame):
         helpDOB.image = image
         helpDOB.pack(side=RIGHT, padx=5, pady=5)
         
-        # DATE OF ISSUE
+        # DATE OF EXPIRY
         doiFrame = Frame(self.bruteForceFrame)
         doiFrame.pack(fill=BOTH, expand=1)
         
-        doeLabel = Label(doiFrame, text="DATE OF ISSUE", width=16, justify=LEFT)
+        doeLabel = Label(doiFrame, text="DATE OF EXPIRY", width=16, justify=LEFT)
         doeLabel.pack(side=LEFT, padx=5, pady=5)
         
         minDOELabel = Label(doiFrame, text="Min:", justify=LEFT)
@@ -271,9 +270,9 @@ class AttacksFrame(Frame):
         self.maxDOEForm.pack(side=LEFT, pady=5)
         self.maxDOEForm.insert(0, "YYYY/MM/DD")
         
-        helpDOI = Button(doiFrame, image=image, command=self.helpDOIDialog)
-        helpDOI.image = image
-        helpDOI.pack(side=RIGHT, padx=5, pady=5)
+        helpDOE = Button(doiFrame, image=image, command=self.helpDOEDialog)
+        helpDOE.image = image
+        helpDOE.pack(side=RIGHT, padx=5, pady=5)
         
         # CHECK
         checkDataFrame = Frame(self.bruteForceFrame)
@@ -355,7 +354,7 @@ class AttacksFrame(Frame):
         ###########################
         ## ACTIVE AUTHENTICATION ##
 
-        self.activeAuthenticationFrame = Frame(self, borderwidth=1, relief=RIDGE)
+        self.activeAuthenticationFrame = Frame(self, borderwidth=1, relief=GROOVE)
 
         
         # IS VULNERABLE?
@@ -365,7 +364,7 @@ class AttacksFrame(Frame):
         vulnerableAAButton = Button(vulnAAFrame, text="Is vulnerable?", width=13, command=self.isVulnerableAA)
         vulnerableAAButton.pack(side=LEFT, padx=5, pady=5)
         
-        helpVulnAA = Button(vulnAAFrame, image=image, command=None)
+        helpVulnAA = Button(vulnAAFrame, image=image, command=self.helpVulnAADialog)
         helpVulnAA.image = image
         helpVulnAA.pack(side=RIGHT, padx=5, pady=5)
         
@@ -382,7 +381,7 @@ class AttacksFrame(Frame):
         self.maxHighestForm = Entry(getHighestFrame, width=3)
         self.maxHighestForm.pack(side=LEFT, pady=5)
         
-        helpGetHighest = Button(getHighestFrame, image=image, command=None)
+        helpGetHighest = Button(getHighestFrame, image=image, command=self.helpGetHighestDialog)
         helpGetHighest.image = image
         helpGetHighest.pack(side=RIGHT, padx=5, pady=5)
         
@@ -393,7 +392,7 @@ class AttacksFrame(Frame):
         getModuloButton = Button(getModuloFrame, text="Get modulo", width=13, command=self.getModulo)
         getModuloButton.pack(side=LEFT, padx=5, pady=5)
         
-        helpGetModulo = Button(getModuloFrame, image=image, command=None)
+        helpGetModulo = Button(getModuloFrame, image=image, command=self.helpGetModuloDialog)
         helpGetModulo.image = image
         helpGetModulo.pack(side=RIGHT, padx=5, pady=5)
         
@@ -418,7 +417,7 @@ class AttacksFrame(Frame):
         self.accCompareForm = Entry(compareFrame, width=2)
         self.accCompareForm.pack(side=LEFT, pady=5)
         
-        helpCompare = Button(compareFrame, image=image, command=None)
+        helpCompare = Button(compareFrame, image=image, command=self.helpCompareDialog)
         helpCompare.image = image
         helpCompare.pack(side=RIGHT, padx=5, pady=5)
         
@@ -437,7 +436,7 @@ class AttacksFrame(Frame):
         self.signMatchForm.pack(side=LEFT, padx=5, pady=5)
         self.signMatchForm.insert(0, "Signature")
         
-        helpMatch = Button(matchFrame, image=image, command=None)
+        helpMatch = Button(matchFrame, image=image, command=self.helpMatchDialog)
         helpMatch.image = image
         helpMatch.pack(side=RIGHT, padx=5, pady=5)
         
@@ -456,7 +455,7 @@ class AttacksFrame(Frame):
         moduloRadioButton = Radiobutton(saveSignFrame, text="Modulo", variable=self.typeSign, value=2)
         moduloRadioButton.pack(side=LEFT, padx=5, pady=5)
         
-        helpSaveSign = Button(saveSignFrame, image=image, command=None)
+        helpSaveSign = Button(saveSignFrame, image=image, command=self.helpSaveSignDialog)
         helpSaveSign.image = image
         helpSaveSign.pack(side=RIGHT, padx=5, pady=5)
         
@@ -477,7 +476,7 @@ class AttacksFrame(Frame):
         self.accFileForm = Entry(checkSignFrame, width=3)
         self.accFileForm.pack(side=LEFT, padx=5, pady=5)
         
-        helpCheckSign = Button(checkSignFrame, image=image, command=None)
+        helpCheckSign = Button(checkSignFrame, image=image, command=self.helpCheckSignDialog)
         helpCheckSign.image = image
         helpCheckSign.pack(side=RIGHT, padx=5, pady=5)
         
@@ -492,7 +491,7 @@ class AttacksFrame(Frame):
         self.nonceToSignForm.pack(side=LEFT, pady=5)
         self.nonceToSignForm.insert(0, "Nonce to sign...")
         
-        helpSignEverything = Button(signEverythingFrame, image=image, command=None)
+        helpSignEverything = Button(signEverythingFrame, image=image, command=self.helpSignEverythingDialog)
         helpSignEverything.image = image
         helpSignEverything.pack(side=RIGHT, padx=5, pady=5)
         
@@ -517,7 +516,7 @@ class AttacksFrame(Frame):
         ##########################
         ## ERROR FINGERPRINTING ##
 
-        self.errorFingerprintingFrame = Frame(self, borderwidth=1, relief=RIDGE)
+        self.errorFingerprintingFrame = Frame(self, borderwidth=1, relief=GROOVE)
 
         
         # APDU
@@ -579,7 +578,7 @@ class AttacksFrame(Frame):
         sendCustomButton = Button(sendCustomFrame, text="Send custom APDU", width=13, command=self.sendCustom)
         sendCustomButton.pack(side=LEFT, padx=5, pady=5)
         
-        helpSendCustom = Button(sendCustomFrame, image=image, command=None)
+        helpSendCustom = Button(sendCustomFrame, image=image, command=self.helpSendCustomDialog)
         helpSendCustom.image = image
         helpSendCustom.pack(side=RIGHT, padx=5, pady=5)
         
@@ -602,7 +601,7 @@ class AttacksFrame(Frame):
         self.yearForm = Entry(addErrorFrame, width=4)
         self.yearForm.pack(side=LEFT, pady=5)
         
-        helpAddError = Button(addErrorFrame, image=image, command=None)
+        helpAddError = Button(addErrorFrame, image=image, command=self.helpAddErrorDialog)
         helpAddError.image = image
         helpAddError.pack(side=RIGHT, padx=5, pady=5)
         
@@ -613,7 +612,7 @@ class AttacksFrame(Frame):
         identifyButton = Button(identifyFrame, text="Identify", width=13, command=self.identify)
         identifyButton.pack(side=LEFT, padx=5, pady=5)
         
-        helpIdentify = Button(identifyFrame, image=image, command=None)
+        helpIdentify = Button(identifyFrame, image=image, command=self.helpIdentifyDialog)
         helpIdentify.image = image
         helpIdentify.pack(side=RIGHT, padx=5, pady=5)
         
@@ -870,7 +869,7 @@ class AttacksFrame(Frame):
         try:
             if self.mrz.get():
                 bf = self.initData()
-                (self.nonce, self.response) = bf.initOffline(self.mrz.get())
+                self.response = bf.initOffline(self.mrz.get())
                 self.writeToLogBF("Nonce and response/MAC from {0} loaded".format(self.mrz.get()[0:9]))
             else:
                 tkMessageBox.showerror("Error: MRZ", "You have to set the proper MRZ")
@@ -900,7 +899,7 @@ class AttacksFrame(Frame):
             bf = self.initData()
             chk, err = bf.check()
             if chk:
-                found = bf.exploitOffline(self.nonce, self.response)
+                found = bf.exploitOffline(self.response)
                 if found:
                     self.writeToLogBF("MRZ found: {0}".format(found))
                 else:
@@ -1121,6 +1120,9 @@ class AttacksFrame(Frame):
     # HELP DIALOGS #
     ################
     
+    # MAC TRACEABILITY
+    ##################
+    
     def helpVulnDialog(self):
         title = "is vulnerable?"
         text = "Check whether a passport is vulnerable:\n\
@@ -1207,85 +1209,197 @@ Please note that the French passport will most likely output a false positive be
 @return: A boolean True whenever the initial passport is on the reader"
         InfoBoxWindows(self, title, text)
         
-    def helpConfigDialog(self):
+    def helpReachMaxDialog(self):
         title = "configuration"
         text = "Reader #: (optional) The number of the reader.\n\
 For instance, the Omnikey 5321 use the reader number 1 for the RFID communication\n\
 \n\
-French passport: French passport implement an anti brute-force\n\
+Reach max: French passport implement an anti brute-force\n\
 This means anytime a BAC fail, a delay increment before the passport responce.\n\
 The MAC traceability is based on the reponse time. Therefore it is impotrant to\n\
-reach the maximum delay. By selecting 'French passport', the application will run\n\
+reach the maximum delay. By selecting 'Reach max', the application will run\n\
 14 wrong BAC.\n\
-Note: If 'French passport' is selected, you will reach a delay of about 15s per\n\
+Note: If 'Reach max' is selected, you will reach a delay of about 15s per\n\
 BAC query"
         InfoBoxWindows(self, title, text)
     
     
-    #############
     # BRUTE FORCE
     #############
     
     def helpDocDialog(self):
         title = "Document Number"
-        text = "The document number is print on your passport.\n\
+        text = "The document number is print on the passport.\n\
 It is composed of 8 to 9 chars. Each chars are either a digit (0-9) either a capital letter (A-Z)\n\
 The document number is the 8 or 9 first chars of the MRZ. \n\
-can "
+\n\
+MIN:\n\
+ * If min is empty, it is set to 00000000\n\
+ * If min is set and the max is empty, the brute force will check for the min set only\n\
+\n\
+MAX:\n\
+ * If min and max are empty, max is set to ZZZZZZZZZ\n\
+ * If min and max are set, the brute force will check from min to max"
         InfoBoxWindows(self, title, text)
 
     def helpDOBDialog(self):
-        title = "Document Number"
-        text = "The document number is print on your passport.\n\
-It is composed of 8 to 9 chars. Each chars are either a digit (0-9) either a capital letter (A-Z)\n\
-The document number is the 8 or 9 first chars of the MRZ. \n\
-can "
+        title = "Date of birth"
+        text = "Date of birth of the passport's holder is print on the passport.\n\
+It is composed of 6 digits (on the passport): YY MM DD where YY is the two last digits of the year,\n\
+MM is the month and DD is the day (e.g. May the 4th 2012 is written 12 05 04)\n\
+The date of birth is the 14th-19th chars in the MRZ\n\
+\n\
+MIN:\n\
+ * If min is left YYYY/MM/DD, it is set to the date of today - 100 years\n\
+ * If min is set and the max is empty, the brute force will check for the date set only\n\
+\n\
+MAX:\n\
+ * If min and max are empty, max is set to the date of today\n\
+ * If min and max are set, the brute force will check from min to max"
         InfoBoxWindows(self, title, text)
 
-    def helpDOIDialog(self):
-        title = "Document Number"
-        text = "The document number is print on your passport.\n\
-It is composed of 8 to 9 chars. Each chars are either a digit (0-9) either a capital letter (A-Z)\n\
-The document number is the 8 or 9 first chars of the MRZ. \n\
-can "
+    def helpDOEDialog(self):
+        title = "Date of expiry"
+        text = "Date of expiry of the passport is print on the passport.\n\
+It is composed of 6 digits (on the passport): YY MM DD where YY is the two last digits of the year,\n\
+MM is the month and DD is the day (e.g. May the 4th 2012 is written 12 05 04)\n\
+The date of expiry is the 22th-27th chars in the MRZ\n\
+\n\
+MIN:\n\
+ * If min is left YYYY/MM/DD, it is set to the date of today - 10 years\n\
+ * If min is set and the max is empty, the brute force will check for the date set only\n\
+\n\
+MAX:\n\
+ * If min and max are empty, max is set to the date of today\n\
+ * If min and max are set, the brute force will check from min to max"
         InfoBoxWindows(self, title, text)
 
     def helpCheckDialog(self):
-        title = "Document Number"
-        text = "The document number is print on your passport.\n\
-It is composed of 8 to 9 chars. Each chars are either a digit (0-9) either a capital letter (A-Z)\n\
-The document number is the 8 or 9 first chars of the MRZ. \n\
-can "
+        title = "Check"
+        text = "Set and check if all input (e.i. document #, DOB and DOE)\nare correct value."
         InfoBoxWindows(self, title, text)
 
     def helpStatsDialog(self):
-        title = "Document Number"
-        text = "The document number is print on your passport.\n\
-It is composed of 8 to 9 chars. Each chars are either a digit (0-9) either a capital letter (A-Z)\n\
-The document number is the 8 or 9 first chars of the MRZ. \n\
-can "
+        title = "Get stats"
+        text = "Set the data and compute the maximum number of possiblities"
         InfoBoxWindows(self, title, text)
 
     def helpInitDialog(self):
-        title = "Document Number"
-        text = "The document number is print on your passport.\n\
-It is composed of 8 to 9 chars. Each chars are either a digit (0-9) either a capital letter (A-Z)\n\
-The document number is the 8 or 9 first chars of the MRZ. \n\
-can "
+        title = "Generate ANS/MAC"
+        text = "Live brute forcing attakcs takes time because the attack is limited to\n\
+the passport and its communication but it is possible for an attacker to perform an offline attack.\n\
+During a VALID external authentication (BAC), the passport send a message together with its MAC.\n\
+If an attacker capture the message (from a valid authentication), it is possible to perform an\n\
+offline brute forcing attack by guessing the KSmac that will match the MAC.\n\
+This function generate the message + MAC of a legitmate external authentication an attacker could\n\
+capture."
         InfoBoxWindows(self, title, text)
 
     def helpLiveDialog(self):
-        title = "Document Number"
-        text = "The document number is print on your passport.\n\
-It is composed of 8 to 9 chars. Each chars are either a digit (0-9) either a capital letter (A-Z)\n\
-The document number is the 8 or 9 first chars of the MRZ. \n\
-can "
+        title = "Live brute force"
+        text = "Live brute force uses the range set for the document #, the DOB and the DOE\n\
+and attemp a BAC with every possibilities until the process succeed.\n\
+Couple of passport (such as the belgian one) 'block' the passport after a wrong external\n\
+external authentication (i.e. any external authentication even correct will raise an error).\n\
+This means with those passports, a reset is needed after each attempt.\n\
+\n\
+With reset: 9.7 attempts/s (with omnikey 5321)\n\
+Without reset: 44.6 attempts/s (with omnikey 5321)"
         InfoBoxWindows(self, title, text)
 
     def helpOfflineDialog(self):
-        title = "Document Number"
-        text = "The document number is print on your passport.\n\
-It is composed of 8 to 9 chars. Each chars are either a digit (0-9) either a capital letter (A-Z)\n\
-The document number is the 8 or 9 first chars of the MRZ. \n\
-can "
+        title = "Offline brute force"
+        text = "Offline brute force uses the ANS/MAC generated in order to guess the KSmac\n\
+that will match the MAC. Offline brute forcing attack is way more faster than the live attack.\n\
+\n\
+About 2404 attempts/s (with omnikey 5321)"
         InfoBoxWindows(self, title, text)
+    
+    
+    # ACTIVE AUTHENTICATION
+    #######################
+
+    def helpVulnAADialog(self):
+        title = "Is vulnerable?"
+        text = "The active authentication vulnerabilities are exploitable only if AA can\n\
+occurs before the BAC. This method perfom an internal authentication without performing\n\
+a BAC. If the passport raised no error, it means the passport might be vulnerable."
+        InfoBoxWindows(self, title, text)
+
+    def helpGetHighestDialog(self):
+        title = "Get highest signature"
+        text = "The method ask 100 times (default) for the signature of a 8 byte number\n\
+and it keeps the highest signature."
+        InfoBoxWindows(self, title, text)
+
+    def helpGetModuloDialog(self):
+        title = "Get modulo"
+        text = "Once authenticate (with a BAC), the method ask for the DG15 (public key).\n\
+The modulo is extracted from the key."
+        InfoBoxWindows(self, title, text)
+
+    def helpCompareDialog(self):
+        title = "Compare"
+        text = "In an authentication with RSA algorythm the message is sign with the\n\
+private key (private exposant, common modulo). The signature can't be higher than the\n\
+modulo. The compare method takes two 'highest signature' or one 'highest signature' and a\n\
+modulo compare the difference in pourcent. Low difference means a close/same modulo.\n\
+\n\
+Accuracy an integer that tells how many digit to compare (6 by default)"
+        InfoBoxWindows(self, title, text)
+
+    def helpMatchDialog(self): 
+        title = "Match?"
+        text = "In an authentication with RSA algorythm the message is sign with the\n\
+private key (private exposant, common modulo). The signature can't be higher than the\n\
+modulo. Therefore if the signature is higher than the modulo, the passport that generated\n\
+the signature is DEFINITLY not the same than the one that generate the modulo.\n\
+This method compare a signature and a modulo and check that if the signature MIGHT belong\n\
+to the same passport that generated the modulo."
+        InfoBoxWindows(self, title, text)
+
+    def helpSaveSignDialog(self):
+        title = "Save signature/modulo"
+        text = "This methods help to save signatures and modulos for futur tests."
+        InfoBoxWindows(self, title, text)
+
+    def helpCheckSignDialog(self):
+        title = "Check from file"
+        text = "Compare a signature with a modulo or a signature store in a file with the\n\
+method save.\n\
+If accuracy is set, the method works like 'Compare' if accuracy is empty, it works like the\n\
+method 'Match?'"
+        InfoBoxWindows(self, title, text)
+
+    def helpSignEverythingDialog(self):
+        title = "Sign everything"
+        text = "The method send a message to the passport and ask to sign it.\n\
+Each passport tested so far require a 8 bytes to sign"
+        InfoBoxWindows(self, title, text)
+    
+    
+    # ERROR FINGERPRINTING
+    ######################
+
+    def helpSendCustomDialog(self):
+        title = "Send custom APDU"
+        text = "Send to the passport the APDU set in the form above and print the reponse."
+        InfoBoxWindows(self, title, text)
+
+    def helpAddErrorDialog(self):
+        title = "Add error"
+        text = "Errors are structured and store in a dictionnaire in order to identify a\n\
+passport based on the errors it raises.\n\
+To be the most accurate, the method expect a country (e.g. BEL, FRA, GER) and the date\n\
+of issue. "
+        InfoBoxWindows(self, title, text)
+
+    def helpIdentifyDialog(self):
+        title = "Identify"
+        text = "Since the ICAO didn't standardize the error message regarding APDU, it\n\
+possible to identify group of passport. Based on the dictionnaire created with the\n\
+method 'Add error' and the response of the APDU set, this method will list all \n\
+possibilities the passport MIGHT belong to."
+        InfoBoxWindows(self, title, text)
+
+

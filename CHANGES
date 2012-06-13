@@ -1,0 +1,42 @@
+
+===============================
+            CHANGES
+===============================
+
+
+From 2.0 to 20.0.1
+==================
+
+pypassport > attacks > bruteForce > BruteForce > offlineExploit:
+
+ * The offline brute force attack also checked if the the message
+   decrypted match the nonce sent. Since it is not necessary and
+   it is time consuming, the second verification has been
+   removed.
+
+
+pypassport > attacks > bruteForce > BruteForce > initOffline:
+
+ * Since the nonce is not required anymore in the offline attack,
+   the method return the message only.
+
+
+ePassportViewer > ePassportViewer:
+
+ * The file is now executable.
+
+
+ePassportViewer > frame > custom:
+
+ * Binary function 'AND', 'OR' and 'NOT' removed since they are 
+   not used.
+
+
+ePassportViewer > frame > attacks:
+
+ * Add help dialogs for 'attacks' frame.
+
+ * The 'Reader #' is now in the menu. The 'French passport' check
+   box is named 'Reach max'.
+ 
+ * Change the frame style of attacks in order to unify the style.

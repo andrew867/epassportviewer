@@ -94,38 +94,25 @@ class CustomFrame(Frame):
 
         sha1EncryptionButton = Button(buttonToolsFrame, text="SHA-1", width=10, command=self.sha1Hash)
         sha1EncryptionButton.grid(row=1, column=3, padx=5, pady=5)
-        
-        # BINARY
-        binaryLabel = Label(buttonToolsFrame, text="Binary:", justify=LEFT)
-        binaryLabel.grid(row=2, column=0, padx=5, pady=5, sticky=W)
 
         xorButton = Button(buttonToolsFrame, text="XOR", width=10, command=self.xor)
-        xorButton.grid(row=2, column=1, padx=5, pady=5)
-        
-        orButton = Button(buttonToolsFrame, text="OR", width=10, command=None)
-        orButton.grid(row=2, column=2, padx=5, pady=5)
-        
-        andButton = Button(buttonToolsFrame, text="AND", width=10, command=None)
-        andButton.grid(row=2, column=3, padx=5, pady=5)
-        
-        notButton = Button(buttonToolsFrame, text="NOT", width=10, command=None)
-        notButton.grid(row=2, column=4, padx=5, pady=5)
+        xorButton.grid(row=1, column=4, padx=5, pady=5)
         
         # FUNCTIONS
         functionsLabel = Label(buttonToolsFrame, text="Functions:", justify=LEFT)
-        functionsLabel.grid(row=3, column=0, padx=5, pady=5, sticky=W)
+        functionsLabel.grid(row=2, column=0, padx=5, pady=5, sticky=W)
 
         createMACButton = Button(buttonToolsFrame, text="Create MAC", width=10, command=self.createMAC)
-        createMACButton.grid(row=3, column=1, padx=5, pady=5)
+        createMACButton.grid(row=2, column=1, padx=5, pady=5)
         
         keyDerivationButton = Button(buttonToolsFrame, text="Key  derivation", width=10, command=self.keyDerivation)
-        keyDerivationButton.grid(row=3, column=2, padx=5, pady=5)
+        keyDerivationButton.grid(row=2, column=2, padx=5, pady=5)
         
         sscGeneratorButton = Button(buttonToolsFrame, text="SSC generator", width=10, command=self.sscGenerator)
-        sscGeneratorButton.grid(row=3, column=3, padx=5, pady=5)\
+        sscGeneratorButton.grid(row=2, column=3, padx=5, pady=5)\
         
         readHeaderButton = Button(buttonToolsFrame, text="Read header", width=10, command=self.readHeader)
-        readHeaderButton.grid(row=3, column=4, padx=5, pady=5)
+        readHeaderButton.grid(row=2, column=4, padx=5, pady=5)
 
         
         # FIELDS
