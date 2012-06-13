@@ -1,4 +1,4 @@
-# Copyright 2009 Jean-Francois Houzard, Olivier Roger
+# Copyright 2012 Antonin Beaujeant
 #
 # This file is part of pypassport.
 #
@@ -16,26 +16,37 @@
 # License along with pyPassport.
 # If not, see <http://www.gnu.org/licenses/>.
 
-from setuptools import setup, find_packages
+import os
+from setuptools import setup
+
+def read(fname):
+    return open(os.path.join(os.path.dirname(__file__),'pypassport', fname)).read()
+
+
 setup(
-    name = "pypassport",
-    version = "1.0",
+    name='pypassport',
+    version='2.0',
     description='Python Biometric Passport API',
-    author='Jean-Francois Houzard & Olivier Roger',
-    author_email='jhouzard@gmail.com & folkenda@gmail.com',
+    author='Jean-Francois Houzard, Olivier Roger and Antonin Beaujeant',
+    author_email='jhouzard@gmail.com, folkenda@gmail.com and antonin.beaujeant@uclouvain.be',
     url='http://code.google.com/p/pypassport/downloads/list',
-    packages = find_packages(),
-    
-
-    # Project uses reStructuredText, so ensure that the docutils get
-    # installed or upgraded on the target machine
-    install_requires = ['setuptools', 'pyCrypto', 'pyasn1', 'pyscard', 'PIL'],
-
-    package_data = {'': ['*.py'],
-                    'pypassport': ['README', 'LICENSE'],
-                    },
-
-    # metadata for upload to PyPI
-    license = "LGPL",
-    keywords = "mrtd passport pypassport",
-)
+    packages=['pypassport'],
+    long_description=read('README'),
+    classifiers=[
+      "License :: OSI Approved :: GNU Lesser General Public License (LGPL)",
+      "Programming Language :: Python",
+      "Development Status :: 4 - Beta",
+      "Intended Audience :: Developers",
+      "Topic :: RFID",
+    ],
+    keywords='mrtd passport pypassport',
+    license='LGPL',
+    install_requires=[
+        'setuptools', 
+        'pyCrypto',
+        'pyasn1',
+        'pyscard', 
+        'PIL'
+    ],
+    zip_safe = False
+      )

@@ -192,6 +192,7 @@ class EPassport(dict, logger.Logger):
     def setCSCADirectory(self, value, hash=False):
         self._CSCADirectory = camanager.CAManager(value)
         if hash:
+            self.log("Document Signer Certificate hash creation")
             self._CSCADirectory.toHashes()
         
     def getCommunicationLayer(self):
@@ -273,7 +274,7 @@ class EPassport(dict, logger.Logger):
             res = msg
             raise openssl.OpenSSLException(msg)
         finally:
-            self.log("Passive Authentication: " + str(res))
+            self.log("Document Signer Certificate verification: " + str(res))
         
     def doVerifyDGIntegrity(self, dgs=None):
         """  
@@ -302,7 +303,7 @@ class EPassport(dict, logger.Logger):
         except Exception, msg:
         	res = msg
         finally:
-            self.log("Passive Authentication: " + str(res))
+            self.log("Data Groups integrity verification: " + str(res))
             
     
     def readSod(self):
@@ -388,7 +389,7 @@ class EPassport(dict, logger.Logger):
             except KeyError:
                 raise datagroup.DataGroupException("The data group '" + str(tag) + "' does not exist")
             except Exception, msg:
-                print msg
+                self.log(msg)
         else:
             return super(EPassport, self).__getitem__(tag)
     
@@ -434,18 +435,18 @@ class EPassport(dict, logger.Logger):
         @return: A list of binary string
         @rtype: A list
         """
+        tmp = []
         try:
             dg7 = self["DG7"]
-            tmp = []
             
             for tag in ["5F43"]:
                 if dg7.has_key(tag):
                     for x in dg7[tag]:
                         tmp.append(x)
                         
-            return tmp
         except Exception:
-            return None
+            pass
+        return tmp
             
     def getFaces(self):
         """
@@ -455,15 +456,16 @@ class EPassport(dict, logger.Logger):
         """
         dg2 = self["DG2"]
         tmp = []
-        
-        cpt=1
-        for A in dg2:
-            if A == "A" + str(cpt):
-                cpt += 1
-                for tag in ["5F2E", "7F2E"]:
-                    if dg2[A].has_key(tag):
-                        tmp.append(dg2[A][tag])
-            
+        try:
+            cpt=1
+            for A in dg2:
+                if A == "A" + str(cpt):
+                    cpt += 1
+                    for tag in ["5F2E", "7F2E"]:
+                        if dg2[A].has_key(tag):
+                            tmp.append(dg2[A][tag])
+        except:
+            pass
                 
         return tmp    
     
@@ -513,7 +515,7 @@ class EPassport(dict, logger.Logger):
             dgd.dumpData(face, "face" + str(cpt) + ".jpg")
             cpt += 1
         
-        dgd.dumpData(self.getPublicKey(), "DG15PubKey.key")
+        dgd.dumpData(self.getPublicKey(), "DG15PubKey.pk")
         dgd.dumpData(self.getCertificate(), "DocumentSigner.cer")
         
     def _logFct(self, name, msg):

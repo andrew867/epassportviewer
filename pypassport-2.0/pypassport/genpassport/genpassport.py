@@ -24,9 +24,9 @@ import time
 #Activate the trace log
 TRACE = True
 #Store dump on disk
-DUMP = True
+DUMP = False
 #Install the applet in the JCOP
-INSTALL_APPLET = False
+INSTALL_APPLET = True
 #Send dump to JCOP
 JCOP = True #An ePassport emulator applet must be installer on the JCOP
 #create a new set of certitificates
@@ -46,7 +46,7 @@ def trace(name, str):
 CSCA = pki.DistinguishedName(
     C="BE", 
     O="UCL", 
-    CN="CSCA_certif"
+    CN="CSCA-HOUZARD"
 )
 CSCA_KEY_SIZE = 1024
 CSCA_VALIDITY_PERIOD = 720
@@ -55,7 +55,7 @@ CSCA_VALIDITY_PERIOD = 720
 DS = pki.DistinguishedName(
     C="BE", 
     O="UCL", 
-    CN="DS_certif"
+    CN="Document_Signer_ROGER"
 )
 DS_KEY_SIZE = 1024
 DS_VALIDITY_PERIOD = 365
@@ -63,7 +63,7 @@ DS_VALIDITY_PERIOD = 365
 #Set the passport information
 ISSUER = "BEL"                        #3 chars
 NAME = "Smith"
-FIRST_NAME = "John"#39 chars for both n and fn
+SURNAME = "John"#39 chars for both n and fn
 NATIONALITY = "BEL"                   #3 chars
 SEX = "M"                             #1 char
 PASSPORT_NUM = "EH123456"             #9 chars
@@ -74,7 +74,7 @@ ISSUE_DATA = "11072009"                 #6 chars
 IMAGE_PATH = "C:/jf.jpg"
 SIGNATURE_PATH = "C:/jfSignature.jpg"
 BIRTH_PLACE = "Huy"
-AUTHORITY = "Modave"  
+AUTHORITY = "MODAVE"  
 
 o = openssl.OpenSSL()
 o.register(trace)        
@@ -127,7 +127,7 @@ if JCOP:
 #Generate the fake passport, and saves it   
 epc = epassportcreation.EPassportCreator(ds, dsKey, r)
 epc.register(trace)
-epc.create(ISSUER, NAME, FIRST_NAME, NATIONALITY, SEX, PASSPORT_NUM, BIRTH_DATE, EXPIRY_DATE, IMAGE_PATH, SIGNATURE_PATH, BIRTH_PLACE, AUTHORITY, ISSUE_DATA)
+epc.create(ISSUER, NAME, SURNAME, NATIONALITY, SEX, PASSPORT_NUM, BIRTH_DATE, EXPIRY_DATE, IMAGE_PATH, SIGNATURE_PATH, BIRTH_PLACE, AUTHORITY, ISSUE_DATA)
 
 
 if DUMP:

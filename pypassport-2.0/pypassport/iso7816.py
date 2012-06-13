@@ -84,7 +84,38 @@ class Iso7816(Logger):
         Logger.__init__(self, "ISO7816")
         self._reader = reader
         self._ciphering = False
-
+    
+    # MODIFICATION 5/15/2012 par ANTONIN BEAUJEANT #
+    def rstConnection(self):
+        rn = self._reader.readerNum
+        try:
+            self._reader.disconnect()
+            self._reader.connect(rn)
+            self.selectFile("04", "0C", "A0000002471001")
+        except Exception:
+            raise Iso7816Exception("An error occur while reseting the connection")
+    
+    def getTypeReader(self):
+        return type(self._reader)
+    
+    def transmitRaw(self, toSend):
+        try:
+            if self._ciphering: toSend = self._ciphering.protect(toSend)
+            res = self._reader.transmit(toSend)
+            if self._ciphering: res = self._ciphering.unprotect(res)
+            return res
+        except KeyError, k:
+            raise Iso7816Exception("Unknown error", res.sw1, res.sw2)
+    
+    def rstConnectionRaw(self):
+        rn = self._reader.readerNum
+        try:
+            self._reader.disconnect()
+            self._reader.connect(rn)
+        except Exception:
+            raise Iso7816Exception("An error occur while reseting the connection")
+    ################################################
+    
     def transmit(self, toSend, logMsg):
         """
         @param toSend: The command to transmit.

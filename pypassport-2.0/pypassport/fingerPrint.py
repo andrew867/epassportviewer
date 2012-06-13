@@ -54,6 +54,8 @@ class FingerPrint(object):
         res["certSerialNumber"] = None
         res["certFingerPrint"] = None
         res["UID"] = None
+        res["DGs"] = {}
+        res["ReadingTime"] = None
         
         try:
             res["UID"] = self.getUID()
@@ -105,6 +107,11 @@ class FingerPrint(object):
                 res["generation"] = 3
             else:
                 res["generation"] = 2
+            
+            try:
+                self._doc["DG7"]
+            except:
+                res["generation"] = 4
                 
         res["DGs"] = self.calculateDGSize()
         

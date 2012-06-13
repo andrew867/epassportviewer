@@ -193,6 +193,8 @@ class SecureMessaging(Ciphering):
             data = unpad(tdes.decrypt(do87Data))
             self.log("Decrypt data of DO'87 with KSenc")
             self.log("\tDecryptedData: " + binToHexRep(data))
+            
+        self.log("Unprotected APDU: [" + binToHexRep(data) + "] " + binToHexRep(sw1) + " " + binToHexRep(sw2))
         return ResponseAPDU(data, binToHex(sw1), binToHex(sw2))
         
     def _maskClassAndPad(self, apdu):

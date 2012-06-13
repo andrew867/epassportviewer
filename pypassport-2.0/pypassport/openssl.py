@@ -155,6 +155,8 @@ class OpenSSL(Logger):
         """
         return self._execute("genrsa " + str(size))
     
+
+    
     def genRootX509(self, cscaKey, validity="",  distinguishedName=None):
         """
         Generate a x509 self-signed certificate in PEM format
@@ -277,6 +279,26 @@ class OpenSSL(Logger):
             return self._execute("x509 -in pem -outform DER")
         finally:
             self._remFromDisk("pem")
+            
+    def prRSAToDERPb(self, prKey):
+        """ 
+        Retrieve the corresponding DER encoded public key fron the given a RSA private key
+        """
+        try:
+            self._toDisk("dg15", prKey)
+            return self._execute("rsa -pubout -in dg15 -outform der")
+        finally:
+            self._remFromDisk("dg15")
+            
+    def RSAKeyToText(self, key):
+        """ 
+        COnvert a key to its text format
+        """
+        try:
+            self._toDisk("key", key)
+            return self._execute("rsa -text -in key")
+        finally:
+            self._remFromDisk("key")
             
     def crlToDER(self, crl):
         try:

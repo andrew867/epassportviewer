@@ -70,9 +70,9 @@ class DataGroup1Creation(Creation):
     def __init__(self):
         self._dgc = DataGroupFileCreation(converter.toTAG("DG1"))
         
-    def create(self, type, issuer, name, firstname, nat, sex, passportID, birthDate, expiryDate):
+    def create(self, type, issuer, name, surname, nat, sex, passportID, birthDate, expiryDate):
         m = mrz.MRZ(None)
-        forgedMRZ = m.buildMRZ(type, issuer, name, firstname, nat, sex, passportID, self._convertDate(birthDate), self._convertDate(expiryDate))
+        forgedMRZ = m.buildMRZ(type, issuer, name, surname, nat, sex, passportID, self._convertDate(birthDate), self._convertDate(expiryDate))
         
         self._dgc.addDataObject("5F1F", forgedMRZ)
         
@@ -141,14 +141,14 @@ class DataGroup12Creation(Creation):
     def create(self, authority, issueDate):
         self._dgc.addDataObject("5C", hexRepToBin("5F195F26"))
         self._dgc.addDataObject("5F19", authority)
-        self._dgc.addDataObject("5F26", self._convertDate(issueDate)) # YYYYMMDD
+        self._dgc.addDataObject("5F26", self._convertDate(issueDate)) # DDMMYYYY => YYYYMMDD
         
         return DataGroup12(self._dgc).parse()
         
     def _convertDate(self, date):
         if len(date) != 8:
             raise Exception("The date length is wrong")
-        return date[6:8] + date[4:6] + date[0:4]
+        return date[4:8] + date[2:4] + date[0:2]
         
 class SODCreation(Creation):
     def __init__(self):

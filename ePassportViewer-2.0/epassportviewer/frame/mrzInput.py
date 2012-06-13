@@ -39,20 +39,26 @@ class mrzInputFrame(Frame):
     def createLayout(self):
         row = 0
         Label(self, text="MRZ").pack(side=LEFT, fill=BOTH, padx=2, pady=2)
-        self.mrzEntry = Entry(self, width=50, textvariable=self.mrz)
+        self.mrzEntry = Entry(self, width=48, textvariable=self.mrz)
         self.mrzEntry.pack(side=LEFT, fill=X, expand=True, padx=2, pady=2)
         self.mrzEntry.focus_set()
         
-        self.readButton = Button(self, text="Read", command=self.read, state=NORMAL)
+        self.readButton = Button(self, text="Viewer", command=self.read, state=NORMAL)
         self.readButton.pack(side=LEFT, fill=BOTH, padx=2, pady=2)
         
-        self.fingerprintButton = Button(self, text="Fingerprint", command=self.fingerprint, state=NORMAL)
-        self.fingerprintButton.pack(side=LEFT, fill=BOTH, padx=2, pady=2)        
+        self.attacksButton = Button(self, text="Attacks", command=None, state=NORMAL)
+        self.attacksButton.pack(side=LEFT, fill=BOTH, padx=2, pady=2)
         
-        self.historyButton = Menubutton(self, text="History", relief=RAISED)
-        self.historyButton.pack(side=LEFT, fill=BOTH, padx=2, pady=2)
-        self.historyButton.menu = Menu(self.historyButton, tearoff=0, postcommand=self.refreshHistory)
-        self.historyButton.config(menu=self.historyButton.menu)
+        self.customButton = Button(self, text="Custom", command=None, state=NORMAL)
+        self.customButton.pack(side=LEFT, fill=BOTH, padx=2, pady=2)
+        
+        #self.fingerprintButton = Button(self, text="Fingerprint", command=self.fingerprint, state=NORMAL)
+        #self.fingerprintButton.pack(side=LEFT, fill=BOTH, padx=2, pady=2)        
+        
+        #self.historyButton = Menubutton(self, text="History", relief=RAISED)
+        #self.historyButton.pack(side=LEFT, fill=BOTH, padx=2, pady=2)
+        #self.historyButton.menu = Menu(self.historyButton, tearoff=0, postcommand=self.refreshHistory)
+        #self.historyButton.config(menu=self.historyButton.menu)
         
         self.update()
     
@@ -60,7 +66,7 @@ class mrzInputFrame(Frame):
         self.mrzEntry.bind("<Return>", self.process)
         
     def clean(self):
-#        self.mrz.set("")
+#       self.mrz.set("")
         self.setColor('white')
         
     def setMRZ(self, mrz):
