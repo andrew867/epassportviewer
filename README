@@ -48,6 +48,7 @@ ePassportViewer
 
  * Install tkinter:             "sudo apt-get install python-tk"
                                 "sudo apt-get install python-imaging-tk"
+ * Install libjpeg62            "sudo apt-get install libjpeg62"
  * Run ePassportViewer:         "cd ePassportViewer-2.0"
                                 "python ePassportViewer.py"
                                 or 'click and run'

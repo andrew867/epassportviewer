@@ -44,3 +44,29 @@ def getItemByTag(dic, *tags):
         else: return None
         
     return getItem(value)
+
+    
+def getItemRaw(dic, *tags):
+    value = dic
+    for tag in tags:
+        if value.has_key(tag):
+            value = value[tag]
+        else: return None
+        
+    try:
+        if len(value) > 50:
+            value = split_len(value, 50)
+        value = replace(value,"<","&lt;")
+    except Exception, msg:
+        return ""
+        
+    return str(value)
+
+
+def split_len(seq, length):
+    list_str = list()
+    for i in range(0, len(seq), length):
+        list_str.append(seq[i:i+length])
+    return ' '.join(list_str)
+        
+

@@ -4,19 +4,76 @@
 ===============================
 
 
+From 2.0.2 to 2.0.3
+===================
+
+pyPassport > iso7816
+
+ * Modify rstConnection: set ciphering to False when reseting.
+   Prevent unexpected encryption after reset.
+
+
+ePassportViewer:
+
+ * Add geojasper.
+
+
+pyPassport > jp2converter:
+ 
+ * Modification for geojasper location. Still clumsy and might
+   raise error, but it maked things work with ePassportViewer.
+
+
+ePassportViewer > dialog:
+
+ * Modify startReading: Handle reading problem because of EAC
+   security.
+   
+ * Create an dictionnary that append all DG in order to optimize
+   the read of the ePassport for export functions.
+   
+ePassportViewer > frame > security:
+
+ * Set Active Authentication text in orange if DG15 can't be
+   read.
+
+
+pypassport > doc9303 > tagconverter:
+
+ * Create a new dictionnary to provide more info whenever a DG
+   cannot be read because of EAC for instance.
+   
+
+ePassportViewer > mvc:
+
+ * Change menu File ("Save...", "Save as...").
+ 
+ * Improve exports methods (exprotToPDF and exportToXML) making
+   more clear the path handling and optimizing the process.
+
+
+ePassportViewer > util > inOut:
+
+ * Change function toPDF to provide more info
+
+ePassportViewer > util > helper:
+
+ * Add new function to output raw dump of the passport
+   
+
 From 2.0.1 to 2.0.2
 ==================
 
-pypassport > setup.py
+pyPassport > setup.py
 
  * The install didn't browse the sub directory. Now setup.py
-   uses find_packages()
+   uses find_packages().
    
    
 ePassportViewer > frame > attacks:
  
  * Add the new methods addToHistory in order to keep the MRZ
-   in history once used in attacks frame
+   in history once used in attacks frame.
    
 
 ePassportViewer > mvc:
@@ -25,12 +82,12 @@ ePassportViewer > mvc:
    MRZ added from the attacks frame.
    
 
-pypassport > epassport,
-pypassport > attacks > macTraceability,
-pypassport > attacks > bruteForce,
-pypassport > attacks > errorFingerprinting,
-pypassport > attacks > signEverything,
-pypassport > attacks > aaTraceability:
+pyPassport > epassport,
+pyPassport > attacks > macTraceability,
+pyPassport > attacks > bruteForce,
+pyPassport > attacks > errorFingerprinting,
+pyPassport > attacks > signEverything,
+pyPassport > attacks > aaTraceability:
 
  * Reset the connection before each communication in order to
    avoid 'Security status not satisfied' issues.
@@ -39,7 +96,7 @@ pypassport > attacks > aaTraceability:
 From 2.0 to 2.0.1
 ==================
 
-pypassport > attacks > bruteForce > BruteForce > offlineExploit:
+pyPassport > attacks > bruteForce > BruteForce > offlineExploit:
 
  * The offline brute force attack also checked if the the message
    decrypted match the nonce sent. Since it is not necessary and
@@ -47,7 +104,7 @@ pypassport > attacks > bruteForce > BruteForce > offlineExploit:
    removed.
 
 
-pypassport > attacks > bruteForce > BruteForce > initOffline:
+pyPassport > attacks > bruteForce > BruteForce > initOffline:
 
  * Since the nonce is not required anymore in the offline attack,
    the method return the message only.

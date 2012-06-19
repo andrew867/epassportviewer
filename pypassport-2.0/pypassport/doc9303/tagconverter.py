@@ -17,9 +17,27 @@
 # If not, see <http://www.gnu.org/licenses/>.
 
 # DOC9303-2 pg III-38
+tagLDSToName = {
+             "60" : "Common data elements",
+             "61" : "Template for MRZ data group",
+             "63" : "Template for Finger biometric data group",
+             "65" : "Template for digitized facial image",
+             "67" : "Template for digitized Signature or usual mark",
+             "68" : "Template for Machine Assisted Security - Encoded Data",
+             "69" : "Template for Machine Assisted Security - Structure",
+             "6A" : "Template for Machine Assisted Security - Substance",
+             "6B" : "Template for Additional Personal Details",
+             "6C" : "Template for Additional Document Details",
+             "6D" : "Optional details",
+             "6E" : "Reserved for future use",
+             "70" : "Person to Notify",
+             "75" : "Template for facial biometric data group",
+             "76" : "Template for Iris (eye) biometric template",
+             "77" : "EF.SOD (EF for security data)"
+}
 
 tagToName = {
-#tagLDSToName = {
+
              "02" : "Integer",
              "5C" : "Tag list",
              
@@ -141,7 +159,7 @@ tagToName = {
              "BD" : "Repeating template, 13 occurrence Biometric header",
              "BE" : "Repeating template, 14 occurrence Biometric header",
              "BF" : "Repeating template, 15 occurrence Biometric header",
-#             }
+
 
 # DOC9303-2 pg III-40
 #tagMRZtoName = {

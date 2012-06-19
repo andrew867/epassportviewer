@@ -56,6 +56,7 @@ class View(Frame):
         self.parent = parent
         self.controller = controller
         self._doc = None
+        self.t = None
 
         self.mrz = StringVar()
         self.stop = BooleanVar()
@@ -132,8 +133,11 @@ class View(Frame):
         ####################
         fileMenu = Menu(menu, tearoff=0)        
         fileMenu.add_command(label="Open", underline=0, command=self.load)
-        fileMenu.add_command(label="Save", underline=0, command=self.save)
-        fileMenu.add_command(label="Export", underline=0, command=self.export)
+        fileMenu.add_command(label="Save...", underline=0, command=self.save)
+        saveAs = Menu(fileMenu, tearoff=0)
+        saveAs.add_command(label="PDF...", underline=0, command=self.exportToPDF)
+        saveAs.add_command(label="XML...", underline=0, command=self.exportToXML)                
+        fileMenu.add_cascade(label="Generate report", underline=0, menu=saveAs)
         fileMenu.add_command(label="Clear", underline=0, command=self.clear)
         fileMenu.add_separator()
         fileMenu.add_command(label="Quit", underline=0, command=self.exit)
@@ -435,32 +439,41 @@ class View(Frame):
             @return: None 
         """
         if self._doc == None:
-            tkMessageBox.showerror("Nothing to save", "Please open a document before saving")
+            tkMessageBox.showinfo("Nothing to save", "Please open a document before saving")
             return
         
-        dir = configManager.configManager().getOption('Options', 'path')
-        if dir == '' or not os.path.isdir(dir):
-            self.setPath(configManager.configManager().getVariable('Options', 'path'), self.pathMenu)
-            dir = configManager.configManager().getOption('Options', 'path')
-            
-        self._doc.dump(dir)
-        tkMessageBox.showinfo("Save successful", "Data have been saved in " + dir)
+        directory = askdirectory(title="Select directory", mustexist=1)
+        if directory:
+            directory = str(directory)
+            self._doc.dump(directory)
+            tkMessageBox.showinfo("Save successful", "Data have been saved in " + directory)
         
-    def export(self):
-        if self._doc == None:
-            tkMessageBox.showerror("Nothing to save", "Please open a document before saving")
+    
+    def exportToXML(self):
+        if self.t == None:
+            tkMessageBox.showinfo("Nothing to save", "Please open a document before saving")
             return
         
-        dir = configManager.configManager().getOption('Options', 'path')
-        if dir == '' or not os.path.isdir(dir):
-            self.setPath(configManager.configManager().getVariable('Options', 'path'), self.pathMenu)
-            dir = configManager.configManager().getOption('Options', 'path')
+        directory = askdirectory(title="Select directory", mustexist=1)
+        if directory:
+            directory = str(directory)
+            name, mrz = self.extractOwnerInfo(self._doc['DG1'])
+            inOut.toXML(self.t.ep, directory+os.path.sep+name+".xml")           
+            tkMessageBox.showinfo("Export successful", "Data have been exported in " + directory)
         
-        name, mrz = self.extractOwnerInfo(self._doc['DG1'])
-        inOut.toPDF(self._doc, dir+os.path.sep+name+".pdf")            
-        inOut.toXML(self._doc, dir+os.path.sep+name+".xml")
-                
-        tkMessageBox.showinfo("Export successful", "Data have been exported in " + dir)
+    
+    def exportToPDF(self):
+        if self.t == None:
+            tkMessageBox.showinfo("Nothing to save", "Please open a document before saving")
+            return
+        
+        directory = askdirectory(title="Select directory", mustexist=1)
+        if directory:
+            directory = str(directory)
+            name, mrz = self.extractOwnerInfo(self._doc['DG1'])
+            inOut.toPDF(self.t.ep, directory+os.path.sep+name+".pdf")            
+            tkMessageBox.showinfo("Export successful", "Data have been exported in " + directory)
+
 
     def website(self):
         import webbrowser

@@ -56,6 +56,8 @@ class securityFrame(Frame):
                 self.AA.configure(fg='green')
             elif AA == "NO_OPENSSL":
                 self.AA.configure(fg='orange')
+            elif AA == "NO_DG_15":
+                self.AA.configure(fg='orange')
             elif AA == False:
                 self.AA.configure(fg='red')
                     
