@@ -91,6 +91,7 @@ class Iso7816(Logger):
         try:
             self._reader.disconnect()
             self._reader.connect(rn)
+            self.setCiphering()
             self.selectFile("04", "0C", "A0000002471001")
         except Exception:
             raise Iso7816Exception("An error occur while reseting the connection")
@@ -112,6 +113,7 @@ class Iso7816(Logger):
         try:
             self._reader.disconnect()
             self._reader.connect(rn)
+            self.setCiphering()
         except Exception:
             raise Iso7816Exception("An error occur while reseting the connection")
     ################################################
@@ -186,6 +188,10 @@ class Iso7816(Logger):
     def getChallenge(self):
         toSend = apdu.CommandAPDU("00", "84", "00", "00", "", "", "08")
         return self.transmit(toSend, "Get Challenge")
+        
+    def getUID(self):
+        toSend = apdu.CommandAPDU("FF", "CA", "00", "00", "", "", "00")
+        return self.transmit(toSend, "Get UID")
     
     def internalAuthentication(self, rnd_ifd):
         data = binToHexRep(rnd_ifd)

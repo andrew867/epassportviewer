@@ -154,9 +154,9 @@ class View(Frame):
         ####################
         #       MORE       #
         ####################
-        self.moreMenu = moreMenu = Menu(menu, tearoff=0, postcommand=self.refreshMore)
-        menu.add_cascade(label="More", underline=0, menu=moreMenu)
-
+        self.moreMenu = Menu(menu, tearoff=0, postcommand=self.refreshMore)
+        menu.add_cascade(label="More", underline=0, menu=self.moreMenu)
+        
 
         ####################
         #     CONFIGURE    #
@@ -230,11 +230,10 @@ class View(Frame):
     def refreshMore(self):
         moreMenu = self.moreMenu
         moreMenu.delete(0,END)
-        if self.t.ep: state=NORMAL
-        else: state=DISABLED
         
-        
-        moreMenu.add_command(label="Additional data", underline=0, command=self.AdditionalData, state=state)
+        moreMenu.add_command(label="Additional data", underline=0, command=self.AdditionalData)
+        moreMenu.add_command(label="Fingerprint", underline=0, command=self.fingerprint)
+    
     
     def refreshReaders(self):        
         self.readerMenu.delete(0, END)
@@ -363,17 +362,17 @@ class View(Frame):
                 tkMessageBox.showerror("Reader", "Please verify data source:\n" + str(msg[0]))            
             
     def AdditionalData(self, event=None):
-        if self.t.ep:
+        try:
             dialog.AdditionalData(self, self.t.ep)
-        else:
+        except Exception:
             tkMessageBox.showinfo("No document open", "Please open a document before.")
                 
     def Fingerprint(self, event=None):
-#       if self._doc:
-        fp = pypassport.fingerPrint.FingerPrint(self._doc)
-        dialog.FingerPrintDialog(self, fp.analyse())
-#       else:
-#           tkMessageBox.showinfo("No document open", "Please read a document before performing fingerprint")            
+        try:
+            fp = pypassport.fingerPrint.FingerPrint(self._doc)
+            dialog.FingerPrintDialog(self, fp.analyse())
+        except Exception, msg:
+            tkMessageBox.showinfo("No document open", msg)            
             
     def clear(self, event=None):
         
@@ -514,10 +513,16 @@ class View(Frame):
         return mrz
         
     def fingerprint(self, event=None):
-        mrz = self.mrz.get()
-        self.correctMRZ(mrz)
-        mrz = self.checkMRZ()
-        self.gotMRZ(mrz, True)
+        try:
+            mrz = self.mrz.get()
+            self.correctMRZ(mrz)
+            mrz = self.checkMRZ()
+            self.gotMRZ(mrz, True)
+            
+        except epassport.mrz.MRZException, msg:
+            if DEBUG: print msg
+            else: tkMessageBox.showerror("Read Error", msg) 
+            self.setColor('red')
     
     def process(self):
         try:

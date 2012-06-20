@@ -852,15 +852,38 @@ class AdditionalData(Toplevel):
         self.destroy()
         
 class FingerPrintDialog(Toplevel):
+    
     def __init__(self, master, data):
         Toplevel.__init__(self, master)
         self.title("Fingerprint")
         self.transient(master)
         self.grab_set()
         
-        txt = self.formatData(data)
+        self.txt = ""
+        self.txt += "Unique ID: " + data["UID"] + "\n"
+        self.txt += "Answer-To-Reset: " + data["ATR"] + "\n"
+        self.txt += "Generation: " + str(data["generation"]) + "\n"
+        self.txt += "Data Groups size: " + data["DGs"] + "\n"
+        self.txt += "Reading time: " + str(data["ReadingTime"]) + "\n"
+        self.txt += "\n"
+        self.txt += "\n"
+        self.txt += "SECURITY\n"
+        self.txt += "\n"
+        self.txt += "   Active Authentication without BAC: " + str(data["activeAuthWithoutBac"]) + "\n"
+        self.txt += "   Basic Access Control: " + data["bac"] + "\n"
+        self.txt += "   Active Authentication: " + data["activeAuth"] + "\n"
+        self.txt += "\n"
+        self.txt += "\n"
+        self.txt += "CERTIFICATES/SIGNATURES\n"
+        self.txt += "\n"
+        self.txt += "Certificate Serial Number: " + data["certSerialNumber"] + "\n"
+        self.txt += "Certificate Fingerprint: " + data["certFingerPrint"] + "\n"
+        self.txt += "\n"
+        self.txt += "Document Signer " + data["DSCertificate"] + "\n"
+        self.txt += "\n"
+        self.txt += data["pubKey"] + "\n"
         
-        log = ScrollFrame(self, txt)
+        log = ScrollFrame(self, self.txt)
         log.pack(side=TOP, fill=BOTH, expand=True)
         
         saveButton = Button(self, text="Save")
@@ -870,19 +893,6 @@ class FingerPrintDialog(Toplevel):
         okButton = Button(self, text="OK")
         okButton.pack(side=RIGHT, ipadx=10)
         okButton.bind("<Button-1>", self.clickOK)
-        
-    def formatData(self, data):
-        self.txt = ""
-        def recTraversal(dic, level):
-            for key in dic:
-                if type(dic[key]) == type({}):
-                    self.txt += key + ":\n" 
-                    recTraversal(dic[key], level+1)
-                else:
-                    self.txt += " > " * level + key + ": " + str(dic[key]) + "\n"
-            
-        recTraversal(data, 0)
-        return self.txt
 
     def save(self, event):
         from tkFileDialog import asksaveasfilename

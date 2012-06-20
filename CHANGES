@@ -4,7 +4,7 @@
 ===============================
 
 
-From 2.0.3 to 2.0.4a
+From 2.0.3 to 2.0.4b
 ===================
 
 ePassportViewer > frame > custom:
@@ -20,7 +20,19 @@ ePassportViewer > frame > attacks:
 pyPassport > attacks > *:
 
  * Fixing clumsy output
+ 
 
+pyPassport > Iso7816,
+ePassportViewer > frame > custom:
+
+ * Add method to get UID
+
+
+pyPassport > fingerprint,
+ePassportViewer > mvc,
+ePassportViewer > dialog:
+
+ * Improving the fingerprint method.
 
 From 2.0.2 to 2.0.3
 ===================

@@ -28,6 +28,10 @@ import os
 class EPassportException(Exception):
     def __init__(self, *params):
         Exception.__init__(self, *params)
+    
+class dgException(Exception):
+    def __init__(self, *params):
+        Exception.__init__(self, *params)
 
 class EPassport(dict, logger.Logger):
     """ 

@@ -166,6 +166,9 @@ class CustomFrame(Frame):
         
         getchallengeButton = Button(menuRequestsFrame, text="Get challenge", width=13, command=self.setGetChallenge)
         getchallengeButton.grid(row=2, column=1, padx=5, pady=5)
+        
+        getUIDButton = Button(menuRequestsFrame, text="Get UID", width=13, command=self.setGetUID)
+        getUIDButton.grid(row=2, column=2, padx=5, pady=5)
 
         
         # APDU
@@ -509,6 +512,9 @@ class CustomFrame(Frame):
     
     def setGetChallenge(self):
         self.setRequest(ins="84", le="08")
+    
+    def setGetUID(self):
+        self.setRequest(cla="FF", ins="CA")
     
     def setReadBinary(self):
         self.setRequest(ins="B0")

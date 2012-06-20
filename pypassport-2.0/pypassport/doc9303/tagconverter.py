@@ -17,6 +17,8 @@
 # If not, see <http://www.gnu.org/licenses/>.
 
 # DOC9303-2 pg III-38
+
+
 tagLDSToName = {
              "60" : "Common data elements",
              "61" : "Template for MRZ data group",
@@ -37,7 +39,7 @@ tagLDSToName = {
 }
 
 tagToName = {
-
+#tagLDSToName = {
              "02" : "Integer",
              "5C" : "Tag list",
              
@@ -159,7 +161,7 @@ tagToName = {
              "BD" : "Repeating template, 13 occurrence Biometric header",
              "BE" : "Repeating template, 14 occurrence Biometric header",
              "BF" : "Repeating template, 15 occurrence Biometric header",
-
+#             }
 
 # DOC9303-2 pg III-40
 #tagMRZtoName = {

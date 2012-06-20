@@ -23,6 +23,10 @@ from pypassport.hexfunctions import *
 from pypassport.doc9303.converter import *
 from pypassport.apdu import CommandAPDU
 
+from smartcard.CardType import AnyCardType
+from smartcard.CardRequest import CardRequest
+from smartcard.util import toHexString
+
 class FingerPrint(object):
     
     def __init__(self, epassport):
@@ -35,6 +39,8 @@ class FingerPrint(object):
         self._DSCertificate = False
         self._gen = None
         self._certInfo = None
+        
+        self._comm.rstConnection()
 
     def getCertInfo(self):
         return self._certInfo
@@ -46,62 +52,75 @@ class FingerPrint(object):
         res = {}
         
         res["activeAuthWithoutBac"] = False
-        res["bac"] = False
+        res["bac"] = "Failed"
         res["DSCertificate"] = False
         res["pubKey"] = False
-        res["activeAuth"] = False
+        res["activeAuth"] = "Failed"
         res["generation"] = 0
         res["certSerialNumber"] = None
         res["certFingerPrint"] = None
+        res["ATR"] = None
         res["UID"] = None
-        res["DGs"] = {}
+        res["DGs"] = "Cannot calculate the DG size"
         res["ReadingTime"] = None
         
         try:
-            res["UID"] = self.getUID()
+            res["UID"] = binToHexRep(self._comm.getUID())
         except Exception, msg:
-            #TODO: Handle error ? Reader don't accept command?
+            pass
+        
+        try:
+            res["ATR"] = self.getATR()
+        except Exception, msg:
             pass
         
         res["activeAuthWithoutBac"] = self.checkInternalAuth()
-                
+        self._comm.rstConnection()
+            
         #Check if the secure-messaging is set.
-        sod = self._doc["SecurityData"]
-        if self._doc._isSecureMessaging:
-            res["bac"] = True
+        try:        
+            sod = self._doc["SecurityData"]
+            if self._comm._ciphering:
+                res["bac"] = "Done"
+        except Exception:
+            self._comm.rstConnection()
+            
+        #Check if there is a certificate 
+        try:
+            certif = self._doc.getCertificate()
+            if certif:
+                res["DSCertificate"] = self._doc.getCertificate()
+                
+                f = open("tmp.cer", "w")
+                f.write(certif)
+                f.close()
+                
+                f = os.popen("openssl x509 -in tmp.cer -noout -serial")
+                res["certSerialNumber"] = f.read().strip()
+                f.close()
+                
+                f = os.popen("openssl x509 -in tmp.cer -noout -fingerprint")
+                res["certFingerPrint"] = f.read().strip()
+                f.close()
+                
+                os.remove("tmp.cer")
+        except Exception:
+            self._comm.rstConnection() 
+                
         
-        #Check if there is a certificate            
-        certif = self._doc.getCertificate()
-        if certif:
-            res["DSCertificate"] = self._doc.getCertificate()
-            
-            f = open("tmp.cer", "w")
-            f.write(certif)
-            f.close()
-            
-            f = os.popen("openssl x509 -in tmp.cer -noout -serial")
-            res["certSerialNumber"] = f.read().strip()
-            f.close()
-            
-            f = os.popen("openssl x509 -in tmp.cer -noout -fingerprint")
-            res["certFingerPrint"] = f.read().strip()
-            f.close()
-            
-            os.remove("tmp.cer")
-            
         #Check if there is a pubKey and the AA
         try:
+            self._comm.rstConnection()
             if self._doc.getPublicKey():
                 res["pubKey"] = self._doc.getPublicKey()
             if self._doc.doActiveAuthentication():
-                res["activeAuth"] = True
-            
-        except Exception:
+                res["activeAuth"] = "Done"
+        except Exception, msg:
             pass
-        
+
         if not res["bac"]:
             res["generation"] = 1
-            
+        
         if res["activeAuth"]:
             if res["activeAuthWithoutBac"]:
                 res["generation"] = 3
@@ -112,16 +131,26 @@ class FingerPrint(object):
                 self._doc["DG7"]
             except:
                 res["generation"] = 4
-                
-        res["DGs"] = self.calculateDGSize()
-        
-        res["ReadingTime"] = self.calculateReadingTime()
-        
+                    
+        try:
+            res["DGs"] = self.calculateDGSize()
+        except Exception:
+            self._comm.rstConnection()
+            
+        try:
+            res["ReadingTime"] = self.calculateReadingTime()
+        except Exception, msg:
+            pass 
+            
         return res
     
-    def getUID(self):
-        r = self._doc._iso7816
-        return binToHexRep(r.getUID())
+    def getATR(self):
+        cardtype = AnyCardType()
+        cardrequest = CardRequest(timeout=1, cardType=cardtype)
+        cardservice = cardrequest.waitforcard()
+        
+        cardservice.connection.connect()
+        return toHexString(cardservice.connection.getATR())
         
     
     def calculateDGSize(self):
@@ -136,8 +165,7 @@ class FingerPrint(object):
         try:
             self._comm.internalAuthentication(rnd_ifd)
             return True
-        except Exception, msg:
-            print msg
+        except Exception:
             return False
         
     def calculateReadingTime(self):
