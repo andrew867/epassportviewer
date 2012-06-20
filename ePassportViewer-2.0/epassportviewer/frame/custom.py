@@ -31,6 +31,10 @@ from pypassport.iso7816 import Iso7816, Iso7816Exception
 from pypassport.doc9303 import bac, mrz, securemessaging
 from epassportviewer.util.image import ImageFactory
 
+from smartcard.CardType import AnyCardType
+from smartcard.CardRequest import CardRequest
+from smartcard.util import toHexString
+
 
 ###################
 #     CUSTOM      #
@@ -68,6 +72,9 @@ class CustomFrame(Frame):
         
         genBACKeysButton = Button(self.automaticFrame, text="Generate BAC keys", width=13, command=self.genBACKeys)
         genBACKeysButton.grid(row=1, column=3, padx=5, pady=5)
+        
+        getATRButton = Button(self.automaticFrame, text="Get ATR", width=6, command=self.getATR)
+        getATRButton.grid(row=1, column=4, padx=5, pady=5)
 
     
         ###########
@@ -555,6 +562,20 @@ class CustomFrame(Frame):
             self.writeToLog("CIPHERING SET:\n{0}".format(sm))    
         except Exception, msg:
             tkMessageBox.showerror("Error: Set ciphering", str(msg))
+
+    def getATR(self):
+        cardtype = AnyCardType()
+        cardrequest = CardRequest(timeout=1, cardType=cardtype)
+        cardservice = cardrequest.waitforcard()
+        
+        cardservice.connection.connect()
+        atr = toHexString(cardservice.connection.getATR())
+        self.writeToLog("ATR: {0}".format(atr))
+        
+        self.field1Form.delete(0, END)
+        self.field2Form.delete(0, END)
+        self.field1Form.insert(0, atr)
+        
 
 
 

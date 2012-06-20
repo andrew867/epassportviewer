@@ -150,7 +150,6 @@ class ErrorFingerprinting(Logger):
         """
 
         cur_query = cla + ins + p1 + p2 + lc + data + le
-        self.log("Send APDU: {0}:{1}:{2}:{3}:{4}:{5}:{6}".format(cla, ins, p1, p2, lc, data, le))
         (valide, err) = self.sendCustom(cla, ins, p1, p2, lc, data, le)
         if valide==True:
             raise ErrorFingerprintingException("Not possible to identify the passport since the query is correct")

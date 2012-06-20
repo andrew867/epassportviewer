@@ -842,6 +842,8 @@ class AdditionalData(Toplevel):
             
         self.okButton.bind('<Button-1>', self.clickOk)
         self.files.bind('<<ListboxSelect>>', self.onSelectDG)
+        
+        self.data.load(self.doc[toTAG("DG1")])
             
     def onSelectDG(self, event=None):
         self.data.load(self.doc[toTAG(self.files.get(event.widget.curselection()))])

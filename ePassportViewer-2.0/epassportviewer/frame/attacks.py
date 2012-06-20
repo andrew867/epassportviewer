@@ -557,13 +557,13 @@ class AttacksFrame(Frame):
         customLCLabel = Label(apduFrame, text="LC:", justify=LEFT)
         customLCLabel.pack(side=LEFT, padx=5, pady=5)
         
-        self.customLCForm = Entry(apduFrame, width=2)
+        self.customLCForm = Entry(apduFrame, width=3)
         self.customLCForm.pack(side=LEFT, pady=5)
         
         customDATALabel = Label(apduFrame, text="DATA:", justify=LEFT)
         customDATALabel.pack(side=LEFT, padx=5, pady=5)
         
-        self.customDATAForm = Entry(apduFrame, width=2)
+        self.customDATAForm = Entry(apduFrame, width=8)
         self.customDATAForm.pack(side=LEFT, pady=5)
         
         customLELabel = Label(apduFrame, text="LE:", justify=LEFT)
@@ -630,8 +630,9 @@ class AttacksFrame(Frame):
         verboseErrorFrame.pack(fill=BOTH, expand=1)
 
         self.verboseErrorVar = IntVar()
-        verboseErrorCheck = Checkbutton(verboseErrorFrame, text="Verbose", variable=self.verboseAAVar)
-
+        verboseErrorCheck = Checkbutton(verboseErrorFrame, text="Verbose", variable=self.verboseErrorVar)
+        verboseErrorCheck.pack(side=LEFT, padx=5, pady=5)
+        
 
         # PACK
         self.currentFrame = self.macTraceabilityFrame
@@ -647,22 +648,26 @@ class AttacksFrame(Frame):
     # METHODS
     #########
     
-    def writeToLogMAC(self, msg):
+    def writeToLogMAC(self, msg, desc=None):
         self.logMAC['state'] = 'normal'
-        self.logMAC.insert('1.0', "{0}\n".format(msg))
+        if desc: self.logMAC.insert('1.0', "{0} > {1}\n".format(msg, desc))
+        else: self.logMAC.insert('1.0', "{0}\n".format(msg))
         self.logMAC['state'] = 'disabled'
     
-    def writeToLogBF(self, msg):
+    def writeToLogBF(self, msg, desc=None):
         self.logBrute['state'] = 'normal'
-        self.logBrute.insert('1.0', "{0}\n".format(msg))
+        if desc: self.logBrute.insert('1.0', "{0} > {1}\n".format(msg, desc))
+        else: self.logBrute.insert('1.0', "{0}\n".format(msg))
         self.logBrute['state'] = 'disabled'
     
-    def writeToLogAA(self, msg):
-        self.logAA.insert('1.0', "{0}\n".format(msg))
+    def writeToLogAA(self, msg, desc=None):
+        if desc: self.logAA.insert('1.0', "{0} > {1}\n".format(msg, desc))
+        else: self.logAA.insert('1.0', "{0}\n".format(msg))
     
-    def writeToLogERR(self, msg):
+    def writeToLogERR(self, msg, desc=None):
         self.logError['state'] = 'normal'
-        self.logError.insert('1.0', "{0}\n".format(msg))
+        if desc: self.logError.insert('1.0', "{0} > {1}\n".format(msg, desc))
+        else: self.logError.insert('1.0', "{0}\n".format(msg))
         self.logError['state'] = 'disabled'
     
     def switchMac(self):
@@ -723,6 +728,8 @@ class AttacksFrame(Frame):
 
             r = reader.ReaderManager().waitForCard(5, "PcscReader", self.getReader())
             attack = macTraceability.MacTraceability(Iso7816(r))
+            if self.verboseMACVar.get():
+                attack.register(self.writeToLogMAC)
             if attack.setMRZ(self.mrz.get()):
                 self.addToHistory(self.mrz.get())
                 if self.frenchVar.get(): attack.reachMaxDelay()
@@ -747,6 +754,8 @@ class AttacksFrame(Frame):
 
                     r = reader.ReaderManager().waitForCard(5, "PcscReader", self.getReader())
                     attack = macTraceability.MacTraceability(Iso7816(r))
+                    if self.verboseMACVar.get():
+                        attack.register(self.writeToLogMAC)
                     if attack.setMRZ(self.mrz.get()):
                         self.addToHistory(self.mrz.get())
                         attack.savePair(directory)
@@ -770,6 +779,8 @@ class AttacksFrame(Frame):
                     else: co = 1.7
                     r = reader.ReaderManager().waitForCard(5, "PcscReader", self.getReader())
                     attack = macTraceability.MacTraceability(Iso7816(r))
+                    if self.verboseMACVar.get():
+                        attack.register(self.writeToLogMAC)
                     if self.frenchVar.get(): attack.reachMaxDelay()
                     self.writeToLogMAC("Does the pair belongs the the passport scanned: {0}".format(attack.checkFromFile(directory, co)))
                 else:
@@ -783,6 +794,8 @@ class AttacksFrame(Frame):
 
             r = reader.ReaderManager().waitForCard(5, "PcscReader", self.getReader())
             attack = macTraceability.MacTraceability(Iso7816(r))
+            if self.verboseMACVar.get():
+                attack.register(self.writeToLogMAC)
             if attack.setMRZ(self.mrz.get()):
                 if self.untilForm.get(): until = int(self.untilForm.get())
                 else: until = 20
@@ -805,6 +818,8 @@ class AttacksFrame(Frame):
         try:
             r = reader.ReaderManager().waitForCard(5, "PcscReader", self.getReader())
             attack = macTraceability.MacTraceability(Iso7816(r))
+            if self.verboseMACVar.get():
+                attack.register(self.writeToLogMAC)
             if attack.setMRZ(self.mrz.get()):
                 attack.rstBAC()
                 self.writeToLogMAC("BAC reset")
@@ -818,6 +833,8 @@ class AttacksFrame(Frame):
         try:
             r = reader.ReaderManager().waitForCard(5, "PcscReader", self.getReader())
             attack = macTraceability.MacTraceability(Iso7816(r))
+            if self.verboseMACVar.get():
+                attack.register(self.writeToLogMAC)
             if attack.setMRZ(self.mrz.get()):
                 tkMessageBox.showinfo("Passport scanned", "Press ok then remove your passport from the reader.\nWait 5s before testing if a passport match.")
                 if attack.demo():
@@ -837,6 +854,8 @@ class AttacksFrame(Frame):
         try:
             r = reader.ReaderManager().waitForCard(5, "PcscReader", self.getReader())
             bf = bruteForce.BruteForce(Iso7816(r))
+            if self.verboseBruteVar.get():
+                bf.register(self.writeToLogBF)
 
             if self.minDocForm.get() == '': minDoc = None
             else: minDoc = self.minDocForm.get()
@@ -947,6 +966,8 @@ class AttacksFrame(Frame):
         try:
             r = reader.ReaderManager().waitForCard(5, "PcscReader", self.getReader())
             attack = aaTraceability.AATraceability(Iso7816(r))
+            if self.verboseAAVar.get():
+                attack.register(self.writeToLogAA)
             self.writeToLogAA("Is vulnerable? : {0}".format(attack.isVulnerable()))
         except Exception, msg:
             tkMessageBox.showerror("Error: Is vulnerable", str(msg))
@@ -959,6 +980,8 @@ class AttacksFrame(Frame):
 
             r = reader.ReaderManager().waitForCard(5, "PcscReader", self.getReader())
             attack = aaTraceability.AATraceability(Iso7816(r))
+            if self.verboseAAVar.get():
+                attack.register(self.writeToLogAA)
             self.writeToLogAA("Highest signature: {0}".format(attack.getHighestSign(max_loop)))
         except Exception, msg:
             tkMessageBox.showerror("Error: Get highest signature", str(msg))
@@ -969,6 +992,8 @@ class AttacksFrame(Frame):
             if self.mrz.get()!='':
                 r = reader.ReaderManager().waitForCard(5, "PcscReader", self.getReader())
                 attack = aaTraceability.AATraceability(Iso7816(r))
+                if self.verboseAAVar.get():
+                    attack.register(self.writeToLogAA)
                 self.writeToLogAA("Modulo: {0}".format(attack.getModulo(self.mrz.get())))
             else:
                 tkMessageBox.showerror("Error: Wrong MRZ", "You have to set the proper MRZ")
@@ -983,6 +1008,8 @@ class AttacksFrame(Frame):
 
             r = reader.ReaderManager().waitForCard(5, "PcscReader", self.getReader())
             attack = aaTraceability.AATraceability(Iso7816(r))
+            if self.verboseAAVar.get():
+                attack.register(self.writeToLogAA)
             self.writeToLogAA("Difference: {0}%".format(attack.compare(self.moduloCompareForm.get(), self.signCompareForm.get(), accuracy)))
             
         except Exception, msg:
@@ -993,6 +1020,8 @@ class AttacksFrame(Frame):
         try:
             r = reader.ReaderManager().waitForCard(5, "PcscReader", self.getReader())
             attack = aaTraceability.AATraceability(Iso7816(r))
+            if self.verboseAAVar.get():
+                attack.register(self.writeToLogAA)
             self.writeToLogAA("May belongs to? : {0}".format(attack.mayBelongsTo(self.moduloMatchForm.get(), self.signMatchForm.get())))
             
         except Exception, msg:
@@ -1007,6 +1036,8 @@ class AttacksFrame(Frame):
                 if os.path.isdir(directory):
                     r = reader.ReaderManager().waitForCard(5, "PcscReader", self.getReader())
                     attack = aaTraceability.AATraceability(Iso7816(r))
+                    if self.verboseAAVar.get():
+                        attack.register(self.writeToLogAA)
                     if self.typeSign.get()==1:
                         sign = attack.getHighestSign(100)
                         attack.save(sign, directory, "sign")
@@ -1035,6 +1066,8 @@ class AttacksFrame(Frame):
                     else: accuracy = None
                     r = reader.ReaderManager().waitForCard(5, "PcscReader", self.getReader())
                     attack = aaTraceability.AATraceability(Iso7816(r))
+                    if self.verboseAAVar.get():
+                        attack.register(self.writeToLogAA)
                     if accuracy:
                         self.writeToLogAA("Difference: {0}%".format(attack.checkFromFile(self.moduloFileForm.get(), directory, accuracy)))
                     else:
@@ -1054,6 +1087,8 @@ class AttacksFrame(Frame):
 
             r = reader.ReaderManager().waitForCard(5, "PcscReader", self.getReader())
             attack = signEverything.SignEverything(Iso7816(r))
+            if self.verboseAAVar.get():
+                attack.register(self.writeToLogAA)
             
             if self.mrz.get()!='': mrz = self.mrz.get()
             else: mrz = None
@@ -1075,6 +1110,8 @@ class AttacksFrame(Frame):
         try:
             r = reader.ReaderManager().waitForCard(5, "PcscReader", self.getReader())
             attack = errorFingerprinting.ErrorFingerprinting(Iso7816(r))
+            if self.verboseErrorVar.get():
+                attack.register(self.writeToLogERR)
 
             (ans, message) = attack.sendCustom( self.customCLAForm.get(), \
                                                 self.customINSForm.get(), \
@@ -1094,6 +1131,8 @@ class AttacksFrame(Frame):
         try:
             r = reader.ReaderManager().waitForCard(5, "PcscReader", self.getReader())
             attack = errorFingerprinting.ErrorFingerprinting(Iso7816(r))
+            if self.verboseErrorVar.get():
+                attack.register(self.writeToLogERR)
 
             response = attack.sendCustom( self.customCLAForm.get(), \
                                                 self.customINSForm.get(), \
@@ -1125,6 +1164,8 @@ class AttacksFrame(Frame):
         try:
             r = reader.ReaderManager().waitForCard(5, "PcscReader", self.getReader())
             attack = errorFingerprinting.ErrorFingerprinting(Iso7816(r))
+            if self.verboseErrorVar.get():
+                attack.register(self.writeToLogERR)
 
             possibilities = attack.identify( self.customCLAForm.get(), \
                                                 self.customINSForm.get(), \

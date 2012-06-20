@@ -87,7 +87,7 @@ class MacTraceability(Logger):
             vulnerable = True
 
         elif (res_time2 - res_time1) > (CO/1000):
-            self.log("Response time over the cut off ("+str(CO/1000)+"): " + str(res_time2 - res_time1))
+            self.log("Response time over the cut off ("+str(CO)+"ms): " + str(res_time2 - res_time1))
             vulnerable = True
         
         self.log("Error message with wrong MAC: [{0}][{1}]".format(ans1[1], ans1[2]))
@@ -262,13 +262,13 @@ class MacTraceability(Logger):
         """
         
         self.log("Get a message with a valid MAC")
-        self.log("\tMRZ:" + self._mrz.getMrz())
+        self.log("MRZ: " + self._mrz.getMrz())
         
         self._bac.derivationOfDocumentBasicAccesKeys(self._mrz)
         rnd_icc = self._iso7816.getChallenge()
-        self.log("\tRND.ICC:" + rnd_icc)
+        self.log("RND.ICC: " + binToHexRep(rnd_icc))
         cmd_data = self._bac.authentication(rnd_icc)
-        self.log("\tThe valid pair:" + binToHexRep(cmd_data))
+        self.log("The valid pair:" + binToHexRep(cmd_data))
         self.log("RST connection")
         self._iso7816.rstConnection()
         return cmd_data
@@ -288,7 +288,7 @@ class MacTraceability(Logger):
         
         data = binToHexRep(cmd_data)
         self.log("Send a message with a wrong MAC")
-        self.log("\tmessage/MAC:" + data)
+        self.log("Message/MAC:" + data)
         lc = hexToHexRep(len(data)/2)
         toSend = apdu.CommandAPDU("00", "82", "00", "00", lc, data, "28")
         starttime = time.time()
@@ -297,11 +297,11 @@ class MacTraceability(Logger):
         except Iso7816Exception, msg:
             response = msg
         timetaken =  time.time() - starttime
-        self.log("\tSent")
-        self.log("\tMessage:" + msg[0])
-        self.log("\tCode 1:" + str(msg[1]))
-        self.log("\tCode 2:" + str(msg[2]))
-        self.log("\tResponse time:" + str(timetaken))
+        self.log("Sent")
+        self.log("Message:" + msg[0])
+        self.log("SW1 1:" + str(msg[1]))
+        self.log("SW2 2:" + str(msg[2]))
+        self.log("Response time:" + str(timetaken))
         self.log("RST connection")
         self._iso7816.rstConnection()
         return (response, timetaken)

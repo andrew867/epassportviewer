@@ -71,7 +71,7 @@ class SignEverything(Logger):
         message_bin = hexRepToBin(message)
 
         signature = self._iso7816.internalAuthentication(message_bin)
-        self.log("Signature: {0}".format(signature))
+        self.log("Signature: {0}".format(binToHexRep(signature)))
         
         if mrz_value:
             self.log("Check if the signature is correct regarding the public key:")
@@ -118,9 +118,9 @@ class SignEverything(Logger):
 
         self.log("Authentication and establishment of session keys")
         (KSenc, KSmac, ssc) = bac_cp.authenticationAndEstablishmentOfSessionKeys(mrz_pass)
-        self.log("Encryption key: {0}".format(KSenc))
-        self.log("MAC key: {0}".format(KSmac))
-        self.log("Send Sequence Counter: {0}".format(ssc))
+        self.log("Encryption key: {0}".format(binToHexRep(KSenc)))
+        self.log("MAC key: {0}".format(binToHexRep(KSmac)))
+        self.log("Send Sequence Counter: {0}".format(binToHexRep(ssc)))
         sm = SecureMessaging(KSenc, KSmac, ssc) 
         self._iso7816.setCiphering(sm)
             
@@ -130,7 +130,7 @@ class SignEverything(Logger):
         dgFile = dgReader.readDG(tag)
         self.log("Get public key")
         dg15 = datagroup.DataGroupFactory().create(dgFile)
-        self.log("Public key: {0}".format(dg15.body))
+        self.log("Public key: {0}".format(binToHexRep(dg15.body)))
         return dg15.body
                     
 

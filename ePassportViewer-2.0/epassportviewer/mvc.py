@@ -161,14 +161,16 @@ class View(Frame):
         ####################
         #     CONFIGURE    #
         ####################
-        configureMenu = Menu(menu, tearoff=0)
+        configureMenu = Menu(menu, tearoff=0, postcommand=self.refreshReaders)
 
-#       self.readerMenu = Menu(menu, tearoff=0, postcommand=self.refreshReaders)
-#       configureMenu.add_cascade(label="Reader", underline=0, menu=self.readerMenu)
+        self.readerMenu = Menu(menu, tearoff=0)
+        configureMenu.add_cascade(label="Readers", underline=0, menu=self.readerMenu)
         
         self.securityMenu = Menu(menu, tearoff=0)
-        self.securityMenu.add_checkbutton(label='Active Authentication', variable=configManager.configManager().getVariable('Security', 'aa'))
-        self.securityMenu.add_checkbutton(label='Passive Authentication', variable=configManager.configManager().getVariable('Security','pa'))
+        self.securityMenu.add_checkbutton(  label='Active Authentication', 
+                                            variable=configManager.configManager().getVariable('Security', 'aa'))
+        self.securityMenu.add_checkbutton(  label='Passive Authentication', 
+                                            variable=configManager.configManager().getVariable('Security','pa'))
         configureMenu.add_cascade(label="Security", underline=0, menu=self.securityMenu)
         
         self.sslMenu = Menu(configureMenu, tearoff=0)
@@ -181,27 +183,18 @@ class View(Frame):
                                                             self.sslMenu))  
         configureMenu.add_cascade(label="OpenSSL", underline=0, menu=self.sslMenu)
         
-        self.pathMenu = Menu(configureMenu, tearoff=0)
-        self.pathMenu.add_command(label=configManager.configManager().getOption('Options','path'), command=None)
-        self.pathMenu.add_separator()
-        self.pathMenu.add_command(label="Change", 
-                                  underline=0,
-                                  command=callback.Callback(self.setPath, 
-                                                            configManager.configManager().getVariable('Options','path'),
-                                                            self.pathMenu))  
-        configureMenu.add_cascade(label="Export Path", underline=0, menu=self.pathMenu)
+        #self.certificateMenu = Menu(configureMenu, tearoff=0)
+        #self.certificateMenu.add_command(label=configManager.configManager().getOption('Options','certificate'), command=None)
+        #self.certificateMenu.add_separator()
+        #self.certificateMenu.add_command(label="Change",
+        #                                 underline=0,
+        #                                 command=callback.Callback(self.setPath, 
+        #                                                           configManager.configManager().getVariable('Options','certificate'),
+        #                                                           self.certificateMenu))
+        #self.certificateMenu.add_command(label="Import", underline=0, command=self.importCertificate)                
+        #configureMenu.add_cascade(label="Certificate Directory", underline=0, menu=self.certificateMenu)
         
-        self.certificateMenu = Menu(configureMenu, tearoff=0)
-        self.certificateMenu.add_command(label=configManager.configManager().getOption('Options','certificate'), command=None)
-        self.certificateMenu.add_separator()
-        self.certificateMenu.add_command(label="Change",
-                                         underline=0,
-                                         command=callback.Callback(self.setPath, 
-                                                                   configManager.configManager().getVariable('Options','certificate'),
-                                                                   self.certificateMenu))
-        self.certificateMenu.add_command(label="Import", underline=0, command=self.importCertificate)                
-        configureMenu.add_cascade(label="Certificate Directory", underline=0, menu=self.certificateMenu)
-        
+        configureMenu.add_command(label="Import certificates...", underline=0, command=self.importCertificate)
         configureMenu.add_command(label="Reset to Default", underline=0, command=self.resetConfig)
         
         menu.add_cascade(label="Configure", underline=0, menu=configureMenu)
@@ -237,22 +230,23 @@ class View(Frame):
     def refreshMore(self):
         moreMenu = self.moreMenu
         moreMenu.delete(0,END)
-        if self._doc: state=NORMAL
+        if self.t.ep: state=NORMAL
         else: state=DISABLED
+        
         
         moreMenu.add_command(label="Additional data", underline=0, command=self.AdditionalData, state=state)
     
-#    def refreshReaders(self):        
-#        self.readerMenu.delete(0, END)
-#        
-#        try:
-#            readers = pypassport.reader.ReaderManager().getReaderList()
-#            for r in readers:
-#                self.readerMenu.add_radiobutton(label=r, variable=configManager.configManager().getVariable('Options','reader'), value=r)
-#        except NameError, msg:
-#            pass
-#        
-#        self.readerMenu.add_radiobutton(label='Auto-Detect', underline=0, variable=configManager.configManager().getVariable('Options','reader'), value='Auto')   
+    def refreshReaders(self):        
+        self.readerMenu.delete(0, END)
+        
+        try:
+            readers = pypassport.reader.ReaderManager().getReaderList()
+            for r in readers:
+                self.readerMenu.add_radiobutton(label=r, variable=configManager.configManager().getVariable('Options','reader'), value=r, state=DISABLED)
+        except NameError, msg:
+            pass
+        
+        self.readerMenu.add_radiobutton(label='Auto-Detect', underline=0, variable=configManager.configManager().getVariable('Options','reader'), value='Auto', state=DISABLED)   
         
     def setPath(self, variable, menu):
         directory = askdirectory(title="Select directory", mustexist=1)
@@ -271,13 +265,16 @@ class View(Frame):
             menu.entryconfigure(0, label=openssl)
 
     def importCertificate(self):
-        try:
-            CA = pypassport.epassport.camanager.CAManager(configManager.configManager().getOption('Options','certificate'))
-            CA.toHashes()
-            tkMessageBox.showwarning("Import Certificate", 'All present certificates have been imported!') 
-        except Exception, msg:
-            if DEBUG: print "Error while importing certificates", msg
-            else: tkMessageBox.showwarning("Error while importing certificates", msg)         
+        directory = askdirectory(title="Select directory", mustexist=1)
+        if directory:
+            directory = str(directory)
+            try:
+                CA = pypassport.epassport.camanager.CAManager(directory)
+                CA.toHashes()
+                tkMessageBox.showwarning("Import Certificate", 'All present certificates have been imported!') 
+            except Exception, msg:
+                if DEBUG: print "Error while importing certificates", msg
+                else: tkMessageBox.showwarning("Error while importing certificates", msg)         
         
     def onAbout(self):
         dialog.About(self)
@@ -366,8 +363,8 @@ class View(Frame):
                 tkMessageBox.showerror("Reader", "Please verify data source:\n" + str(msg[0]))            
             
     def AdditionalData(self, event=None):
-        if self._doc:
-            dialog.AdditionalData(self, self._doc)
+        if self.t.ep:
+            dialog.AdditionalData(self, self.t.ep)
         else:
             tkMessageBox.showinfo("No document open", "Please open a document before.")
                 
