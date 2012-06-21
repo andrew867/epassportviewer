@@ -860,18 +860,29 @@ class FingerPrintDialog(Toplevel):
         self.grab_set()
         
         self.txt = ""
-        self.txt += "Unique ID: " + data["UID"] + "\n"
+        self.txt += "Unique ID (random): " + data["UID"] + "\n"
         self.txt += "Answer-To-Reset: " + data["ATR"] + "\n"
         self.txt += "Generation: " + str(data["generation"]) + "\n"
-        self.txt += "Data Groups size: " + data["DGs"] + "\n"
         self.txt += "Reading time: " + str(data["ReadingTime"]) + "\n"
+        self.txt += "Data Groups size: "
+        if type(data["DGs"]) == type([]):
+            self.txt += "\n"
+            for key, value in data["DGs"]:
+                self.txt += "   - " + str(key) + ": " + str(value) + "\n"
+        else:
+            self.txt += data["DGs"] + "\n"
         self.txt += "\n"
         self.txt += "\n"
         self.txt += "SECURITY\n"
         self.txt += "\n"
-        self.txt += "   Active Authentication without BAC: " + str(data["activeAuthWithoutBac"]) + "\n"
         self.txt += "   Basic Access Control: " + data["bac"] + "\n"
         self.txt += "   Active Authentication: " + data["activeAuth"] + "\n"
+        self.txt += "   Active Authentication without BAC: " + str(data["activeAuthWithoutBac"]) + "\n"
+        if data["activeAuthWithoutBac"]: self.txt += "    * Vulnerable to AA traceability\n"
+        self.txt += "   Diffirent repsonse time for wrong message or MAC: " + str(data["macTraceability"]) + "\n"
+        if data["macTraceability"]: 
+            self.txt += "    * Vulnerable to MAC traceability\n"
+            self.txt += "      Note: If french passport, this might be a false positive due to the anti brute-force \n"
         self.txt += "\n"
         self.txt += "\n"
         self.txt += "CERTIFICATES/SIGNATURES\n"

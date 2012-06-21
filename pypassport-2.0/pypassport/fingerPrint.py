@@ -22,6 +22,7 @@ from pypassport import epassport
 from pypassport.hexfunctions import *
 from pypassport.doc9303.converter import *
 from pypassport.apdu import CommandAPDU
+from pypassport.attacks import macTraceability
 
 from smartcard.CardType import AnyCardType
 from smartcard.CardRequest import CardRequest
@@ -31,6 +32,7 @@ class FingerPrint(object):
     
     def __init__(self, epassport):
         self._doc = epassport
+        self._mrz = self._doc._mrz
         self._comm = self._doc.getCommunicationLayer()
         self._bac = False
         self._aa = False
@@ -52,17 +54,18 @@ class FingerPrint(object):
         res = {}
         
         res["activeAuthWithoutBac"] = False
+        res["macTraceability"] = False
         res["bac"] = "Failed"
-        res["DSCertificate"] = False
-        res["pubKey"] = False
+        res["DSCertificate"] = "Document Signer Certificate: N/A"
+        res["pubKey"] = "Private key: N/A"
         res["activeAuth"] = "Failed"
         res["generation"] = 0
-        res["certSerialNumber"] = None
-        res["certFingerPrint"] = None
-        res["ATR"] = None
-        res["UID"] = None
+        res["certSerialNumber"] = "N/A"
+        res["certFingerPrint"] = "N/A"
+        res["ATR"] = "N/A"
+        res["UID"] = "N/A"
         res["DGs"] = "Cannot calculate the DG size"
-        res["ReadingTime"] = None
+        res["ReadingTime"] = "N/A"
         
         try:
             res["UID"] = binToHexRep(self._comm.getUID())
@@ -75,6 +78,9 @@ class FingerPrint(object):
             pass
         
         res["activeAuthWithoutBac"] = self.checkInternalAuth()
+        self._comm.rstConnection()
+        
+        res["macTraceability"] = self.checkMACTraceability()
         self._comm.rstConnection()
             
         #Check if the secure-messaging is set.
@@ -158,15 +164,23 @@ class FingerPrint(object):
         for x in self._doc:
             data[toDG(x)] = len(self._doc[x].file)
             
-        return data
+        items = data.items()
+        items.sort()
+        return items
             
     def checkInternalAuth(self):
+        self._comm.rstConnection()
         rnd_ifd = os.urandom(8)
         try:
             self._comm.internalAuthentication(rnd_ifd)
             return True
         except Exception:
             return False
+            
+    def checkMACTraceability(self):
+        attack = macTraceability.MacTraceability(self._comm)
+        attack.setMRZ(str(self._mrz))
+        return attack.isVulnerable()
         
     def calculateReadingTime(self):
         for x in self._doc.keys():
