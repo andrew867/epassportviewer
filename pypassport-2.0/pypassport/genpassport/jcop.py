@@ -59,6 +59,7 @@ class JavaCardWritter(Logger):
         Logger.__init__(self, "JCOP")
         self._maxSize = maxSize
         self._iso7816 = iso7816.Iso7816(reader)
+        self._iso7816.selectFile("04", "0C", "A0000002471001")
         
     def writeDG(self, dg):
         file = converter.toFID(dg.tag)

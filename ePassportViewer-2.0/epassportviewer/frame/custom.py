@@ -374,8 +374,8 @@ class CustomFrame(Frame):
             tdes= DES3.new(hexRepToBin(self.field2Form.get()), DES.MODE_CBC)
             m = tdes.encrypt(hexRepToBin(self.field1Form.get()))
             
-            self.writeToLog("TDES ENCRYPTION:\n  message: {0}\n  key: {1}\n  cipher: {2}".format(self.field1Form.get(),\
-                                                                                                 self.field2Form.get(),\
+            self.writeToLog("TDES ENCRYPTION:\n  message: {0}\n  key: {1}\n  cipher: {2}".format(self.field1Form.get(),
+                                                                                                 self.field2Form.get(),
                                                                                                  binToHexRep(m)))
             
             self.field1Form.delete(0, END)
@@ -390,8 +390,8 @@ class CustomFrame(Frame):
             tdes= DES3.new(hexRepToBin(self.field2Form.get()), DES.MODE_CBC)
             m = tdes.decrypt(hexRepToBin(self.field1Form.get()))
             
-            self.writeToLog("TDES DECRYPTION:\n  cipher: {0}\n  key: {1}\n  message: {2}".format(self.field1Form.get(),\
-                                                                                                 self.field2Form.get(),\
+            self.writeToLog("TDES DECRYPTION:\n  cipher: {0}\n  key: {1}\n  message: {2}".format(self.field1Form.get(),
+                                                                                                 self.field2Form.get(),
                                                                                                  binToHexRep(m)))
             
             self.field1Form.delete(0, END)
@@ -404,7 +404,7 @@ class CustomFrame(Frame):
     def sha1Hash(self):
         h = sha1(hexRepToBin(self.field1Form.get())).digest()
         
-        self.writeToLog("SHA-1 HASH:\n  message: {0}\n  hash: {1}".format(self.field1Form.get(),\
+        self.writeToLog("SHA-1 HASH:\n  message: {0}\n  hash: {1}".format(self.field1Form.get(),
                                                                           binToHexRep(h)))
         
         self.field1Form.delete(0, END)
@@ -415,6 +415,11 @@ class CustomFrame(Frame):
         out = ""
         for i in range(len(self.field1Form.get())):
             out += hex(int(self.field1Form.get()[i],16) ^ int(self.field2Form.get()[i],16))[2:]
+        
+        self.writeToLog("XOR:\n  HEX 1: {0}\n  HEX 2: {1}\n  XOR:   {2}".format(self.field1Form.get(),
+                                                                          self.field2Form.get(),
+                                                                          out.upper()))
+        
         self.field1Form.delete(0, END)
         self.field2Form.delete(0, END)
         self.field1Form.insert(0, out.upper())
@@ -422,6 +427,11 @@ class CustomFrame(Frame):
     def createMAC(self):
         try:
             m = iso9797.mac(hexRepToBin(self.field2Form.get()), iso9797.pad(hexRepToBin(self.field1Form.get())))
+            
+            self.writeToLog("MAC:\n  message: {0}\n  Key: {1}\n  MAC: {2}".format(self.field1Form.get(),
+                                                                          self.field2Form.get(),
+                                                                          binToHexRep(m)))
+            
             self.field1Form.delete(0, END)
             self.field2Form.delete(0, END)
             self.field1Form.insert(0, binToHexRep(m))
@@ -441,7 +451,7 @@ class CustomFrame(Frame):
         
         key = binToHexRep(Ka+Kb)
         
-        self.writeToLog("KEY DERIVATION:\n  key: {0}\n  derived key: {1}".format(self.field1Form.get(),\
+        self.writeToLog("KEY DERIVATION:\n  key: {0}\n  derived key: {1}".format(self.field1Form.get(),
                                                                           key))
         self.field1Form.delete(0, END)
         self.field2Form.delete(0, END)
@@ -461,8 +471,8 @@ class CustomFrame(Frame):
         rnd_icc = hexRepToBin(self.field1Form.get())
         rnd_ifd = hexRepToBin(self.field2Form.get())
         ssc = rnd_icc[-4:] + rnd_ifd[-4:]
-        self.writeToLog("SSC GENERATOR:\n  RND ICC: {0}\n  RND IFD: {1}\n  SSC: {2}".format(self.field1Form.get(),\
-                                                                                            self.field1Form.get(),\
+        self.writeToLog("SSC GENERATOR:\n  RND ICC: {0}\n  RND IFD: {1}\n  SSC: {2}".format(self.field1Form.get(),
+                                                                                            self.field2Form.get(),
                                                                                             binToHexRep(ssc)))
         
         self.field1Form.delete(0, END)
@@ -475,7 +485,7 @@ class CustomFrame(Frame):
             (bodySize, offset) = asn1.asn1Length(header[1:])
             bodySize = hexToHexRep(bodySize)
             offset = hexToHexRep(offset+1)
-            self.writeToLog("HEADER:\n  Body size: {0}\n  Offset: {1}".format(bodySize,\
+            self.writeToLog("HEADER:\n  Body size: {0}\n  Offset: {1}".format(bodySize,
                                                                               offset))
             
             self.field1Form.delete(0, END)
@@ -578,9 +588,6 @@ class CustomFrame(Frame):
         atr = toHexString(cardservice.connection.getATR())
         self.writeToLog("ATR: {0}".format(atr))
         
-        self.field1Form.delete(0, END)
-        self.field2Form.delete(0, END)
-        self.field1Form.insert(0, atr)
         
 
 

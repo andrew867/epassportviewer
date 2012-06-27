@@ -4,8 +4,8 @@
 ===============================
 
 
-From 2.0.3 to 2.0.4b
-===================
+From 2.0.3 to 2.0.4c
+====================
 
 ePassportViewer > frame > custom:
 
@@ -33,6 +33,11 @@ ePassportViewer > mvc,
 ePassportViewer > dialog:
 
  * Improving the fingerprint method.
+
+
+ePassportViewer > dialog:
+ 
+ * Add ePassport generator features
 
 From 2.0.2 to 2.0.3
 ===================

@@ -131,7 +131,9 @@ class View(Frame):
         ####################
         #       FILE       #
         ####################
-        fileMenu = Menu(menu, tearoff=0)        
+        fileMenu = Menu(menu, tearoff=0)
+        fileMenu.add_command(label="Create...", underline=0, command=self.create)
+        fileMenu.add_separator()    
         fileMenu.add_command(label="Open", underline=0, command=self.load)
         fileMenu.add_command(label="Save...", underline=0, command=self.save)
         saveAs = Menu(fileMenu, tearoff=0)
@@ -366,7 +368,15 @@ class View(Frame):
             dialog.AdditionalData(self, self.t.ep)
         except Exception:
             tkMessageBox.showinfo("No document open", "Please open a document before.")
-                
+    
+    
+    def create(self, event=None):
+        try:
+            dialog.create(self)
+        except Exception, msg:
+            tkMessageBox.showinfo("Error create", msg)
+    
+    
     def Fingerprint(self, event=None):
         try:
             fp = pypassport.fingerPrint.FingerPrint(self._doc)

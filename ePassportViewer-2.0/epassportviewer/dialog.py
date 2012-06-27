@@ -20,6 +20,7 @@ from Tkinter import *
 import tkMessageBox
 import thread
 import threading
+import tkFont
 import Image, ImageTk
 import Queue
 import time
@@ -27,6 +28,7 @@ import re
 from tkFileDialog import askdirectory, askopenfilename
 
 from epassportviewer.const import *
+from epassportviewer.util import forge
 from epassportviewer.util.image import ImageFactory
 from epassportviewer.util.components import DataGroupGridList
 from epassportviewer.util.configManager import configManager
@@ -714,6 +716,296 @@ the library.  If this is what you want to do, use the GNU Lesser General\n\
 Public License instead of this License.  But first, please read\n\
 <http://www.gnu.org/philosophy/why-not-lgpl.html>.\n\
 """
+
+class create(Toplevel):
+    
+    def __init__(self, master):
+        Toplevel.__init__(self, master)
+        self.title("Create a passport (JCOP)")
+        self.resizable(False,False)
+        self.transient(master)
+        self.master = master
+        
+        ##########
+        #  VIEW  #
+        ##########
+        
+        title = tkFont.Font(size=12)
+        
+        createFrame = Frame(self, borderwidth=1, relief=GROOVE)
+        createFrame.pack(fill=BOTH, expand=1)
+        
+        # HOLDER'S INFORTMATION
+        holderLabel = Label(createFrame, text="Holder's information:", justify=LEFT, font=title)
+        holderLabel.grid(row=0, column=0, columnspan=2, padx=5, pady=5, sticky=(N, W))
+
+        # Firstname
+        firstnameLabel = Label(createFrame, text="Firstname:", justify=LEFT)
+        firstnameLabel.grid(row=1, column=0, padx=5, pady=5, sticky=(N, W))
+
+        self.firstnameForm = Entry(createFrame, width=30)
+        self.firstnameForm.grid(row=1, column=1, padx=5, pady=5, sticky=(N, W))
+        
+        # Surname
+        surnameLabel = Label(createFrame, text="Surname:", justify=LEFT)
+        surnameLabel.grid(row=2, column=0, padx=5, pady=5, sticky=(N, W))
+
+        self.surnameForm = Entry(createFrame, width=30)
+        self.surnameForm.grid(row=2, column=1, padx=5, pady=5, sticky=(N, W))
+        
+        # Sex
+        sexLabel = Label(createFrame, text="Sex:", justify=LEFT)
+        sexLabel.grid(row=3, column=0, padx=5, pady=5, sticky=(N, W))
+        
+        sexFrame = Frame(createFrame)
+        sexFrame.grid(row=3, column=1, sticky=(N, W))
+        
+        self.sex = StringVar()
+        self.sex.set("M")
+        
+        maleRadio = Radiobutton(sexFrame, text="M", variable=self.sex, value="M")
+        maleRadio.pack(side=LEFT, padx=5, pady=5, anchor=W)
+
+        femaleRadio = Radiobutton(sexFrame, text="F", variable=self.sex, value="F")
+        femaleRadio.pack(side=LEFT, padx=5, pady=5, anchor=W)
+        
+        # Date of birth
+        dobLabel = Label(createFrame, text="Date of birth:", justify=LEFT)
+        dobLabel.grid(row=4, column=0, padx=5, pady=5, sticky=(N, W))
+
+        self.dobForm = Entry(createFrame, width=10, justify=LEFT)
+        self.dobForm.grid(row=4, column=1, padx=5, pady=5, sticky=(N, W))
+        self.dobForm.insert(0, "YYYY/MM/DD")
+        
+        # Nationality
+        nationalityLabel = Label(createFrame, text="Nationality:", justify=LEFT)
+        nationalityLabel.grid(row=5, column=0, padx=5, pady=5, sticky=(N, W))
+
+        self.nationalityForm = Entry(createFrame, width=3, justify=LEFT)
+        self.nationalityForm.grid(row=5, column=1, padx=5, pady=5, sticky=(N, W))
+        
+        documentLabel = Label(createFrame, text="Document's information:", justify=LEFT, font=title)
+        documentLabel.grid(row=6, column=0, columnspan=2, padx=5, pady=5, sticky=(N, W))
+        
+        # Id
+        idLabel = Label(createFrame, text="ID:", justify=LEFT)
+        idLabel.grid(row=7, column=0, padx=5, pady=5, sticky=(N, W))
+
+        self.idForm = Entry(createFrame, width=9, justify=LEFT)
+        self.idForm.grid(row=7, column=1, padx=5, pady=5, sticky=(N, W))
+        
+        # Expiration data
+        doeLabel = Label(createFrame, text="Expiration date:", justify=LEFT)
+        doeLabel.grid(row=8, column=0, padx=5, pady=5, sticky=(N, W))
+
+        self.doeForm = Entry(createFrame, width=10, justify=LEFT)
+        self.doeForm.grid(row=8, column=1, padx=5, pady=5, sticky=(N, W))
+        self.doeForm.insert(0, "YYYY/MM/DD")
+        
+        # Issuer
+        issuerLabel = Label(createFrame, text="Issuer:", justify=LEFT)
+        issuerLabel.grid(row=9, column=0, padx=5, pady=5, sticky=(N, W))
+
+        self.issuerForm = Entry(createFrame, width=3, justify=LEFT)
+        self.issuerForm.grid(row=9, column=1, padx=5, pady=5, sticky=(N, W))
+        
+        # Face
+        issuerLabel = Label(createFrame, text="Face:", justify=LEFT, font=title)
+        issuerLabel.grid(row=10, column=0, columnspan=2, padx=5, pady=5, sticky=(N, W))
+        
+        faceFrame = Frame(createFrame)
+        faceFrame.grid(row=11, column=0, columnspan=2, sticky=(N, W))
+        
+        selectImageButton = Button(faceFrame, text="Select image...", width=10, command=self.selectImage)
+        selectImageButton.pack(side=LEFT, padx=5, pady=5)
+        
+        self.faceForm = Entry(faceFrame, width=30, justify=LEFT)
+        self.faceForm.pack(side=LEFT, padx=5, pady=5)
+        
+        # CERTIFICATE
+        certificateLabel = Label(createFrame, text="Certificate:", justify=LEFT, font=title)
+        certificateLabel.grid(row=12, column=0, columnspan=2, padx=5, pady=5, sticky=(N, W))
+        
+        countryLabel = Label(createFrame, text="Country:", justify=LEFT)
+        countryLabel.grid(row=13, column=0, padx=5, pady=5, sticky=(N, E))
+
+        self.countryForm = Entry(createFrame, width=2, justify=LEFT)
+        self.countryForm.grid(row=13, column=1, padx=5, pady=5, sticky=(N, W))
+        
+        organisationLabel = Label(createFrame, text="Organisation:", justify=LEFT)
+        organisationLabel.grid(row=14, column=0, padx=5, pady=5, sticky=(N, E))
+
+        self.organisationForm = Entry(createFrame, width=3, justify=LEFT)
+        self.organisationForm.grid(row=14, column=1, padx=5, pady=5, sticky=(N, W))
+        
+        # GENERATE
+        #buttonsFrame = Frame(createFrame)
+        #buttonsFrame.grid(row=15, column=0, columnspan=2)
+        
+        generateButton = Button(createFrame, text="Generate...", width=43, command=self.actionGenerate)
+        generateButton.grid(row=15, column=0, columnspan=2, padx=5, pady=5)
+        
+        updateButton = Button(createFrame, text="Update", width=43, command=self.actionUpdate)
+        updateButton.grid(row=15, column=2, columnspan=2, padx=5, pady=5)
+        
+        # OPTIONAL
+        holderLabel = Label(createFrame, text="Optional:", justify=LEFT, font=title)
+        holderLabel.grid(row=0, column=2, columnspan=2, padx=5, pady=5, sticky=(N, W))
+
+        # Place of birth
+        pobLabel = Label(createFrame, text="Place of birth:", justify=LEFT)
+        pobLabel.grid(row=1, column=2, padx=5, pady=5, sticky=(N, W))
+
+        self.pobForm = Entry(createFrame, width=30)
+        self.pobForm.grid(row=1, column=3, padx=5, pady=5, sticky=(N, W))
+        
+        # Middle name
+        middleLabel = Label(createFrame, text="Middle name:", justify=LEFT)
+        middleLabel.grid(row=2, column=2, padx=5, pady=5, sticky=(N, W))
+
+        self.middleForm = Entry(createFrame, width=30)
+        self.middleForm.grid(row=2, column=3, padx=5, pady=5, sticky=(N, W))
+        
+        # Issuing authority
+        issuingAuthLabel = Label(createFrame, text="Issuing authority:", justify=LEFT)
+        issuingAuthLabel.grid(row=3, column=2, padx=5, pady=5, sticky=(N, W))
+
+        self.issuingAuthForm = Entry(createFrame, width=30)
+        self.issuingAuthForm.grid(row=3, column=3, padx=5, pady=5, sticky=(N, W))
+        
+        # Date of issue
+        doiLabel = Label(createFrame, text="Date of issue:", justify=LEFT)
+        doiLabel.grid(row=4, column=2, padx=5, pady=5, sticky=(N, W))
+
+        self.doiForm = Entry(createFrame, width=10, justify=LEFT)
+        self.doiForm.grid(row=4, column=3, padx=5, pady=5, sticky=(N, W))
+        self.doiForm.insert(0, "YYYY/MM/DD")
+        
+        # Height
+        heightLabel = Label(createFrame, text="Height:", justify=LEFT)
+        heightLabel.grid(row=5, column=2, padx=5, pady=5, sticky=(N, W))
+
+        self.heightForm = Entry(createFrame, width=30)
+        self.heightForm.grid(row=5, column=3, padx=5, pady=5, sticky=(N, W))
+        
+        # Eyes
+        eyesLabel = Label(createFrame, text="Eyes:", justify=LEFT)
+        eyesLabel.grid(row=6, column=2, padx=5, pady=5, sticky=(N, W))
+
+        self.eyesForm = Entry(createFrame, width=30)
+        self.eyesForm.grid(row=6, column=3, padx=5, pady=5, sticky=(N, W))
+        
+        
+        # Address
+        addressLabel = Label(createFrame, text="Address:", justify=LEFT)
+        addressLabel.grid(row=8, column=2, padx=5, pady=5, sticky=(N, W))
+
+        self.addressForm = Entry(createFrame, width=30)
+        self.addressForm.grid(row=8, column=3, padx=5, pady=5, sticky=(N, W))
+        
+        
+        
+    ################
+    #  CONTROLLER  #
+    ################
+    
+    def selectImage(self):
+        try:
+            filename = askopenfilename(title="Select image")
+            if filename:
+                filename = str(filename)
+                if os.path.isfile(filename):
+                    self.faceForm.insert(0, filename)
+                else:
+                    tkMessageBox.showerror("Error: save", "The path you selected is not a file")
+        except Exception, msg:
+            tkMessageBox.showerror("Error: save", str(msg))
+        
+    def actionUpdate(self):          
+        
+        forge.generate( firstname = self.firstnameForm.get(), 
+                        surname = self.surnameForm.get(),
+                        sex = self.sex.get(), 
+                        dob = self.dobForm.get(), 
+                        nationality = self.nationalityForm.get(), 
+                        id_doc= self.idForm.get(),
+                        doe = self.doeForm.get(),
+                        issuer = self.issuerForm.get(),
+                        face_path = self.faceForm.get(),
+                        country = self.countryForm.get(), 
+                        organisation = self.organisationForm.get(),
+                        pob = self.pobForm.get(),
+                        middle_name = self.middleForm.get(),
+                        issuing_auth = self.issuingAuthForm.get(),
+                        doi = self.doiForm.get(),
+                        height = self.heightForm.get(),
+                        eyes = self.eyesForm.get(),
+                        address = self.addressForm.get()
+                      )
+
+        tkMessageBox.showinfo("Update done", "The update has been done")
+            
+    def actionGenerate(self):
+        try:
+            filename = askopenfilename(title="Select epassport.cap")
+            if filename:
+                filename = str(filename)
+                if os.path.isfile(filename):
+                    
+                    forge.generate( firstname = self.firstnameForm.get(), 
+                                    surname = self.surnameForm.get(),
+                                    sex = self.sex.get(), 
+                                    dob = self.dobForm.get(), 
+                                    nationality = self.nationalityForm.get(), 
+                                    id_doc= self.idForm.get(),
+                                    doe = self.doeForm.get(),
+                                    issuer = self.issuerForm.get(),
+                                    face_path = self.faceForm.get(), 
+                                    country = self.countryForm.get(), 
+                                    organisation = self.organisationForm.get(),
+                                    pob = self.pobForm.get(),
+                                    middle_name = self.middleForm.get(),
+                                    issuing_auth = self.issuingAuthForm.get(),
+                                    doi = self.doiForm.get(),
+                                    height = self.heightForm.get(),
+                                    eyes = self.eyesForm.get(),
+                                    address = self.addressForm.get(),
+                                    update = False,
+                                    cap_path = filename
+                                  )
+                                  
+                    tkMessageBox.showinfo("Generation done", "The ePassport has been generated")                
+                                    
+                else:
+                    tkMessageBox.showerror("Error: save", "The path you selected is not a file")
+        except Exception, msg:
+            tkMessageBox.showerror("Error: generate", str(msg))
+            
+
+
+
+
+class WaitDialog(Toplevel):
+    
+    def __init__(self, master):
+        Toplevel.__init__(self, master)
+        self.title("Please wait")
+        self.resizable(False,False)
+        self.transient(master)
+        self.grab_set()
+        
+        waitFrame = Frame(self, borderwidth=1, relief=GROOVE)
+        waitFrame.pack(fill=BOTH, expand=1)
+        
+        waitLabel = Label(waitFrame, text="Please wait while the ePassport is generated")
+        waitLabel.grid(row=0, column=0, padx=10, pady=10)
+        
+    def closeDialog(self):
+        self.destroy()
+            
+            
+            
+            
 
 class About(Toplevel):
     
