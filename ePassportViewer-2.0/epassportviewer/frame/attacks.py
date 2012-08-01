@@ -16,6 +16,7 @@
 # License along with epassportviewer.
 # If not, see <http://www.gnu.org/licenses/>.
 
+from time import time
 from Tkinter import *
 import tkMessageBox
 import Image, ImageTk
@@ -46,41 +47,36 @@ class AttacksFrame(Frame):
         image = ImageTk.PhotoImage(im)
         
         self.mrz = mrz
+        bgcolor = "#D1D1D1"
 
-         # MENU
+        # MENU
         menuFrame = Frame(self, borderwidth=1, relief=GROOVE)
         menuFrame.pack(fill=BOTH, expand=1)
         
-        nbLabel = Label(menuFrame, text="Reader #:", justify=LEFT)
-        nbLabel.pack(side=LEFT, padx=5, pady=5)
+        self.macTraceabilityButton = Button(menuFrame, text="MAC Traceability", bg=bgcolor, width=15, command=self.switchMac)
+        self.macTraceabilityButton.pack(side=LEFT, padx=5, pady=5)
         
-        self.nbForm = Entry(menuFrame, width=2)
-        self.nbForm.pack(side=LEFT)
+        self.bruteForceButton = Button(menuFrame, text="Brute Force", bg=bgcolor, width=15, command=self.switchBrute)
+        self.bruteForceButton.pack(side=LEFT, padx=5, pady=5)
         
-        macTraceabilityButton = Button(menuFrame, text="MAC Traceability", command=self.switchMac)
-        macTraceabilityButton.pack(side=LEFT, padx=5, pady=5)
+        self.activeAuthenticationButton = Button(menuFrame, text="Active Authentication", bg=bgcolor, width=15, command=self.switchAA)
+        self.activeAuthenticationButton.pack(side=LEFT, padx=5, pady=5)
         
-        bruteForceButton = Button(menuFrame, text="Brute Force", command=self.switchBrute)
-        bruteForceButton.pack(side=LEFT, padx=5, pady=5)
-        
-        activeAuthenticationButton = Button(menuFrame, text="Active Authentication", command=self.switchAA)
-        activeAuthenticationButton.pack(side=LEFT, padx=5, pady=5)
-        
-        errorFingerprintingButton = Button(menuFrame, text="Error Fingerprinting", command=self.switchError)
-        errorFingerprintingButton.pack(side=LEFT, padx=5, pady=5) 
+        self.errorFingerprintingButton = Button(menuFrame, text="Error Fingerprinting", bg=bgcolor, width=15, command=self.switchError)
+        self.errorFingerprintingButton.pack(side=LEFT, padx=5, pady=5) 
         
         
         ######################
         ## MAC TRACEABILITY ##
 
-        self.macTraceabilityFrame = Frame(self, borderwidth=1, relief=GROOVE)
+        self.macTraceabilityFrame = Frame(self, borderwidth=1, relief=GROOVE, bg=bgcolor)
 
         # REACH MAX
-        reachMaxFrame = Frame(self.macTraceabilityFrame)
+        reachMaxFrame = Frame(self.macTraceabilityFrame, bg=bgcolor)
         reachMaxFrame.pack(fill=BOTH, expand=1)
         
         self.frenchVar = IntVar()
-        reachMaxCheck = Checkbutton(reachMaxFrame, text="Reach max", variable=self.frenchVar)
+        reachMaxCheck = Checkbutton(reachMaxFrame, text="Reach max", variable=self.frenchVar, bg=bgcolor)
         reachMaxCheck.pack(side=LEFT, padx=5, pady=5)
         
         helpReachMax = Button(reachMaxFrame, image=image, command=self.helpReachMaxDialog)
@@ -88,13 +84,13 @@ class AttacksFrame(Frame):
         helpReachMax.pack(side=RIGHT, padx=5, pady=5)
         
         # IS VULNERABLE?
-        vulnFrame = Frame(self.macTraceabilityFrame)
+        vulnFrame = Frame(self.macTraceabilityFrame, bg=bgcolor)
         vulnFrame.pack(fill=BOTH, expand=1)
         
         vulnerableButton = Button(vulnFrame, text="Is vulnerable?", width=13, command=self.isVulnerable)
         vulnerableButton.pack(side=LEFT, padx=5, pady=5)
         
-        coLabel = Label(vulnFrame, text="Cut-off:", justify=LEFT)
+        coLabel = Label(vulnFrame, text="Cut-off:", justify=LEFT, bg=bgcolor)
         coLabel.pack(side=LEFT, padx=5, pady=5)
         
         self.coForm = Entry(vulnFrame, width=3)
@@ -105,7 +101,7 @@ class AttacksFrame(Frame):
         helpVuln.pack(side=RIGHT, padx=5, pady=5)
         
         # SAVE PAIR
-        saveFrame = Frame(self.macTraceabilityFrame)
+        saveFrame = Frame(self.macTraceabilityFrame, bg=bgcolor)
         saveFrame.pack(fill=BOTH, expand=1)
         
         saveButton = Button(saveFrame, text="Save pair...", width=13, command=self.save)
@@ -116,13 +112,13 @@ class AttacksFrame(Frame):
         helpSave.pack(side=RIGHT, padx=5, pady=5)
         
         # CHECK FROM FILE
-        checkFrame = Frame(self.macTraceabilityFrame)
+        checkFrame = Frame(self.macTraceabilityFrame, bg=bgcolor)
         checkFrame.pack(fill=BOTH, expand=1)
         
         checkButton = Button(checkFrame, text="Check from file...", width=13, command=self.checkFromFile)
         checkButton.pack(side=LEFT, padx=5, pady=5)
         
-        coFileLabel = Label(checkFrame, text="Cut-off:", justify=LEFT)
+        coFileLabel = Label(checkFrame, text="Cut-off:", justify=LEFT, bg=bgcolor)
         coFileLabel.pack(side=LEFT, padx=5, pady=5)
         
         self.coFileForm = Entry(checkFrame, width=3)
@@ -133,19 +129,19 @@ class AttacksFrame(Frame):
         helpCheck.pack(side=RIGHT, padx=5, pady=5)
         
         # TEST
-        testFrame = Frame(self.macTraceabilityFrame)
+        testFrame = Frame(self.macTraceabilityFrame, bg=bgcolor)
         testFrame.pack(fill=BOTH, expand=1)
         
         testButton = Button(testFrame, text="Perfom test", width=13, command=self.test)
         testButton.pack(side=LEFT, padx=5, pady=5)
         
-        untilLabel = Label(testFrame, text="Until:", justify=LEFT)
+        untilLabel = Label(testFrame, text="Until:", justify=LEFT, bg=bgcolor)
         untilLabel.pack(side=LEFT, padx=5, pady=5)
 
         self.untilForm = Entry(testFrame, width=2)
-        self.untilForm.pack(side=LEFT, padx=5, pady=5)
+        self.untilForm.pack(side=LEFT, padx=15, pady=5)
         
-        delayLabel = Label(testFrame, text="Accuracy:", justify=LEFT)
+        delayLabel = Label(testFrame, text="Accuracy:", justify=LEFT, bg=bgcolor)
         delayLabel.pack(side=LEFT, padx=5, pady=5)
         
         self.perDelayForm = Entry(testFrame, width=2)
@@ -156,7 +152,7 @@ class AttacksFrame(Frame):
         helpTest.pack(side=RIGHT, padx=5, pady=5)
         
         # RESET BAC
-        rstFrame = Frame(self.macTraceabilityFrame)
+        rstFrame = Frame(self.macTraceabilityFrame, bg=bgcolor)
         rstFrame.pack(fill=BOTH, expand=1)
         
         rstButton = Button(rstFrame, text="Reset BAC", width=13, command=self.reset)
@@ -167,7 +163,7 @@ class AttacksFrame(Frame):
         helpRst.pack(side=RIGHT, padx=5, pady=5)
         
         # DEMO
-        demoFrame = Frame(self.macTraceabilityFrame)
+        demoFrame = Frame(self.macTraceabilityFrame, bg=bgcolor)
         demoFrame.pack(fill=BOTH, expand=1)
         
         demoButton = Button(demoFrame, text="Demo", width=13, command=self.demo)
@@ -178,19 +174,36 @@ class AttacksFrame(Frame):
         helpDemo.pack(side=RIGHT, padx=5, pady=5)
         
         # LOG
-        logMACFrame = Frame(self.macTraceabilityFrame)
-        logMACFrame.pack(fill=BOTH, expand=1)
-        
-        self.logMAC = Text(logMACFrame, height=15, width=92, state='disabled', wrap='none')
-        self.logMAC.pack()
+        self.logMACFrame = ScrollFrame(self.macTraceabilityFrame)
+        self.logMACFrame.pack(fill=BOTH, expand=1)
         
         # VERBOSE
-        verboseMACFrame = Frame(self.macTraceabilityFrame)
+        verboseMACFrame = Frame(self.macTraceabilityFrame, bg=bgcolor)
         verboseMACFrame.pack(fill=BOTH, expand=1)
 
         self.verboseMACVar = IntVar()
-        verboseMACCheck = Checkbutton(verboseMACFrame, text="Verbose", variable=self.verboseMACVar)
+        verboseMACCheck = Checkbutton(verboseMACFrame, text="Verbose", variable=self.verboseMACVar, bg=bgcolor)
         verboseMACCheck.pack(side=LEFT, padx=5, pady=5)
+        
+        # DESCRIPTION
+        macDescription = "\
+DESCRIPTION:\n\
+\n\
+During the BAC process, the IFD send a encrypted message that contains a random number \n\
+formely send by the ICC. The Message is concatenated with its MAC. Upon reception, the ICC \n\
+first check the MAC it is the proper one for the ciphertext. If it does not, the ICC sent \n\
+and error, else it decrypt the message and check if the random number is the same than the \n\
+one it sent previously. If it does not, it send en error.\n\
+The attack concist of capturing a correct pair ciphertext||MAC from a legitimate (using the \n\
+correct MRZ) communication between an IFD and ICC. The decryption and nonce verification \n\
+lasting couple of milisecond, the difference of reponse time between a wrong MAC and a wrong \n\
+nonce is big enough to be measured and deduce if the MAC is correct (meaning the passport is \n\
+the same than the one that was in the communication that produce the pair).\n\
+An attack must send a random pair and store the reponse time (RT1), then send the pair \n\
+captured previously and store the response time (RT2). If RT1 > RT2 and RT1 - RT2 > cut off \n\
+(usually 1.7ms), this means the MAC of the pair captured is correct."
+        
+        self.writeToLogMAC(macDescription)
 
         
         
@@ -198,28 +211,28 @@ class AttacksFrame(Frame):
         #################
         ## BRUTE FORCE ##
 
-        self.bruteForceFrame = Frame(self, borderwidth=1, relief=GROOVE)
+        self.bruteForceFrame = Frame(self, borderwidth=1, relief=GROOVE, bg=bgcolor)
         
         self.response = self.initInfoLabel = None
         
         
         # DOCUMENT NUMBER
-        docFrame = Frame(self.bruteForceFrame)
+        docFrame = Frame(self.bruteForceFrame, bg=bgcolor)
         docFrame.pack(fill=BOTH, expand=1)
         
         docLabel = Label(docFrame, text="DOCUMENT NUMBER", width=16, justify=LEFT)
         docLabel.pack(side=LEFT, padx=5, pady=5)
         
-        minDocLabel = Label(docFrame, text="Min:", justify=LEFT)
+        minDocLabel = Label(docFrame, text="Min:", justify=LEFT, bg=bgcolor)
         minDocLabel.pack(side=LEFT, padx=5, pady=5)
         
-        self.minDocForm = Entry(docFrame, width=9)
+        self.minDocForm = Entry(docFrame, width=10)
         self.minDocForm.pack(side=LEFT, pady=5)
 
-        maxDocLabel = Label(docFrame, text="Max:", justify=LEFT)
+        maxDocLabel = Label(docFrame, text="Max:", justify=LEFT, bg=bgcolor)
         maxDocLabel.pack(side=LEFT, padx=5, pady=5)
         
-        self.maxDocForm = Entry(docFrame, width=9)
+        self.maxDocForm = Entry(docFrame, width=10)
         self.maxDocForm.pack(side=LEFT, pady=5)
         
         helpDoc = Button(docFrame, image=image, command=self.helpDocDialog)
@@ -227,57 +240,57 @@ class AttacksFrame(Frame):
         helpDoc.pack(side=RIGHT, padx=5, pady=5)
         
         # DATE OF BIRTH
-        dobFrame = Frame(self.bruteForceFrame)
+        dobFrame = Frame(self.bruteForceFrame, bg=bgcolor)
         dobFrame.pack(fill=BOTH, expand=1)
         
         dobLabel = Label(dobFrame, text="DATE OF BIRTH", width=16, justify=LEFT)
         dobLabel.pack(side=LEFT, padx=5, pady=5)
         
-        minDOBLabel = Label(dobFrame, text="Min:", justify=LEFT)
+        minDOBLabel = Label(dobFrame, text="Min:", justify=LEFT, bg=bgcolor)
         minDOBLabel.pack(side=LEFT, padx=5, pady=5)
         
-        self.minDOBForm = Entry(dobFrame, width=10)
+        self.minDOBForm = Entry(dobFrame, width=7)
         self.minDOBForm.pack(side=LEFT, pady=5)
-        self.minDOBForm.insert(0, "YYYY/MM/DD")
+        self.minDOBForm.insert(0, "YYMMDD")
         
-        maxDOBLabel = Label(dobFrame, text="Max:", justify=LEFT)
+        maxDOBLabel = Label(dobFrame, text="Max:", justify=LEFT, bg=bgcolor)
         maxDOBLabel.pack(side=LEFT, padx=5, pady=5)
         
-        self.maxDOBForm = Entry(dobFrame, width=10)
+        self.maxDOBForm = Entry(dobFrame, width=7)
         self.maxDOBForm.pack(side=LEFT, pady=5)
-        self.maxDOBForm.insert(0, "YYYY/MM/DD")
+        self.maxDOBForm.insert(0, "YYMMDD")
         
         helpDOB = Button(dobFrame, image=image, command=self.helpDOBDialog)
         helpDOB.image = image
         helpDOB.pack(side=RIGHT, padx=5, pady=5)
         
         # DATE OF EXPIRY
-        doiFrame = Frame(self.bruteForceFrame)
+        doiFrame = Frame(self.bruteForceFrame, bg=bgcolor)
         doiFrame.pack(fill=BOTH, expand=1)
         
         doeLabel = Label(doiFrame, text="DATE OF EXPIRY", width=16, justify=LEFT)
         doeLabel.pack(side=LEFT, padx=5, pady=5)
         
-        minDOELabel = Label(doiFrame, text="Min:", justify=LEFT)
+        minDOELabel = Label(doiFrame, text="Min:", justify=LEFT, bg=bgcolor)
         minDOELabel.pack(side=LEFT, padx=5, pady=5)
         
-        self.minDOEForm = Entry(doiFrame, width=10)
+        self.minDOEForm = Entry(doiFrame, width=7)
         self.minDOEForm.pack(side=LEFT, pady=5)
-        self.minDOEForm.insert(0, "YYYY/MM/DD")
+        self.minDOEForm.insert(0, "YYMMDD")
         
-        maxDOELabel = Label(doiFrame, text="Max:", justify=LEFT)
+        maxDOELabel = Label(doiFrame, text="Max:", justify=LEFT, bg=bgcolor)
         maxDOELabel.pack(side=LEFT, padx=5, pady=5)
         
-        self.maxDOEForm = Entry(doiFrame, width=10)
+        self.maxDOEForm = Entry(doiFrame, width=7)
         self.maxDOEForm.pack(side=LEFT, pady=5)
-        self.maxDOEForm.insert(0, "YYYY/MM/DD")
+        self.maxDOEForm.insert(0, "YYMMDD")
         
         helpDOE = Button(doiFrame, image=image, command=self.helpDOEDialog)
         helpDOE.image = image
         helpDOE.pack(side=RIGHT, padx=5, pady=5)
         
         # CHECK
-        checkDataFrame = Frame(self.bruteForceFrame)
+        checkDataFrame = Frame(self.bruteForceFrame, bg=bgcolor)
         checkDataFrame.pack(fill=BOTH, expand=1)
         
         checkDataButton = Button(checkDataFrame, text="Check", width=13, command=self.checkData)
@@ -288,7 +301,7 @@ class AttacksFrame(Frame):
         helpCheckData.pack(side=RIGHT, padx=5, pady=5)
         
         # GET STATS
-        statsFrame = Frame(self.bruteForceFrame)
+        statsFrame = Frame(self.bruteForceFrame, bg=bgcolor)
         statsFrame.pack(fill=BOTH, expand=1)
         
         statsButton = Button(statsFrame, text="Get stats", width=13, command=self.getStats)
@@ -299,7 +312,7 @@ class AttacksFrame(Frame):
         helpStats.pack(side=RIGHT, padx=5, pady=5)
         
         # GENERATE NONCE/MAC
-        initFrame = Frame(self.bruteForceFrame)
+        initFrame = Frame(self.bruteForceFrame, bg=bgcolor)
         initFrame.pack(fill=BOTH, expand=1)
         
         initButton = Button(initFrame, text="Generate ANS/MAC", width=13, command=self.generate)
@@ -310,14 +323,14 @@ class AttacksFrame(Frame):
         helpInit.pack(side=RIGHT, padx=5, pady=5)
         
         # LIVE EXPLOIT
-        liveFrame = Frame(self.bruteForceFrame)
+        liveFrame = Frame(self.bruteForceFrame, bg=bgcolor)
         liveFrame.pack(fill=BOTH, expand=1)
         
         liveButton = Button(liveFrame, text="Live brute force", width=13, command=self.live)
         liveButton.pack(side=LEFT, padx=5, pady=5)
         
         self.rstBruteVar = IntVar()
-        rstBruteCheck = Checkbutton(liveFrame, text="Reset", variable=self.rstBruteVar)
+        rstBruteCheck = Checkbutton(liveFrame, text="Reset", variable=self.rstBruteVar, bg=bgcolor)
         rstBruteCheck.pack(side=LEFT, padx=5, pady=5)
         
         helpLive = Button(liveFrame, image=image, command=self.helpLiveDialog)
@@ -325,7 +338,7 @@ class AttacksFrame(Frame):
         helpLive.pack(side=RIGHT, padx=5, pady=5)
         
         # OFFLINE EXPLOIT
-        offlineFrame = Frame(self.bruteForceFrame)
+        offlineFrame = Frame(self.bruteForceFrame, bg=bgcolor)
         offlineFrame.pack(fill=BOTH, expand=1)
         
         offlineButton = Button(offlineFrame, text="Offline brute force", width=13, command=self.offline)
@@ -336,19 +349,29 @@ class AttacksFrame(Frame):
         helpOffline.pack(side=RIGHT, padx=5, pady=5)
         
         # LOG
-        logBruteFrame = Frame(self.bruteForceFrame)
-        logBruteFrame.pack(fill=BOTH, expand=1)
-        
-        self.logBrute = Text(logBruteFrame, height=15, width=92, state='disabled', wrap='none')
-        self.logBrute.pack()
+        self.logBruteFrame = ScrollFrame(self.bruteForceFrame)
+        self.logBruteFrame.pack(fill=BOTH, expand=1)
         
         # VERBOSE
-        verboseBruteFrame = Frame(self.bruteForceFrame)
+        verboseBruteFrame = Frame(self.bruteForceFrame, bg=bgcolor)
         verboseBruteFrame.pack(fill=BOTH, expand=1)
 
         self.verboseBruteVar = IntVar()
-        verboseBruteCheck = Checkbutton(verboseBruteFrame, text="Verbose", variable=self.verboseBruteVar)
+        verboseBruteCheck = Checkbutton(verboseBruteFrame, text="Verbose", variable=self.verboseBruteVar, bg=bgcolor)
         verboseBruteCheck.pack(side=LEFT, padx=5, pady=5)
+        
+                # DESCRIPTION
+        bfDescription = "\
+DESCRIPTION:\n\
+\n\
+The derrivation of the keys used during the session keys establishment require one ID (8 \n\
+characteres) and two dates (6 digits). The - low - entropy could be reduced if the attacker \n\
+has personnal information about the bearer. Therefore a brute force on the MRZ might be \n\
+possible.\n\
+The attack concist of trying one by one each possibility of MRZ in the range set by the \n\
+attacker. Whenever a BAC succeed, this means the MRZ tried is correct one."
+        
+        self.writeToLogBF(bfDescription)
         
         
         
@@ -356,11 +379,11 @@ class AttacksFrame(Frame):
         ###########################
         ## ACTIVE AUTHENTICATION ##
 
-        self.activeAuthenticationFrame = Frame(self, borderwidth=1, relief=GROOVE)
+        self.activeAuthenticationFrame = Frame(self, borderwidth=1, relief=GROOVE, bg=bgcolor)
 
         
         # IS VULNERABLE?
-        vulnAAFrame = Frame(self.activeAuthenticationFrame)
+        vulnAAFrame = Frame(self.activeAuthenticationFrame, bg=bgcolor)
         vulnAAFrame.pack(fill=BOTH, expand=1)
         
         vulnerableAAButton = Button(vulnAAFrame, text="Is vulnerable?", width=13, command=self.isVulnerableAA)
@@ -371,13 +394,13 @@ class AttacksFrame(Frame):
         helpVulnAA.pack(side=RIGHT, padx=5, pady=5)
         
         # GET HIGHEST SIGNATURE
-        getHighestFrame = Frame(self.activeAuthenticationFrame)
+        getHighestFrame = Frame(self.activeAuthenticationFrame, bg=bgcolor)
         getHighestFrame.pack(fill=BOTH, expand=1)
         
         getHighestButton = Button(getHighestFrame, text="Get highest sign", width=13, command=self.getHighestSign)
         getHighestButton.pack(side=LEFT, padx=5, pady=5)
         
-        maxHighestLabel = Label(getHighestFrame, text="Max:", justify=LEFT)
+        maxHighestLabel = Label(getHighestFrame, text="Max:", justify=LEFT, bg=bgcolor)
         maxHighestLabel.pack(side=LEFT, padx=5, pady=5)
         
         self.maxHighestForm = Entry(getHighestFrame, width=3)
@@ -388,7 +411,7 @@ class AttacksFrame(Frame):
         helpGetHighest.pack(side=RIGHT, padx=5, pady=5)
         
         # GET MODULO
-        getModuloFrame = Frame(self.activeAuthenticationFrame)
+        getModuloFrame = Frame(self.activeAuthenticationFrame, bg=bgcolor)
         getModuloFrame.pack(fill=BOTH, expand=1)
         
         getModuloButton = Button(getModuloFrame, text="Get modulo", width=13, command=self.getModulo)
@@ -399,7 +422,7 @@ class AttacksFrame(Frame):
         helpGetModulo.pack(side=RIGHT, padx=5, pady=5)
         
         # COMPARE
-        compareFrame = Frame(self.activeAuthenticationFrame)
+        compareFrame = Frame(self.activeAuthenticationFrame, bg=bgcolor)
         compareFrame.pack(fill=BOTH, expand=1)
         
         compareButton = Button(compareFrame, text="Compare", width=13, command=self.compare)
@@ -413,7 +436,7 @@ class AttacksFrame(Frame):
         self.signCompareForm.pack(side=LEFT, padx=5, pady=5)
         self.signCompareForm.insert(0, "Signature")
         
-        accCompareLabel = Label(compareFrame, text="Accuracy:", justify=LEFT)
+        accCompareLabel = Label(compareFrame, text="Accuracy:", justify=LEFT, bg=bgcolor)
         accCompareLabel.pack(side=LEFT, padx=5, pady=5)
         
         self.accCompareForm = Entry(compareFrame, width=2)
@@ -424,7 +447,7 @@ class AttacksFrame(Frame):
         helpCompare.pack(side=RIGHT, padx=5, pady=5)
         
         # MATCH?
-        matchFrame = Frame(self.activeAuthenticationFrame)
+        matchFrame = Frame(self.activeAuthenticationFrame, bg=bgcolor)
         matchFrame.pack(fill=BOTH, expand=1)
         
         matchButton = Button(matchFrame, text="Match?", width=13, command=self.mayBelongsTo)
@@ -443,7 +466,7 @@ class AttacksFrame(Frame):
         helpMatch.pack(side=RIGHT, padx=5, pady=5)
         
         # SAVE
-        saveSignFrame = Frame(self.activeAuthenticationFrame)
+        saveSignFrame = Frame(self.activeAuthenticationFrame, bg=bgcolor)
         saveSignFrame.pack(fill=BOTH, expand=1)
         
         saveSignButton = Button(saveSignFrame, text="Save sign/mod...", width=13, command=self.saveSign)
@@ -451,10 +474,10 @@ class AttacksFrame(Frame):
         
         self.typeSign = IntVar()
         self.typeSign.set(1)
-        signatureRadioButton = Radiobutton(saveSignFrame, text="Signature", variable=self.typeSign, value=1)
+        signatureRadioButton = Radiobutton(saveSignFrame, text="Signature", variable=self.typeSign, value=1, bg=bgcolor)
         signatureRadioButton.pack(side=LEFT, padx=5, pady=5)
 
-        moduloRadioButton = Radiobutton(saveSignFrame, text="Modulo", variable=self.typeSign, value=2)
+        moduloRadioButton = Radiobutton(saveSignFrame, text="Modulo", variable=self.typeSign, value=2, bg=bgcolor)
         moduloRadioButton.pack(side=LEFT, padx=5, pady=5)
         
         helpSaveSign = Button(saveSignFrame, image=image, command=self.helpSaveSignDialog)
@@ -462,7 +485,7 @@ class AttacksFrame(Frame):
         helpSaveSign.pack(side=RIGHT, padx=5, pady=5)
         
         # CHECK FROM FILE
-        checkSignFrame = Frame(self.activeAuthenticationFrame)
+        checkSignFrame = Frame(self.activeAuthenticationFrame, bg=bgcolor)
         checkSignFrame.pack(fill=BOTH, expand=1)
         
         checkSignButton = Button(checkSignFrame, text="Check from file...", width=13, command=self.checkSignFromFile)
@@ -472,7 +495,7 @@ class AttacksFrame(Frame):
         self.moduloFileForm.pack(side=LEFT, padx=5, pady=5)
         self.moduloFileForm.insert(0, "Signature")
         
-        coFileLabel = Label(checkSignFrame, text="Accuracy:", justify=LEFT)
+        coFileLabel = Label(checkSignFrame, text="Accuracy:", justify=LEFT, bg=bgcolor)
         coFileLabel.pack(side=LEFT, padx=5, pady=5)
         
         self.accFileForm = Entry(checkSignFrame, width=3)
@@ -483,7 +506,7 @@ class AttacksFrame(Frame):
         helpCheckSign.pack(side=RIGHT, padx=5, pady=5)
         
         # SIGN EVERYTHING
-        signEverythingFrame = Frame(self.activeAuthenticationFrame)
+        signEverythingFrame = Frame(self.activeAuthenticationFrame, bg=bgcolor)
         signEverythingFrame.pack(fill=BOTH, expand=1)
         
         signEverythingButton = Button(signEverythingFrame, text="Sign...", width=13, command=self.signEverything)
@@ -498,19 +521,30 @@ class AttacksFrame(Frame):
         helpSignEverything.pack(side=RIGHT, padx=5, pady=5)
         
         # LOG
-        logAAFrame = Frame(self.activeAuthenticationFrame)
-        logAAFrame.pack(fill=BOTH, expand=1)
-        
-        self.logAA = Text(logAAFrame, height=15, width=92, wrap='none')
-        self.logAA.pack()
+        self.logAAFrame = ScrollFrame(self.activeAuthenticationFrame)
+        self.logAAFrame.pack(fill=BOTH, expand=1)
         
         # VERBOSE
-        verboseAAFrame = Frame(self.activeAuthenticationFrame)
+        verboseAAFrame = Frame(self.activeAuthenticationFrame, bg=bgcolor)
         verboseAAFrame.pack(fill=BOTH, expand=1)
 
         self.verboseAAVar = IntVar()
-        verboseAACheck = Checkbutton(verboseAAFrame, text="Verbose", variable=self.verboseAAVar)
+        verboseAACheck = Checkbutton(verboseAAFrame, text="Verbose", variable=self.verboseAAVar, bg=bgcolor)
         verboseAACheck.pack(side=LEFT, padx=5, pady=5)
+        
+        # DESCRIPTION
+        aaDescription = "\
+DESCRIPTION:\n\
+\n\
+In some case, it is possible to execute an active authentication before the BAC and \n\
+thus geting a signature. In RSA algorythm, the signature can't be higher than the modulo.\n\
+Therefore, after a couple of test, by keeping the highest signature, we know that we are \n\
+more and more close  to the modulo. Since the modulo is unique it is possible to identify \n\
+(with a little lack of accuracy) a passport. If the highest signature is higher than the \n\
+modulo of a passport (avaible in DG15), we know for sure that the passport scanned is NOT \n\
+the one to which belongs the modulo."
+        
+        self.writeToLogAA(aaDescription)
         
         
         
@@ -518,55 +552,55 @@ class AttacksFrame(Frame):
         ##########################
         ## ERROR FINGERPRINTING ##
 
-        self.errorFingerprintingFrame = Frame(self, borderwidth=1, relief=GROOVE)
+        self.errorFingerprintingFrame = Frame(self, borderwidth=1, relief=GROOVE, bg=bgcolor)
 
         
         # APDU
-        apduFrame = Frame(self.errorFingerprintingFrame)
+        apduFrame = Frame(self.errorFingerprintingFrame, bg=bgcolor)
         apduFrame.pack(fill=BOTH, expand=1)
         
 
-        customCLALabel = Label(apduFrame, text="CLA:", justify=LEFT)
+        customCLALabel = Label(apduFrame, text="CLA:", justify=LEFT, bg=bgcolor)
         customCLALabel.pack(side=LEFT, padx=5, pady=5)
         
         self.customCLAForm = Entry(apduFrame, width=2)
         self.customCLAForm.pack(side=LEFT, pady=5)
         self.customCLAForm.insert(0, "00")
         
-        customINSLabel = Label(apduFrame, text="INS:", justify=LEFT)
+        customINSLabel = Label(apduFrame, text="INS:", justify=LEFT, bg=bgcolor)
         customINSLabel.pack(side=LEFT, padx=5, pady=5)
         
         self.customINSForm = Entry(apduFrame, width=2)
         self.customINSForm.pack(side=LEFT, pady=5)
         self.customINSForm.insert(0, "84")
         
-        customP1Label = Label(apduFrame, text="P1:", justify=LEFT)
+        customP1Label = Label(apduFrame, text="P1:", justify=LEFT, bg=bgcolor)
         customP1Label.pack(side=LEFT, padx=5, pady=5)
         
         self.customP1Form = Entry(apduFrame, width=2)
         self.customP1Form.pack(side=LEFT, pady=5)
         self.customP1Form.insert(0, "00")
         
-        customP2Label = Label(apduFrame, text="P2:", justify=LEFT)
+        customP2Label = Label(apduFrame, text="P2:", justify=LEFT, bg=bgcolor)
         customP2Label.pack(side=LEFT, padx=5, pady=5)
         
         self.customP2Form = Entry(apduFrame, width=2)
         self.customP2Form.pack(side=LEFT, pady=5)
         self.customP2Form.insert(0, "00")
         
-        customLCLabel = Label(apduFrame, text="LC:", justify=LEFT)
+        customLCLabel = Label(apduFrame, text="LC:", justify=LEFT, bg=bgcolor)
         customLCLabel.pack(side=LEFT, padx=5, pady=5)
         
         self.customLCForm = Entry(apduFrame, width=3)
         self.customLCForm.pack(side=LEFT, pady=5)
         
-        customDATALabel = Label(apduFrame, text="DATA:", justify=LEFT)
+        customDATALabel = Label(apduFrame, text="DATA:", justify=LEFT, bg=bgcolor)
         customDATALabel.pack(side=LEFT, padx=5, pady=5)
         
         self.customDATAForm = Entry(apduFrame, width=8)
         self.customDATAForm.pack(side=LEFT, pady=5)
         
-        customLELabel = Label(apduFrame, text="LE:", justify=LEFT)
+        customLELabel = Label(apduFrame, text="LE:", justify=LEFT, bg=bgcolor)
         customLELabel.pack(side=LEFT, padx=5, pady=5)
         
         self.customLEForm = Entry(apduFrame, width=2)
@@ -574,7 +608,7 @@ class AttacksFrame(Frame):
         self.customLEForm.insert(0, "08")
         
         # SEND CUSTOM APDU
-        sendCustomFrame = Frame(self.errorFingerprintingFrame)
+        sendCustomFrame = Frame(self.errorFingerprintingFrame, bg=bgcolor)
         sendCustomFrame.pack(fill=BOTH, expand=1)
         
         sendCustomButton = Button(sendCustomFrame, text="Send custom APDU", width=13, command=self.sendCustom)
@@ -585,19 +619,19 @@ class AttacksFrame(Frame):
         helpSendCustom.pack(side=RIGHT, padx=5, pady=5)
         
         # ADD ERROR
-        addErrorFrame = Frame(self.errorFingerprintingFrame)
+        addErrorFrame = Frame(self.errorFingerprintingFrame, bg=bgcolor)
         addErrorFrame.pack(fill=BOTH, expand=1)
         
         addErrorButton = Button(addErrorFrame, text="Add error", width=13, command=self.addError)
         addErrorButton.pack(side=LEFT, padx=5, pady=5)
         
-        countryLabel = Label(addErrorFrame, text="Country:", justify=LEFT)
+        countryLabel = Label(addErrorFrame, text="Country:", justify=LEFT, bg=bgcolor)
         countryLabel.pack(side=LEFT, padx=5, pady=5)
         
         self.countryForm = Entry(addErrorFrame, width=3)
         self.countryForm.pack(side=LEFT, pady=5)
         
-        yearLabel = Label(addErrorFrame, text="Year:", justify=LEFT)
+        yearLabel = Label(addErrorFrame, text="Year:", justify=LEFT, bg=bgcolor)
         yearLabel.pack(side=LEFT, padx=5, pady=5)
         
         self.yearForm = Entry(addErrorFrame, width=4)
@@ -608,7 +642,7 @@ class AttacksFrame(Frame):
         helpAddError.pack(side=RIGHT, padx=5, pady=5)
         
         # IDENTIFY
-        identifyFrame = Frame(self.errorFingerprintingFrame)
+        identifyFrame = Frame(self.errorFingerprintingFrame, bg=bgcolor)
         identifyFrame.pack(fill=BOTH, expand=1)
         
         identifyButton = Button(identifyFrame, text="Identify", width=13, command=self.identify)
@@ -619,24 +653,36 @@ class AttacksFrame(Frame):
         helpIdentify.pack(side=RIGHT, padx=5, pady=5)
         
         # LOG
-        logErrorFrame = Frame(self.errorFingerprintingFrame)
-        logErrorFrame.pack(fill=BOTH, expand=1)
-        
-        self.logError = Text(logErrorFrame, height=15, width=92, wrap='none')
-        self.logError.pack()
+        self.logErrorFrame = ScrollFrame(self.errorFingerprintingFrame)
+        self.logErrorFrame.pack(fill=BOTH, expand=1)
         
         # VERBOSE
-        verboseErrorFrame = Frame(self.errorFingerprintingFrame)
+        verboseErrorFrame = Frame(self.errorFingerprintingFrame, bg=bgcolor)
         verboseErrorFrame.pack(fill=BOTH, expand=1)
 
         self.verboseErrorVar = IntVar()
-        verboseErrorCheck = Checkbutton(verboseErrorFrame, text="Verbose", variable=self.verboseErrorVar)
+        verboseErrorCheck = Checkbutton(verboseErrorFrame, text="Verbose", variable=self.verboseErrorVar, bg=bgcolor)
         verboseErrorCheck.pack(side=LEFT, padx=5, pady=5)
+        
+        # DESCRIPTION
+        errDescription = "\
+DESCRIPTION:\n\
+\n\
+ICAO did not defined the message to send regarding the error triggered. Therefore, each \n\
+country decided which message to the send (among the SW1|SW2 list). Due to this non-\n\
+standardisation, it is possible to identify a country issuer when triggering on purpose \n\
+an error that the attacker knows the answer will be different regarding the country."
+        
+        self.writeToLogERR(errDescription)
         
 
         # PACK
         self.currentFrame = self.macTraceabilityFrame
         self.currentFrame.pack(fill=BOTH, expand=1)
+        self.currentButton = self.macTraceabilityButton
+        self.currentButton.config(relief=SUNKEN, bg="#D1D1D1")
+        
+        
         
 
         
@@ -649,37 +695,43 @@ class AttacksFrame(Frame):
     #########
     
     def writeToLogMAC(self, msg, desc=None):
-        self.logMAC['state'] = 'normal'
-        if desc: self.logMAC.insert('1.0', "{0} > {1}\n".format(msg, desc))
-        else: self.logMAC.insert('1.0', "{0}\n".format(msg))
-        self.logMAC['state'] = 'disabled'
+        if desc: self.logMACFrame.insert(END, "{0} > {1}\n".format(msg, desc))
+        else: self.logMACFrame.insert(END, "{0}\n".format(msg))
     
     def writeToLogBF(self, msg, desc=None):
-        self.logBrute['state'] = 'normal'
-        if desc: self.logBrute.insert('1.0', "{0} > {1}\n".format(msg, desc))
-        else: self.logBrute.insert('1.0', "{0}\n".format(msg))
-        self.logBrute['state'] = 'disabled'
+        if desc: self.logBruteFrame.insert(END, "{0} > {1}\n".format(msg, desc))
+        else: self.logBruteFrame.insert(END, "{0}\n".format(msg))
     
     def writeToLogAA(self, msg, desc=None):
-        if desc: self.logAA.insert('1.0', "{0} > {1}\n".format(msg, desc))
-        else: self.logAA.insert('1.0', "{0}\n".format(msg))
+        if desc: self.logAAFrame.insert(END, "{0} > {1}\n".format(msg, desc), False)
+        else: self.logAAFrame.insert(END, "{0}\n".format(msg), False)
     
     def writeToLogERR(self, msg, desc=None):
-        self.logError['state'] = 'normal'
-        if desc: self.logError.insert('1.0', "{0} > {1}\n".format(msg, desc))
-        else: self.logError.insert('1.0', "{0}\n".format(msg))
-        self.logError['state'] = 'disabled'
+        if desc: self.logErrorFrame.insert(END, "{0} > {1}\n".format(msg, desc))
+        else: self.logErrorFrame.insert(END, "{0}\n".format(msg))
     
     def switchMac(self):
+        self.currentButton.config(relief=RAISED)
+        self.currentButton = self.macTraceabilityButton
+        self.currentButton.config(relief=SUNKEN)
         self.switch(self.macTraceabilityFrame)
         
     def switchBrute(self):
+        self.currentButton.config(relief=RAISED)
+        self.currentButton = self.bruteForceButton
+        self.currentButton.config(relief=SUNKEN, bg="#D1D1D1")
         self.switch(self.bruteForceFrame)
     
     def switchAA(self):
+        self.currentButton.config(relief=RAISED)
+        self.currentButton = self.activeAuthenticationButton
+        self.currentButton.config(relief=SUNKEN, bg="#D1D1D1")
         self.switch(self.activeAuthenticationFrame)
     
     def switchError(self):
+        self.currentButton.config(relief=RAISED)
+        self.currentButton = self.errorFingerprintingButton
+        self.currentButton.config(relief=SUNKEN, bg="#D1D1D1")
         self.switch(self.errorFingerprintingFrame)
     
     def switch(self, frame):
@@ -688,31 +740,7 @@ class AttacksFrame(Frame):
         self.currentFrame.pack(fill=BOTH, expand=1)
     
     def getReader(self):
-        if self.nbForm.get(): return int(self.nbForm.get())
-        else: return 1
-    
-    
-    # History Functions              
-    def addToHistory(self, mrz):
-        try: 
-            file = open(HISTORY, "r")
-            history = pickle.load(file)
-            file.close()
-        except Exception:
-            history = []
-            
-        name = mrz
-        for name_hist, mrz_hist in history:
-            if mrz==mrz_hist:
-                name = name_hist
-                history.remove((name_hist, mrz_hist))
-        history.insert(0, (name, mrz))
-        if len(history) > MAX_HISTORY:
-            history = history[:MAX_HISTORY]
-        
-        with open(HISTORY, 'w') as file:
-            pickle.dump(history, file)
-            file.close()
+        return 1
          
     
     #########################
@@ -726,12 +754,11 @@ class AttacksFrame(Frame):
             if self.coForm.get(): co = self.coForm.get()
             else: co = 1.7
 
-            r = reader.ReaderManager().waitForCard(5, "PcscReader", self.getReader())
+            r = reader.ReaderManager().waitForCard()
             attack = macTraceability.MacTraceability(Iso7816(r))
             if self.verboseMACVar.get():
                 attack.register(self.writeToLogMAC)
-            if attack.setMRZ(self.mrz.get()):
-                self.addToHistory(self.mrz.get())
+            if attack.setMRZ(self.mrz.buildMRZ()):
                 if self.frenchVar.get(): attack.reachMaxDelay()
                 self.writeToLogMAC("Is vulnerable? : {0}".format(attack.isVulnerable(int(co))))
             else:
@@ -749,15 +776,12 @@ class AttacksFrame(Frame):
             if directory:
                 directory = str(directory)
                 if os.path.isdir(directory):
-                    if self.nbForm.get(): nb = self.nbForm.get()
-                    else: nb = 0
 
-                    r = reader.ReaderManager().waitForCard(5, "PcscReader", self.getReader())
+                    r = reader.ReaderManager().waitForCard()
                     attack = macTraceability.MacTraceability(Iso7816(r))
                     if self.verboseMACVar.get():
                         attack.register(self.writeToLogMAC)
-                    if attack.setMRZ(self.mrz.get()):
-                        self.addToHistory(self.mrz.get())
+                    if attack.setMRZ(self.mrz.buildMRZ()):
                         attack.savePair(directory)
                         tkMessageBox.showinfo("Save successful", "The pair has bee saved in:\n{0}".format(directory))
                     else:
@@ -777,7 +801,7 @@ class AttacksFrame(Frame):
                 if os.path.isfile(directory):
                     if self.coForm.get(): co = self.coForm.get()
                     else: co = 1.7
-                    r = reader.ReaderManager().waitForCard(5, "PcscReader", self.getReader())
+                    r = reader.ReaderManager().waitForCard()
                     attack = macTraceability.MacTraceability(Iso7816(r))
                     if self.verboseMACVar.get():
                         attack.register(self.writeToLogMAC)
@@ -792,11 +816,11 @@ class AttacksFrame(Frame):
     def test(self):
         try:
 
-            r = reader.ReaderManager().waitForCard(5, "PcscReader", self.getReader())
+            r = reader.ReaderManager().waitForCard()
             attack = macTraceability.MacTraceability(Iso7816(r))
             if self.verboseMACVar.get():
                 attack.register(self.writeToLogMAC)
-            if attack.setMRZ(self.mrz.get()):
+            if attack.setMRZ(self.mrz.buildMRZ()):
                 if self.untilForm.get(): until = int(self.untilForm.get())
                 else: until = 20
                 if self.perDelayForm.get(): per_delay = int(self.perDelayForm.get())
@@ -804,8 +828,8 @@ class AttacksFrame(Frame):
                 
                 j = 0
                 while j<until:
-                    self.writeToLogMAC("Average: {0}".format(attack.test(j, per_delay)))
                     self.writeToLogMAC("Delay increased between {0} and {1} error(s)".format(j, j+1))
+                    self.writeToLogMAC("Average: {0}".format(attack.test(j, per_delay)))
                     j+=1
             else:
                 tkMessageBox.showerror("Error: Wrong MRZ", "The check digits are not correct")
@@ -816,11 +840,11 @@ class AttacksFrame(Frame):
     # BAC RESET
     def reset(self):
         try:
-            r = reader.ReaderManager().waitForCard(5, "PcscReader", self.getReader())
+            r = reader.ReaderManager().waitForCard()
             attack = macTraceability.MacTraceability(Iso7816(r))
             if self.verboseMACVar.get():
                 attack.register(self.writeToLogMAC)
-            if attack.setMRZ(self.mrz.get()):
+            if attack.setMRZ(self.mrz.buildMRZ()):
                 attack.rstBAC()
                 self.writeToLogMAC("BAC reset")
             else:
@@ -831,11 +855,11 @@ class AttacksFrame(Frame):
     # DEMO
     def demo(self):
         try:
-            r = reader.ReaderManager().waitForCard(5, "PcscReader", self.getReader())
+            r = reader.ReaderManager().waitForCard()
             attack = macTraceability.MacTraceability(Iso7816(r))
             if self.verboseMACVar.get():
                 attack.register(self.writeToLogMAC)
-            if attack.setMRZ(self.mrz.get()):
+            if attack.setMRZ(self.mrz.buildMRZ()):
                 tkMessageBox.showinfo("Passport scanned", "Press ok then remove your passport from the reader.\nWait 5s before testing if a passport match.")
                 if attack.demo():
                     self.writeToLogMAC("This passport match the one scanned")
@@ -852,7 +876,7 @@ class AttacksFrame(Frame):
     # Init Data
     def initData(self):
         try:
-            r = reader.ReaderManager().waitForCard(5, "PcscReader", self.getReader())
+            r = reader.ReaderManager().waitForCard()
             bf = bruteForce.BruteForce(Iso7816(r))
             if self.verboseBruteVar.get():
                 bf.register(self.writeToLogBF)
@@ -862,14 +886,14 @@ class AttacksFrame(Frame):
             if self.maxDocForm.get() == '': maxDoc = None
             else: maxDoc = self.maxDocForm.get()
             
-            if self.minDOBForm.get() == 'YYYY/MM/DD': minDOB = None
+            if self.minDOBForm.get() == 'YYMMDD': minDOB = None
             else: minDOB = self.minDOBForm.get()
-            if self.maxDOBForm.get() == 'YYYY/MM/DD': maxDOB = None
+            if self.maxDOBForm.get() == 'YYMMDD': maxDOB = None
             else: maxDOB = self.maxDOBForm.get()
 
-            if self.minDOEForm.get() == 'YYYY/MM/DD': minDOE = None
+            if self.minDOEForm.get() == 'YYMMDD': minDOE = None
             else: minDOE = self.minDOEForm.get()
-            if self.maxDOEForm.get() == 'YYYY/MM/DD': maxDOE = None
+            if self.maxDOEForm.get() == 'YYMMDD': maxDOE = None
             else: maxDOE = self.maxDOEForm.get()
             
             bf.setID(minDoc, maxDoc)
@@ -887,7 +911,7 @@ class AttacksFrame(Frame):
             bf = self.initData()
             chk, err = bf.check()
             if chk:
-                self.writeToLogBF(chk)
+                self.writeToLogBF("Format values are correct")
             else:
                 self.writeToLogBF(err)
 
@@ -913,10 +937,10 @@ class AttacksFrame(Frame):
     # GENERATE NONCE AND RESPONSE/MAC
     def generate(self):
         try:
-            if self.mrz.get():
+            if self.mrz.buildMRZ():
                 bf = self.initData()
-                self.response = bf.initOffline(self.mrz.get())
-                self.writeToLogBF("Nonce and response/MAC from {0} loaded".format(self.mrz.get()[0:9]))
+                self.response = bf.initOffline(self.mrz.buildMRZ())
+                self.writeToLogBF("Nonce and response/MAC from {0} loaded".format(self.mrz.buildMRZ()[0:9]))
             else:
                 tkMessageBox.showerror("Error: MRZ", "You have to set the proper MRZ")
         except Exception, msg:
@@ -964,7 +988,7 @@ class AttacksFrame(Frame):
     # IS VULNERABLE?
     def isVulnerableAA(self):
         try:
-            r = reader.ReaderManager().waitForCard(5, "PcscReader", self.getReader())
+            r = reader.ReaderManager().waitForCard()
             attack = aaTraceability.AATraceability(Iso7816(r))
             if self.verboseAAVar.get():
                 attack.register(self.writeToLogAA)
@@ -978,23 +1002,25 @@ class AttacksFrame(Frame):
             if self.maxHighestForm.get() == '': max_loop = 100
             else: max_loop = int(self.maxHighestForm.get())
 
-            r = reader.ReaderManager().waitForCard(5, "PcscReader", self.getReader())
+            r = reader.ReaderManager().waitForCard()
             attack = aaTraceability.AATraceability(Iso7816(r))
             if self.verboseAAVar.get():
                 attack.register(self.writeToLogAA)
+            start_time = time()
             self.writeToLogAA("Highest signature: {0}".format(attack.getHighestSign(max_loop)))
+            self.writeToLogAA("Time: {0}".format(time()-start_time))
         except Exception, msg:
             tkMessageBox.showerror("Error: Get highest signature", str(msg))
         
     # GET MODULO
     def getModulo(self):
         try:
-            if self.mrz.get()!='':
-                r = reader.ReaderManager().waitForCard(5, "PcscReader", self.getReader())
+            if self.mrz.buildMRZ()!='':
+                r = reader.ReaderManager().waitForCard()
                 attack = aaTraceability.AATraceability(Iso7816(r))
                 if self.verboseAAVar.get():
                     attack.register(self.writeToLogAA)
-                self.writeToLogAA("Modulo: {0}".format(attack.getModulo(self.mrz.get())))
+                self.writeToLogAA("Modulo: {0}".format(attack.getModulo(self.mrz.buildMRZ())))
             else:
                 tkMessageBox.showerror("Error: Wrong MRZ", "You have to set the proper MRZ")
         except Exception, msg:
@@ -1006,7 +1032,7 @@ class AttacksFrame(Frame):
             if self.accCompareForm.get() == '': accuracy = 6
             else: accuracy = int(self.accCompareForm.get())
 
-            r = reader.ReaderManager().waitForCard(5, "PcscReader", self.getReader())
+            r = reader.ReaderManager().waitForCard()
             attack = aaTraceability.AATraceability(Iso7816(r))
             if self.verboseAAVar.get():
                 attack.register(self.writeToLogAA)
@@ -1018,7 +1044,7 @@ class AttacksFrame(Frame):
     # MAY BELONGS TO
     def mayBelongsTo(self):
         try:
-            r = reader.ReaderManager().waitForCard(5, "PcscReader", self.getReader())
+            r = reader.ReaderManager().waitForCard()
             attack = aaTraceability.AATraceability(Iso7816(r))
             if self.verboseAAVar.get():
                 attack.register(self.writeToLogAA)
@@ -1034,7 +1060,7 @@ class AttacksFrame(Frame):
             if directory:
                 directory = str(directory)
                 if os.path.isdir(directory):
-                    r = reader.ReaderManager().waitForCard(5, "PcscReader", self.getReader())
+                    r = reader.ReaderManager().waitForCard()
                     attack = aaTraceability.AATraceability(Iso7816(r))
                     if self.verboseAAVar.get():
                         attack.register(self.writeToLogAA)
@@ -1044,8 +1070,8 @@ class AttacksFrame(Frame):
                         tkMessageBox.showinfo("Save successful", "The signature has bee saved in:\n{0}".format(directory))
                     
                     if self.typeSign.get()==2:
-                        if self.mrz.get()!='': 
-                            modulo = attack.getModulo(self.mrz.get())
+                        if self.mrz.buildMRZ()!='': 
+                            modulo = attack.getModulo(self.mrz.buildMRZ())
                             attack.save(modulo, directory, "modulo")
                             tkMessageBox.showinfo("Save successful", "The modulo has bee saved in:\n{0}".format(directory))
                         else:
@@ -1064,7 +1090,7 @@ class AttacksFrame(Frame):
                 if os.path.isfile(directory):
                     if self.accFileForm.get()!='': accuracy = int(self.accFileForm.get())
                     else: accuracy = None
-                    r = reader.ReaderManager().waitForCard(5, "PcscReader", self.getReader())
+                    r = reader.ReaderManager().waitForCard()
                     attack = aaTraceability.AATraceability(Iso7816(r))
                     if self.verboseAAVar.get():
                         attack.register(self.writeToLogAA)
@@ -1085,12 +1111,12 @@ class AttacksFrame(Frame):
             if not reg.match(self.nonceToSignForm.get()): 
                 raise Exception("The message to sign must be 15 or 16 HEX [0-9A-F]")
 
-            r = reader.ReaderManager().waitForCard(5, "PcscReader", self.getReader())
+            r = reader.ReaderManager().waitForCard()
             attack = signEverything.SignEverything(Iso7816(r))
             if self.verboseAAVar.get():
                 attack.register(self.writeToLogAA)
             
-            if self.mrz.get()!='': mrz = self.mrz.get()
+            if self.mrz.buildMRZ()!='': mrz = self.mrz.buildMRZ()
             else: mrz = None
             
             (signature, validated) = attack.sign(self.nonceToSignForm.get(), mrz)
@@ -1108,7 +1134,7 @@ class AttacksFrame(Frame):
     
     def sendCustom(self):
         try:
-            r = reader.ReaderManager().waitForCard(5, "PcscReader", self.getReader())
+            r = reader.ReaderManager().waitForCard()
             attack = errorFingerprinting.ErrorFingerprinting(Iso7816(r))
             if self.verboseErrorVar.get():
                 attack.register(self.writeToLogERR)
@@ -1129,7 +1155,7 @@ class AttacksFrame(Frame):
     # ADD ERROR
     def addError(self):
         try:
-            r = reader.ReaderManager().waitForCard(5, "PcscReader", self.getReader())
+            r = reader.ReaderManager().waitForCard()
             attack = errorFingerprinting.ErrorFingerprinting(Iso7816(r))
             if self.verboseErrorVar.get():
                 attack.register(self.writeToLogERR)
@@ -1162,7 +1188,7 @@ class AttacksFrame(Frame):
     # IDENTIFY
     def identify(self):
         try:
-            r = reader.ReaderManager().waitForCard(5, "PcscReader", self.getReader())
+            r = reader.ReaderManager().waitForCard()
             attack = errorFingerprinting.ErrorFingerprinting(Iso7816(r))
             if self.verboseErrorVar.get():
                 attack.register(self.writeToLogERR)
@@ -1318,7 +1344,7 @@ MM is the month and DD is the day (e.g. May the 4th 2012 is written 12 05 04)\n\
 The date of birth is the 14th-19th chars in the MRZ\n\
 \n\
 MIN:\n\
- * If min is left YYYY/MM/DD, it is set to the date of today - 100 years\n\
+ * If min is left YYMMDD, it is set to the date of today - 100 years\n\
  * If min is set and the max is empty, the brute force will check for the date set only\n\
 \n\
 MAX:\n\
@@ -1334,7 +1360,7 @@ MM is the month and DD is the day (e.g. May the 4th 2012 is written 12 05 04)\n\
 The date of expiry is the 22th-27th chars in the MRZ\n\
 \n\
 MIN:\n\
- * If min is left YYYY/MM/DD, it is set to the date of today - 10 years\n\
+ * If min is left YYMMDD, it is set to the date of today - 10 years\n\
  * If min is set and the max is empty, the brute force will check for the date set only\n\
 \n\
 MAX:\n\
@@ -1471,3 +1497,22 @@ possibilities the passport MIGHT belong to."
         InfoBoxWindows(self, title, text)
 
 
+
+class ScrollFrame(Frame):
+    def __init__(self, master, height=16):
+        Frame.__init__(self, master)
+        scrollbar = Scrollbar(self)
+        scrollbar.pack(side=RIGHT, fill=Y)
+        self.text = Text(self, yscrollcommand=scrollbar.set, height=height)
+        self.text.pack(side=TOP, fill=BOTH, expand=True)
+        scrollbar.config(command=self.text.yview) 
+        
+    def insert(self, loc, msg, dis=True):
+        if dis:
+            self.text.config(state=NORMAL)
+        self.text.insert(loc, "{0}".format(msg))
+        self.text.yview(END)
+        if dis:
+            self.text.config(state=DISABLED)
+        
+        

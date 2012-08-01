@@ -27,7 +27,7 @@ from epassportviewer.util import singleton
 
 class configManager(singleton.Singleton, dict):
     
-    default = {'Options':{'reader'      : '1',
+    default = {'Options':{'reader'      : 'Auto',
                           'driver'      : 'PcscReader',
                           'path'        : '',
                           'certificate' : '',

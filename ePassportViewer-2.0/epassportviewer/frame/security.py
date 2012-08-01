@@ -39,25 +39,28 @@ class securityFrame(Frame):
         dgFrame.pack(side=TOP, expand=True, fill=BOTH)
         self.dg = {}
         for dg in range(1,17):
-            self.dg['DG'+str(dg)] = Label(self, text=str(dg))
+            self.dg['DG'+str(dg)] = Label(self, text="DG"+str(dg))
             self.dg['DG'+str(dg)].pack(side=LEFT, expand=True, fill=BOTH)
         self.dg['SOD'] = Label(self, text=str('SOD'))
         self.dg['SOD'].pack(side=LEFT, expand=True, fill=BOTH)
         
     def setSecurity(self, BAC=None, AA=None, PA=None):
+        green = "#00B738"
+        orange = "#E28000"
+        
         if BAC != None:
             if BAC == False:
                 self.BAC.configure(fg='red')
-            else: self.BAC.configure(fg='green')
+            else: self.BAC.configure(fg=green)
                         
         if AA != None:
             self.AA.configure(fg='black')
             if AA == True:
-                self.AA.configure(fg='green')
+                self.AA.configure(fg=green)
             elif AA == "NO_OPENSSL":
-                self.AA.configure(fg='orange')
+                self.AA.configure(fg=orange)
             elif AA == "NO_DG_15":
-                self.AA.configure(fg='orange')
+                self.AA.configure(fg=orange)
             elif AA == False:
                 self.AA.configure(fg='red')
                     
@@ -68,33 +71,34 @@ class securityFrame(Frame):
                 try:
                     self.dg[str(dg)].configure(fg='black')
                     if PA[dg] == True:
-                        self.dg[str(dg)].configure(fg='green')
+                        self.dg[str(dg)].configure(fg=green)
                     elif PA[dg] == False:
                         self.PA.configure(fg='red')
                         set = True
                         self.dg[str(dg)].configure(fg='red')
                     elif PA[dg] == "NO_OPENSSL":
-                        self.dg[str(dg)].configure(fg='orange')
+                        self.dg[str(dg)].configure(fg=orange)
                 except KeyError:
                     pass
                 
             if CA == "NO_OPENSSL":
-                self.PA.configure(fg='orange')
+                self.PA.configure(fg=orange)
             elif not set:
-                self.PA.configure(fg='green')
+                self.PA.configure(fg=green)
             
             if CA != None:
                 self.dg['SOD'].configure(fg='black')
                 if CA == True:
-                    self.dg['SOD'].configure(fg='green')
+                    self.dg['SOD'].configure(fg=green)
                 elif CA == False:
                     self.dg['SOD'].configure(fg='red')
                 elif CA == "NO_OPENSSL":
-                    self.dg['SOD'].configure(fg='orange')
+                    self.dg['SOD'].configure(fg=orange)
                     
         self.update()
                 
     def clear(self):
+        self.BAC.configure(fg='black')
         self.AA.configure(fg='black')
         self.PA.configure(fg='black')
         for dg in range(1,17):

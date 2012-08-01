@@ -330,7 +330,7 @@ class ReaderManager(Singleton):
                         res = r.transmit(CommandAPDU("00", "A4", "04", "0C", "07", "A0000002471001"))
                         if res.sw1 == 0x90 and res.sw2 == 0x00:
                             return r
-                except ReaderException, msg:
+                except Exception, msg:
                     r.disconnect()
         
         return None  

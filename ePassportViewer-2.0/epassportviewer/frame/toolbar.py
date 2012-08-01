@@ -17,6 +17,7 @@
 # If not, see <http://www.gnu.org/licenses/>.
 
 from Tkinter import *
+from epassportviewer.const import *
 
 class Toolbar(Frame):
     def __init__(self, master, relief=FLAT, bd=2):
@@ -41,5 +42,5 @@ class StatusBar(Frame):
       self.label.update_idletasks()
    
    def clear(self):
-      self.label.config(text="")
+      self.label.config(text="Version {0}".format(VERSION))
       self.label.update_idletasks()    

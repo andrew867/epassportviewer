@@ -44,8 +44,7 @@ def generate(   firstname,
                 eyes,
                 address,
                 update = True,
-                cap_path = None,
-                reader_nb = 1):
+                cap_path = None):
                 
            
     if firstname == "": firstname = "John"
@@ -188,7 +187,7 @@ def generate(   firstname,
         jc = jcop.GPlatform(reader_nb)
         jc.install(cap_path)
      
-    r = reader.ReaderManager().waitForCard(5, "PcscReader", reader_nb)
+    r = reader.ReaderManager().waitForCard()
     jcw = jcop.JavaCardWritter(r)
     
     

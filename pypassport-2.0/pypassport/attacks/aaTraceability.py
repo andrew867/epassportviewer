@@ -116,7 +116,7 @@ class AATraceability(Logger):
         pub_key = self._getPubKey(mrz_value)
         pub_key_hex = binToHexRep(pub_key)
         self.log("Public key: {0}".format(pub_key_hex))
-        modulo = pub_key_hex[56:314]
+        modulo = pub_key_hex[58:314]
         self.log("Modulo: {0}".format(modulo))
         return modulo
     

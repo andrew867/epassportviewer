@@ -16,6 +16,7 @@
 # License along with epassportviewer.
 # If not, see <http://www.gnu.org/licenses/>.
 
+import re
 from Tkinter import *
 from tkFileDialog import askdirectory, askopenfilename
 import tkMessageBox
@@ -51,14 +52,16 @@ class View(Frame):
     PDF, XML, FACE, SIGN, FID, DG, CERTIFICATE, PKEY = xrange(8)
         
     def __init__(self, parent, controller):
-        Frame.__init__(self, None) 
+        Frame.__init__(self, None)
         
         self.parent = parent
         self.controller = controller
         self._doc = None
         self.t = None
 
-        self.mrz = StringVar()
+        self.passportNo = StringVar()
+        self.dob = StringVar()
+        self.doe = StringVar()
         self.stop = BooleanVar()
         self.stop.set(False)
         
@@ -77,12 +80,12 @@ class View(Frame):
         
         ## ATTACKS ##
         self.attacksFrame = Frame(self, borderwidth=1)
-        self.attacksFrameTest = attacks.AttacksFrame(self.attacksFrame, self.mrz)
+        self.attacksFrameTest = attacks.AttacksFrame(self.attacksFrame, self)
         self.attacksFrameTest.pack(fill=BOTH, expand=1)
         
         ## CUSTOM ##
         self.customFrame = Frame(self, borderwidth=1)
-        self.customFrameTest = custom.CustomFrame(self.customFrame, self.mrz)
+        self.customFrameTest = custom.CustomFrame(self.customFrame, self)
         self.customFrameTest.pack(fill=BOTH, expand=1)
 
         self.bindEvents()
@@ -94,7 +97,21 @@ class View(Frame):
             configManager.configManager().setOption("Options", 'disclamer', False)
     
     def createViewer(self):
-        Button(self.viewerFrame, text="Read passport", command=self.process).pack(side=TOP, fill=X)
+        overviewMenuFrame = Frame(self.viewerFrame, borderwidth=1, relief=GROOVE)
+        overviewMenuFrame.pack(fill=BOTH, expand=1)
+        
+        readPassportButton = Button(overviewMenuFrame, text="Read passport", width=13, command=self.process)
+        readPassportButton.pack(side=LEFT, padx=5, pady=5)
+        
+        self.addDataButton = Button(overviewMenuFrame, text="Additional data...", width=13, command=self.AdditionalData, state=DISABLED)
+        self.addDataButton.pack(side=LEFT, padx=5, pady=5)
+        
+        self.fingerprintButton = Button(overviewMenuFrame, text="Fingerprint...", width=13, command=self.fingerprint)
+        self.fingerprintButton.pack(side=LEFT, padx=5, pady=5)
+        
+        self.viewLogButton = Button(overviewMenuFrame, text="View log...", width=13, command=self.openLog, state=DISABLED)
+        self.viewLogButton.pack(side=LEFT, padx=5, pady=5)
+        
         self.overview = overview.Overview(self.viewerFrame)
         self.overview.pack(fill=BOTH, expand=True, anchor=CENTER)
 
@@ -103,22 +120,48 @@ class View(Frame):
 
         self.footer = toolbar.StatusBar(self.viewerFrame)
         self.footer.pack(fill=BOTH, expand=True, anchor=CENTER)
-        self.footer.set("Version %s", "1.0")
+        self.footer.set("Version %s", VERSION)
     
     def createMRZ(self):
-        Label(self.mrzFrame, text="MRZ").pack(side=LEFT, fill=BOTH, padx=2, pady=2)
+        #Label(self.mrzFrame, text="MRZ").pack(side=LEFT, fill=BOTH, padx=2, pady=2)
         
-        self.mrzEntry = Entry(self.mrzFrame, width=48, textvariable=self.mrz)
-        self.mrzEntry.pack(side=LEFT, fill=X, expand=True, padx=2, pady=2)
+        #self.mrzEntry = Entry(self.mrzFrame, width=48, textvariable=self.mrz)
+        #self.mrzEntry.pack(side=LEFT, fill=X, expand=True, padx=2, pady=2)
         
-        self.readButton = Button(self.mrzFrame, text="Viewer", command=self.viewerSwitch, state=NORMAL)
+        Label(self.mrzFrame, text="Passport no").pack(side=LEFT, fill=BOTH, padx=2, pady=2)
+        
+        self.numberEntry = Entry(self.mrzFrame, width=9, textvariable=self.passportNo)
+        self.numberEntry.pack(side=LEFT, fill=X, expand=True, padx=2, pady=2)
+        
+        Label(self.mrzFrame, text="Date of birth").pack(side=LEFT, fill=BOTH, padx=2, pady=2)
+        
+        self.dobEntry = Entry(self.mrzFrame, width=7, textvariable=self.dob)
+        self.dobEntry.pack(side=LEFT, fill=X, expand=True, padx=2, pady=2)
+        self.dob.set("YYMMDD")
+        
+        Label(self.mrzFrame, text="Date of expiracy").pack(side=LEFT, fill=BOTH, padx=2, pady=2)
+        
+        self.doeEntry = Entry(self.mrzFrame, width=7, textvariable=self.doe)
+        self.doeEntry.pack(side=LEFT, fill=X, expand=True, padx=2, pady=2)
+        self.doe.set("YYMMDD")
+        
+        self.readButton = Button(self.mrzFrame, text="Viewer", command=self.viewerSwitch)
         self.readButton.pack(side=LEFT, fill=BOTH, padx=2, pady=2)
         
-        self.attacksButton = Button(self.mrzFrame, text="Attacks", command=self.attacksSwitch, state=NORMAL)
+        self.attacksButton = Button(self.mrzFrame, text="Attacks", command=self.attacksSwitch)
         self.attacksButton.pack(side=LEFT, fill=BOTH, padx=2, pady=2)
         
-        self.customButton = Button(self.mrzFrame, text="Custom", command=self.customSwitch, state=NORMAL)
+        self.customButton = Button(self.mrzFrame, text="Custom", command=self.customSwitch)
         self.customButton.pack(side=LEFT, fill=BOTH, padx=2, pady=2)
+        
+        self.currentB = self.readButton
+        self.currentB.config(relief=SUNKEN)
+    
+    def clearMRZ(self):
+        self.passportNo.set("")
+        self.dob.set("YYMMDD")
+        self.doe.set("YYMMDD")
+        
     
     def bindEvents(self):
         self.bind_all('<Control-O>', self.load)
@@ -134,13 +177,13 @@ class View(Frame):
         fileMenu = Menu(menu, tearoff=0)
         fileMenu.add_command(label="Create...", underline=0, command=self.create)
         fileMenu.add_separator()    
-        fileMenu.add_command(label="Open", underline=0, command=self.load)
+        fileMenu.add_command(label="Open...", underline=0, command=self.load)
         fileMenu.add_command(label="Save...", underline=0, command=self.save)
         saveAs = Menu(fileMenu, tearoff=0)
         saveAs.add_command(label="PDF...", underline=0, command=self.exportToPDF)
         saveAs.add_command(label="XML...", underline=0, command=self.exportToXML)                
         fileMenu.add_cascade(label="Generate report", underline=0, menu=saveAs)
-        fileMenu.add_command(label="Clear", underline=0, command=self.clear)
+        fileMenu.add_command(label="Clear", underline=0, command=self.clearFull)
         fileMenu.add_separator()
         fileMenu.add_command(label="Quit", underline=0, command=self.exit)
         menu.add_cascade(label="File", underline=0, menu=fileMenu)
@@ -151,13 +194,6 @@ class View(Frame):
         ####################
         self.historyMenu = Menu(menu, tearoff=0, postcommand=self.refreshHistory)        
         menu.add_cascade(label="History", underline=0, menu=self.historyMenu)
-
-        
-        ####################
-        #       MORE       #
-        ####################
-        self.moreMenu = Menu(menu, tearoff=0, postcommand=self.refreshMore)
-        menu.add_cascade(label="More", underline=0, menu=self.moreMenu)
         
 
         ####################
@@ -173,17 +209,19 @@ class View(Frame):
                                             variable=configManager.configManager().getVariable('Security', 'aa'))
         self.securityMenu.add_checkbutton(  label='Passive Authentication', 
                                             variable=configManager.configManager().getVariable('Security','pa'))
-        configureMenu.add_cascade(label="Security", underline=0, menu=self.securityMenu)
         
-        self.sslMenu = Menu(configureMenu, tearoff=0)
-        self.sslMenu.add_command(label=configManager.configManager().getOption('Options','openssl'), command=None)
-        self.sslMenu.add_separator()
-        self.sslMenu.add_command(label="Change", 
-                                  underline=0,
-                                  command=callback.Callback(self.setOpenssl, 
-                                                            configManager.configManager().getVariable('Options','openssl'),
-                                                            self.sslMenu))  
-        configureMenu.add_cascade(label="OpenSSL", underline=0, menu=self.sslMenu)
+        
+        #configureMenu.add_cascade(label="Security", underline=0, menu=self.securityMenu)
+        
+        #self.sslMenu = Menu(configureMenu, tearoff=0)
+        #self.sslMenu.add_command(label=configManager.configManager().getOption('Options','openssl'), command=None)
+        #self.sslMenu.add_separator()
+        #self.sslMenu.add_command(label="Change", 
+        #                          underline=0,
+        #                          command=callback.Callback(self.setOpenssl, 
+        #                                                    configManager.configManager().getVariable('Options','openssl'),
+        #                                                    self.sslMenu))  
+        #configureMenu.add_cascade(label="OpenSSL", underline=0, menu=self.sslMenu)
         
         #self.certificateMenu = Menu(configureMenu, tearoff=0)
         #self.certificateMenu.add_command(label=configManager.configManager().getOption('Options','certificate'), command=None)
@@ -196,7 +234,8 @@ class View(Frame):
         #self.certificateMenu.add_command(label="Import", underline=0, command=self.importCertificate)                
         #configureMenu.add_cascade(label="Certificate Directory", underline=0, menu=self.certificateMenu)
         
-        configureMenu.add_command(label="Import certificates...", underline=0, command=self.importCertificate)
+        configureMenu.add_command(label="Import root certificates...", underline=0, command=self.importCertificate)
+        configureMenu.add_separator()
         configureMenu.add_command(label="Reset to Default", underline=0, command=self.resetConfig)
         
         menu.add_cascade(label="Configure", underline=0, menu=configureMenu)
@@ -206,13 +245,13 @@ class View(Frame):
         #     LOG MENU     #
         ####################
         
-        logMenu = Menu(menu, tearoff=0)
-        logMenu.add_checkbutton(label="ePassport API", underline=0, variable=configManager.configManager().getVariable('Logs','api'))
-        logMenu.add_checkbutton(label="Secure Messaging", underline=0, variable=configManager.configManager().getVariable('Logs','sm'))
-        logMenu.add_checkbutton(label="APDU", underline=0, variable=configManager.configManager().getVariable('Logs','apdu'))
-        logMenu.add_separator()
-        logMenu.add_command(label="See Log file", underline=4, command=self.openLog)
-        menu.add_cascade(label="Log", underline=0, menu=logMenu)
+        #logMenu = Menu(menu, tearoff=0)
+        #logMenu.add_checkbutton(label="ePassport API", underline=0, variable=configManager.configManager().getVariable('Logs','api'))
+        #logMenu.add_checkbutton(label="Secure Messaging", underline=0, variable=configManager.configManager().getVariable('Logs','sm'))
+        #logMenu.add_checkbutton(label="APDU", underline=0, variable=configManager.configManager().getVariable('Logs','apdu'))
+        #logMenu.add_separator()
+        #logMenu.add_command(label="See Log file", underline=4, command=self.openLog)
+        #menu.add_cascade(label="Log", underline=0, menu=logMenu)
         
         
         ###################
@@ -221,20 +260,18 @@ class View(Frame):
         
         helpMenu = Menu(menu, tearoff=0)
 #       helpMenu.add_command(label="Help Contents", underline=0, command=None, state=DISABLED)
-        helpMenu.add_command(label="Manual", underline=0, command=None, state=DISABLED)
-        helpMenu.add_command(label="Website", underline=0, command=self.website, state=NORMAL)
+        if os.name == "nt" or os.name == "posix":
+            manualState = NORMAL
+        else:
+            manualState = DISABLED
+        helpMenu.add_command(label="Manual", underline=0, command=self.openManual, state=manualState)
+        
+        helpMenu.add_command(label="Website", underline=0, command=self.website)
         helpMenu.add_separator()
         helpMenu.add_command(label="About", underline=0, command=self.onAbout)
         menu.add_cascade(label="Help", underline=0, menu=helpMenu)        
         
         return menu
-    
-    def refreshMore(self):
-        moreMenu = self.moreMenu
-        moreMenu.delete(0,END)
-        
-        moreMenu.add_command(label="Additional data", underline=0, command=self.AdditionalData)
-        moreMenu.add_command(label="Fingerprint", underline=0, command=self.fingerprint)
     
     
     def refreshReaders(self):        
@@ -247,7 +284,7 @@ class View(Frame):
         except NameError, msg:
             pass
         
-        self.readerMenu.add_radiobutton(label='Auto-Detect', underline=0, variable=configManager.configManager().getVariable('Options','reader'), value='Auto', state=DISABLED)   
+        self.readerMenu.add_radiobutton(label='Auto-Detect', underline=0, variable=configManager.configManager().getVariable('Options','reader'), value='Auto')   
         
     def setPath(self, variable, menu):
         directory = askdirectory(title="Select directory", mustexist=1)
@@ -270,7 +307,7 @@ class View(Frame):
         if directory:
             directory = str(directory)
             try:
-                CA = pypassport.epassport.camanager.CAManager(directory)
+                CA = pypassport.camanager.CAManager(directory)
                 CA.toHashes()
                 tkMessageBox.showwarning("Import Certificate", 'All present certificates have been imported!') 
             except Exception, msg:
@@ -281,16 +318,28 @@ class View(Frame):
         dialog.About(self)
 
     def attacksSwitch(self):
+        self.currentB.config(relief=RAISED)
+        self.currentB = self.attacksButton
+        self.currentB.config(relief=SUNKEN)
+        
         self.currentFrame.pack_forget()
         self.currentFrame = self.attacksFrame
         self.currentFrame.pack(fill=BOTH, expand=1)
     
     def viewerSwitch(self, event=None):
+        self.currentB.config(relief=RAISED)
+        self.currentB = self.readButton
+        self.currentB.config(relief=SUNKEN)
+        
         self.currentFrame.pack_forget()
         self.currentFrame = self.viewerFrame
         self.currentFrame.pack(fill=BOTH, expand=1)
     
     def customSwitch(self, event=None):
+        self.currentB.config(relief=RAISED)
+        self.currentB = self.customButton
+        self.currentB.config(relief=SUNKEN)
+        
         self.currentFrame.pack_forget()
         self.currentFrame = self.customFrame
         self.currentFrame.pack(fill=BOTH, expand=1)
@@ -322,7 +371,7 @@ class View(Frame):
     
     def openLog(self, event=None):
         if os.path.isfile(LOG):
-            dialog.Log(self, LOG)
+            dialog.Log(self)
         else:
             tkMessageBox.showinfo("No Log File", "There is no log file available")
     
@@ -330,7 +379,7 @@ class View(Frame):
     # CALLBACKS #
     #############
     def gotMRZ(self, mrz, fingerprint=False):
-        self.clear()
+            
         self._doc = self._detectReader(mrz)
         
         if self._doc != None:
@@ -342,7 +391,8 @@ class View(Frame):
             else:
                 self._doc.register(self.log)
                 self._readPassport(self._doc, fingerprint)
-
+                self.addDataButton.config(state=NORMAL)
+                self.viewLogButton.config(state=NORMAL)
        
     def load(self, event=None):
         directory = askdirectory(title="Select directory", mustexist=1)
@@ -383,9 +433,12 @@ class View(Frame):
             dialog.FingerPrintDialog(self, fp.analyse())
         except Exception, msg:
             tkMessageBox.showinfo("No document open", msg)            
+    
+    def clearFull(self):
+        self.clear()
+        self.clearMRZ()
             
     def clear(self, event=None):
-        
         self._doc = None
         self.clean()
         self.overview.clear()
@@ -396,8 +449,7 @@ class View(Frame):
         reader = None
         
         try:
-        
-            reader = pypassport.reader.ReaderManager().waitForCard(5, "PcscReader", 1)
+            reader = pypassport.reader.ReaderManager().waitForCard()
             return pypassport.epassport.EPassport(reader, mrz)
         
         except Exception, msg:
@@ -484,7 +536,13 @@ class View(Frame):
     def website(self):
         import webbrowser
         webbrowser.open(WEBSITE)
-        
+    
+    def openManual(self):
+        if os.name == "nt":
+            os.filestart("manual.pdf")
+        elif os.name == "posix":
+            os.system("/usr/bin/xdg-open manual.pdf")  
+            
     def resetConfig(self):
         configManager.configManager().defaultConfig(CONFIG)
         configManager.configManager().setOption("Options", 'disclamer', False)
@@ -495,39 +553,100 @@ class View(Frame):
     ################################
     
     def clean(self):
-#       self.mrz.set("")
-        self.setColor('white')
+        self.setColorNo('white')
+        self.setColorDob('white')
+        self.setColorDoe('white')
         
     def setMRZ(self, mrz):
-        self.mrz.set(mrz)
-        
+        passportNo = mrz[0:9]
+        passportNo = passportNo.replace("<", "")
+        dob = mrz[13:19]
+        doe = mrz[21:27]
+
+        self.passportNo.set(passportNo)
+        self.dob.set(dob)
+        self.doe.set(doe)
+    
     def setColor(self, color):
-        self.mrzEntry['bg'] = color
+        self.numberEntry['bg'] = color
+        self.dobEntry['bg'] = color
+        self.doeEntry['bg'] = color
         self.update()
-        self.mrzEntry.focus_set()
+        self.numberEntry.focus_set()
+        
+    def setColorNo(self, color):
+        self.numberEntry['bg'] = color
+        self.update()
+        self.numberEntry.focus_set()
+        
+    def setColorDob(self, color):
+        self.dobEntry['bg'] = color
+        self.update()
+        self.numberEntry.focus_set()
+    
+    def setColorDoe(self, color):
+        self.doeEntry['bg'] = color
+        self.update()
+        self.numberEntry.focus_set()
         
     def checkMRZ(self):
-        data = self.correctMRZ(self.mrz.get())
-        mrz = epassport.mrz.MRZ(data)
-        mrz.checkMRZ()
-        self.setColor('green')
-        return data
-
-    # Correct Reading errors for OCR Pen (tested with IRIS PEN EXPRESS 6)
-    def correctMRZ(self, mrz):
-        mrz = mrz.strip()
-        if len(mrz) > 10 and mrz[9] == "O":
-            mrz = mrz[:9] + "0" + mrz[10:]
-            self.mrzEntry.delete(0, END)
-            self.mrzEntry.insert(0, mrz)
-        return mrz
+        self.passportNo.set(self.passportNo.get().upper())
+        
+        check = True
+        
+        pattern_id = '^[0-9A-Z<]{8,9}$'
+        pattern_date = "^\d\d(0[1-9]|1[012])(0[1-9]|[12][0-9]|3[01])$"
+        
+        reg=re.compile(pattern_id)
+        if not reg.match(self.passportNo.get()):
+            self.setColorNo("red")
+            check = False
+        
+        reg=re.compile(pattern_date)
+        if not reg.match(self.dob.get()):
+            self.setColorDob("red")
+            check = False
+        
+        reg=re.compile(pattern_date)
+        if not reg.match(self.doe.get()):
+            self.setColorDoe("red")
+            check = False
+            
+        return check
+        
+    def _calculCheckDigit(self, value):
+        """ From pypassport > doc9303 > mrz"""
+        weighting = [7,3,1]
+        weight = {'0':0, '1':1, '2':2, '3':3, '4':4, '5':5, '6':6, '7':7, '8':8, '9':9, '<':0,
+          'A':10, 'B':11, 'C':12, 'D':13, 'E':14, 'F':15, 'G':16, 'H':17, 'I':18, 'J':19, 'K':20, 'L':21, 'M':22, 
+          'N':23, 'O':24, 'P':25, 'Q':26, 'R':27, 'S':28, 'T':29, 'U':30, 'V':31, 'W':32, 'X':33, 'Y':34, 'Z':35};
+        cpt=0
+        res=0
+        for x in value:
+            tmp = weight[str(x)] * weighting[cpt%3]
+            res += tmp
+            cpt += 1
+        return str(res%10)
+    
+    def buildMRZ(self):
+        """From pypassport > attacks > bruteForce"""
+        
+        id_pass = self.passportNo.get()
+        dob = self.dob.get()
+        exp = self.doe.get()
+        pers_num="<<<<<<<<<<<<<<"
+        id_pass_full = id_pass + (9-len(id_pass))*'<' + self._calculCheckDigit(id_pass)
+        dob_full = dob + self._calculCheckDigit(dob)
+        exp_full = exp + self._calculCheckDigit(exp)
+        pers_num_full = pers_num + self._calculCheckDigit(pers_num)
+        return id_pass_full + "???" + dob_full + "?" + exp_full + pers_num_full + self._calculCheckDigit(id_pass_full+dob_full+exp_full+pers_num_full)
         
     def fingerprint(self, event=None):
         try:
-            mrz = self.mrz.get()
-            self.correctMRZ(mrz)
-            mrz = self.checkMRZ()
-            self.gotMRZ(mrz, True)
+            self.clean()
+            if self.checkMRZ():
+                mrz = self.buildMRZ()
+                self.gotMRZ(mrz, True)
             
         except epassport.mrz.MRZException, msg:
             if DEBUG: print msg
@@ -536,10 +655,10 @@ class View(Frame):
     
     def process(self):
         try:
-            mrz = self.mrz.get()
-            self.correctMRZ(mrz)
-            mrz = self.checkMRZ()
-            self.gotMRZ(mrz)
+            self.clean()
+            if self.checkMRZ():
+                mrz = self.buildMRZ()
+                self.gotMRZ(mrz)
             
         except epassport.mrz.MRZException, msg:
             if DEBUG: print msg

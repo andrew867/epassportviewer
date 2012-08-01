@@ -43,7 +43,9 @@ class Overview(Frame):
         container = Frame(self.master, relief=FLAT, bd=1)
         container.pack(side=TOP, fill=BOTH, expand=True)
         
-        # IMAGE
+        
+        ###################
+        ## PROFILE PHOTO ##
         self.Image = Label(container)
         self.Image.pack(side=LEFT)
         
@@ -54,7 +56,10 @@ class Overview(Frame):
         self.Image.config(image=Tkimage)
         self.Image.image = Tkimage
         
-        # DATA
+        
+        ###################
+        ## PERSONAL INFO ##
+        
         self.fields = fields = {}
         fields['type'] = StringVar()
         fields['issueCountry'] = StringVar()
@@ -76,8 +81,9 @@ class Overview(Frame):
         
         titleFont = tkFont.Font(family="Helvetica", weight='bold', size=8)
         font = tkFont.Font(family="Helvetica", weight='normal', size=8)
-        mrzFont = tkFont.Font(size=10, family='courier') #tkFont.Font(family="Monospace", weight='normal', size=10)
+        mrzFont = tkFont.Font(size=10, family='courier')
         
+        # ROW 0
         row = 0
         Label(dataContainer, text="Type\t\t\t", font=titleFont).grid(row=row, column=0, columnspan=2, sticky=W)
         Label(dataContainer, text="Issuing Country\t\t\t", font=titleFont).grid(row=row, column=2, columnspan=2, sticky=W)
@@ -86,30 +92,42 @@ class Overview(Frame):
         Label(dataContainer, textvariable=fields['type'], font=font).grid(row=row, column=0, columnspan=2, sticky=W)
         Label(dataContainer, textvariable=fields['issueCountry'], font=font).grid(row=row, column=2, columnspan=2, sticky=W)
         Label(dataContainer, textvariable=fields['passportNumber'], font=font).grid(row=row, column=4, columnspan=2, sticky=W)
+        
+        # ROW 2
         row += 1
         Label(dataContainer, text="Name", font=titleFont).grid(row=row, column=0, columnspan=6, sticky=W)
         row += 1
         Label(dataContainer, textvariable=fields['name'], font=font).grid(row=row, column=0, columnspan=6, sticky=W)
+        
+        # ROW 4
         row += 1
         Label(dataContainer, text="Surname", font=titleFont).grid(row=row, column=0, columnspan=6, sticky=W)
         row += 1
         Label(dataContainer, textvariable=fields['surname'], font=font).grid(row=row, column=0, columnspan=6, sticky=W)
+        
+        # ROW 6
         row += 1
         Label(dataContainer, text="Nationality", font=titleFont).grid(row=row, column=0, columnspan=6, sticky=W)
         row += 1
         Label(dataContainer, textvariable=fields['nationality'], font=font).grid(row=row, column=0, columnspan=6, sticky=W)
+        
+        # ROW 8
         row += 1
         Label(dataContainer, text="Date of birth", font=titleFont).grid(row=row, column=0, columnspan=3, sticky=W)
         Label(dataContainer, text="Place of birth", font=titleFont).grid(row=row, column=3, columnspan=3, sticky=W)
         row += 1
         Label(dataContainer, textvariable=fields['birthDate'], font=font).grid(row=row, column=0, columnspan=3, sticky=W)
         Label(dataContainer, textvariable=fields['birthPlace'], font=font).grid(row=row, column=3, columnspan=3, sticky=W)
+        
+        # ROW 10
         row += 1
         Label(dataContainer, text="Sex", font=titleFont).grid(row=row, column=0, columnspan=3, sticky=W)
         Label(dataContainer, text="Authority", font=titleFont).grid(row=row, column=3, columnspan=3, sticky=W)
         row += 1
         Label(dataContainer, textvariable=fields['sex'], font=font).grid(row=row, column=0, columnspan=3, sticky=W)
         Label(dataContainer, textvariable=fields['authority'], font=font).grid(row=row, column=3, columnspan=3, sticky=W)
+        
+        # ROW 12
         row += 1
         Label(dataContainer, text="Date of issue", font=titleFont).grid(row=row, column=0, columnspan=3, sticky=W)        
         Label(dataContainer, text="Signature", font=titleFont).grid(row=row, column=3, columnspan=3, sticky=W)
@@ -127,14 +145,26 @@ class Overview(Frame):
         
         Label(dataContainer, textvariable=fields['issueDate'], font=font).grid(row=row, column=0, columnspan=6, sticky=W)
         row += 1
+        
+        # ROW 14
         Label(dataContainer, text="Date of Expiry", font=titleFont).grid(row=row, column=0, columnspan=3, sticky=W)
         row += 1
         Label(dataContainer, textvariable=fields['expiryDate'], font=font).grid(row=row, column=0, columnspan=3, sticky=W)
         
-        # MRZ
+        
+        #################
+        ## MRZ LOG BOX ##
+        
         mrzContainer = Frame(self.master, bd=2, relief=GROOVE)
         mrzContainer.pack(side=TOP, fill=BOTH, expand=True, anchor=CENTER)
         Label(mrzContainer, textvariable=fields['mrz'], bg='white', font=mrzFont).pack(side=LEFT, fill=BOTH, expand=True)
+        
+        
+        ##########
+        ## PACK ##
+        
+        for type in [self.SIGN, self.IMAGE]:
+            self.updatePicture( ImageFactory().create(ImageFactory().TRANSPARENT), type)
 
         self.update()
         
@@ -231,9 +261,3 @@ class Overview(Frame):
     def bindEvents(self):
         pass
     
-#root = Tk()
-#o = Overview(root)
-#o.updatePicture("/home/oroger/gargamel.jpg", Overview.IMAGE)
-#o.Load(None)
-##o.clear()
-#root.mainloop()

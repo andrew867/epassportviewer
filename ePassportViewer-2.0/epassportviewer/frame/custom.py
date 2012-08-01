@@ -30,6 +30,7 @@ from pypassport.hexfunctions import hexToHexRep, binToHexRep, hexRepToBin
 from pypassport.iso7816 import Iso7816, Iso7816Exception
 from pypassport.doc9303 import bac, mrz, securemessaging
 from epassportviewer.util.image import ImageFactory
+from epassportviewer.frame.attacks import ScrollFrame
 
 from smartcard.CardType import AnyCardType
 from smartcard.CardRequest import CardRequest
@@ -116,7 +117,7 @@ class CustomFrame(Frame):
         keyDerivationButton.grid(row=2, column=2, padx=5, pady=5)
         
         sscGeneratorButton = Button(buttonToolsFrame, text="SSC generator", width=10, command=self.sscGenerator)
-        sscGeneratorButton.grid(row=2, column=3, padx=5, pady=5)\
+        sscGeneratorButton.grid(row=2, column=3, padx=5, pady=5)
         
         readHeaderButton = Button(buttonToolsFrame, text="Read header", width=10, command=self.readHeader)
         readHeaderButton.grid(row=2, column=4, padx=5, pady=5)
@@ -126,14 +127,17 @@ class CustomFrame(Frame):
         fieldsFrame = Frame(self.toolsFrame)
         fieldsFrame.pack(fill=BOTH, expand=1)
         
-        fieldsLabel = Label(fieldsFrame, text="Fields:", justify=LEFT)
-        fieldsLabel.pack(side=LEFT, padx=5, pady=5)
+        fieldsLabel = Label(fieldsFrame, text="Fields:           HEX:", justify=LEFT)
+        fieldsLabel.pack(side=LEFT, pady=5)
         
         self.field1Form = Entry(fieldsFrame, width=32)
-        self.field1Form.pack(side=LEFT, padx=5, pady=5)
+        self.field1Form.pack(side=LEFT, pady=5)
+        
+        hexLabel = Label(fieldsFrame, text="   HEX:", justify=LEFT)
+        hexLabel.pack(side=LEFT, pady=5)
         
         self.field2Form = Entry(fieldsFrame, width=32)
-        self.field2Form.pack(side=LEFT, padx=5, pady=5)
+        self.field2Form.pack(side=LEFT, pady=5)
 
         
         ##############
@@ -284,11 +288,14 @@ class CustomFrame(Frame):
         
         
         # LOG
-        logFrame = Frame(self)
-        logFrame.pack(fill=BOTH, expand=1)
+        #logFrame = Frame(self)
+        #logFrame.pack(fill=BOTH, expand=1)
         
-        self.logBox = Text(logFrame, state=NORMAL, height=15, width=92, wrap='none')
-        self.logBox.pack()
+        #self.logBox = Text(logFrame, state=NORMAL, height=15, width=92, wrap='none')
+        #self.logBox.pack()
+        
+        self.logFrame = ScrollFrame(self)
+        self.logFrame.pack(fill=BOTH, expand=1)
         
         # VERBOSE
         verboseFrame = Frame(self)
@@ -308,12 +315,12 @@ class CustomFrame(Frame):
     #########
     
     def writeToLog(self, msg):
-        self.logBox.insert('1.0', "{0}\n".format(msg))
+        self.logFrame.insert(END, "{0}\n".format(msg))
     
     def initIso7816(self):
         try:
             if not self._iso7816:
-                r = reader.ReaderManager().waitForCard(5, "PcscReader", 1)
+                r = reader.ReaderManager().waitForCard()
                 self._iso7816 = Iso7816(r)
         except Exception, msg:
             tkMessageBox.showerror("Error: Initialisation of ISO7816", str(msg))
@@ -337,11 +344,11 @@ class CustomFrame(Frame):
     
     def performBAC(self):
         try:
-            if self.mrz.get():
+            if self.mrz.buildMRZ():
                 self.reset()
                 self.init()
                 basic_access_control = bac.BAC(self._iso7816)
-                (KSenc, KSmac, ssc) = basic_access_control.authenticationAndEstablishmentOfSessionKeys(mrz.MRZ(self.mrz.get()))
+                (KSenc, KSmac, ssc) = basic_access_control.authenticationAndEstablishmentOfSessionKeys(mrz.MRZ(self.mrz.buildMRZ()))
                 sm = securemessaging.SecureMessaging(KSenc, KSmac, ssc)
                 self._iso7816.setCiphering(sm)
                 self.writeToLog("CIPHERING SET:\n{0}".format(sm))   
@@ -352,9 +359,9 @@ class CustomFrame(Frame):
     
     def genBACKeys(self):
         try:
-            if self.mrz.get():
+            if self.mrz.buildMRZ():
                 basic_access_control = bac.BAC(self._iso7816)
-                mrz_to_send = mrz.MRZ(self.mrz.get())
+                mrz_to_send = mrz.MRZ(self.mrz.buildMRZ())
                 mrz_to_send.checkMRZ()
                 (Kenc, Kmac) = basic_access_control.derivationOfDocumentBasicAccesKeys(mrz_to_send)
                 Kenc = binToHexRep(Kenc)
@@ -402,7 +409,7 @@ class CustomFrame(Frame):
             tkMessageBox.showerror("Error: BAC", str(msg))
     
     def sha1Hash(self):
-        h = sha1(hexRepToBin(self.field1Form.get())).digest()
+        h = sha1(self.field1Form.get()).digest()
         
         self.writeToLog("SHA-1 HASH:\n  message: {0}\n  hash: {1}".format(self.field1Form.get(),
                                                                           binToHexRep(h)))
@@ -554,8 +561,8 @@ class CustomFrame(Frame):
             rep = binToHexRep(ans.res)
             sw1 = ans.sw1
             sw2 = ans.sw2
-            self.writeToLog("RESPONSE:\n  APDU:\n    Data:{0}\n    SW1:{1}\n    SW2:{2}".format(rep, hex(sw1), hex(sw2)))
             self.writeToLog("REQUEST:\n  APDU: CLA:{0} INS:{1} P1:{2} P2:{3} LC:{4} DATA:{5} LE:{6}".format(cla, ins, p1, p2, lc, data, le))
+            self.writeToLog("RESPONSE:\n  APDU:\n    Data:{0}\n    SW1:{1}\n    SW2:{2}".format(rep, hex(sw1), hex(sw2)))
             
             self.customRespDataForm.delete(0, END)
             self.customRespDataForm.insert(0, rep)
@@ -587,14 +594,4 @@ class CustomFrame(Frame):
         cardservice.connection.connect()
         atr = toHexString(cardservice.connection.getATR())
         self.writeToLog("ATR: {0}".format(atr))
-        
-        
-
-
-
-
-
-
-
-
 
