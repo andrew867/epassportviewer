@@ -1,4 +1,4 @@
-# Copyright 2009 Jean-Francois Houzard, Olivier Roger
+# Copyright 2012 Jean-Francois Houzard, Olivier Roger, Antonin Beaujeant
 #
 # This file is part of epassportviewer.
 #
@@ -15,7 +15,11 @@
 # You should have received a copy of the GNU General Public
 # License along with epassportviewer.
 # If not, see <http://www.gnu.org/licenses/>.
-
+try:
+    import gtk
+    GTK = True
+except:
+    GTK = False
 import re
 from Tkinter import *
 from tkFileDialog import askdirectory, askopenfilename
@@ -74,7 +78,12 @@ class View(Frame):
         
         ## VIEWER ##        
         self.viewerFrame = Frame(self, relief=RAISED, borderwidth=1)
-        self.createViewer()
+        self.overview = overview.Overview(self.viewerFrame, self)
+        self.overview.pack(fill=BOTH, expand=True, anchor=CENTER)
+        self.footer = toolbar.StatusBar(self.viewerFrame)
+        self.footer.pack(fill=BOTH, expand=True, anchor=CENTER)
+        self.footer.set("Version %s", VERSION)
+        
         self.currentFrame = self.viewerFrame
         self.currentFrame.pack(fill=BOTH, expand=1)
         
@@ -96,37 +105,18 @@ class View(Frame):
             tkMessageBox.showwarning("Disclamer", DISCLAMER)
             configManager.configManager().setOption("Options", 'disclamer', False)
     
-    def createViewer(self):
-        overviewMenuFrame = Frame(self.viewerFrame, borderwidth=1, relief=GROOVE)
-        overviewMenuFrame.pack(fill=BOTH, expand=1)
-        
-        readPassportButton = Button(overviewMenuFrame, text="Read passport", width=13, command=self.process)
-        readPassportButton.pack(side=LEFT, padx=5, pady=5)
-        
-        self.addDataButton = Button(overviewMenuFrame, text="Additional data...", width=13, command=self.AdditionalData, state=DISABLED)
-        self.addDataButton.pack(side=LEFT, padx=5, pady=5)
-        
-        self.fingerprintButton = Button(overviewMenuFrame, text="Fingerprint...", width=13, command=self.fingerprint)
-        self.fingerprintButton.pack(side=LEFT, padx=5, pady=5)
-        
-        self.viewLogButton = Button(overviewMenuFrame, text="View log...", width=13, command=self.openLog, state=DISABLED)
-        self.viewLogButton.pack(side=LEFT, padx=5, pady=5)
-        
-        self.overview = overview.Overview(self.viewerFrame)
-        self.overview.pack(fill=BOTH, expand=True, anchor=CENTER)
+    #def createViewer(self):
+    #    overviewMenuFrame = Frame(self.viewerFrame, borderwidth=1, relief=GROOVE)
+    #    overviewMenuFrame.pack(fill=BOTH, expand=1)
+    #    
+    #    self.overview = overview.Overview(self.viewerFrame, self)
+    #    self.overview.pack(fill=BOTH, expand=True, anchor=CENTER)
 
-        self.security = security.securityFrame(self.viewerFrame)
-        self.security.pack(fill=BOTH, expand=True, anchor=CENTER)
-
-        self.footer = toolbar.StatusBar(self.viewerFrame)
-        self.footer.pack(fill=BOTH, expand=True, anchor=CENTER)
-        self.footer.set("Version %s", VERSION)
+    #    self.footer = toolbar.StatusBar(self.viewerFrame)
+    #    self.footer.pack(fill=BOTH, expand=True, anchor=CENTER)
+    #    self.footer.set("Version %s", VERSION)
     
     def createMRZ(self):
-        #Label(self.mrzFrame, text="MRZ").pack(side=LEFT, fill=BOTH, padx=2, pady=2)
-        
-        #self.mrzEntry = Entry(self.mrzFrame, width=48, textvariable=self.mrz)
-        #self.mrzEntry.pack(side=LEFT, fill=X, expand=True, padx=2, pady=2)
         
         Label(self.mrzFrame, text="Passport no").pack(side=LEFT, fill=BOTH, padx=2, pady=2)
         
@@ -156,11 +146,6 @@ class View(Frame):
         
         self.currentB = self.readButton
         self.currentB.config(relief=SUNKEN)
-    
-    def clearMRZ(self):
-        self.passportNo.set("")
-        self.dob.set("YYMMDD")
-        self.doe.set("YYMMDD")
         
     
     def bindEvents(self):
@@ -180,6 +165,7 @@ class View(Frame):
         fileMenu.add_command(label="Open...", underline=0, command=self.load)
         fileMenu.add_command(label="Save...", underline=0, command=self.save)
         saveAs = Menu(fileMenu, tearoff=0)
+        saveAs.add_command(label="Generate", underline=0, command=self.fingerprint)
         saveAs.add_command(label="PDF...", underline=0, command=self.exportToPDF)
         saveAs.add_command(label="XML...", underline=0, command=self.exportToXML)                
         fileMenu.add_cascade(label="Generate report", underline=0, menu=saveAs)
@@ -211,7 +197,7 @@ class View(Frame):
                                             variable=configManager.configManager().getVariable('Security','pa'))
         
         
-        #configureMenu.add_cascade(label="Security", underline=0, menu=self.securityMenu)
+        configureMenu.add_cascade(label="Security", underline=0, menu=self.securityMenu)
         
         #self.sslMenu = Menu(configureMenu, tearoff=0)
         #self.sslMenu.add_command(label=configManager.configManager().getOption('Options','openssl'), command=None)
@@ -236,7 +222,7 @@ class View(Frame):
         
         configureMenu.add_command(label="Import root certificates...", underline=0, command=self.importCertificate)
         configureMenu.add_separator()
-        configureMenu.add_command(label="Reset to Default", underline=0, command=self.resetConfig)
+        configureMenu.add_command(label="Reset to default", underline=0, command=self.resetConfig)
         
         menu.add_cascade(label="Configure", underline=0, menu=configureMenu)
 
@@ -259,7 +245,6 @@ class View(Frame):
         ###################
         
         helpMenu = Menu(menu, tearoff=0)
-#       helpMenu.add_command(label="Help Contents", underline=0, command=None, state=DISABLED)
         if os.name == "nt" or os.name == "posix":
             manualState = NORMAL
         else:
@@ -279,8 +264,10 @@ class View(Frame):
         
         try:
             readers = pypassport.reader.ReaderManager().getReaderList()
+            i = 0
             for r in readers:
-                self.readerMenu.add_radiobutton(label=r, variable=configManager.configManager().getVariable('Options','reader'), value=r, state=DISABLED)
+                self.readerMenu.add_radiobutton(label=r, variable=configManager.configManager().getVariable('Options','reader'), value=i)
+                i += 1
         except NameError, msg:
             pass
         
@@ -375,6 +362,29 @@ class View(Frame):
         else:
             tkMessageBox.showinfo("No Log File", "There is no log file available")
     
+    def clearFull(self):
+        self.clean()
+        self.clearMRZ()
+        
+        
+    def clean(self):
+        self.overview.clear()
+        self.overview.security.clear()
+        self.footer.clear()
+        self.setColorNo('white')
+        self.setColorDob('white')
+        self.setColorDoe('white')
+        self.clear()
+    
+    def clear(self):
+        self._doc = None
+        self.t = None
+        
+    def clearMRZ(self):
+        self.passportNo.set("")
+        self.dob.set("YYMMDD")
+        self.doe.set("YYMMDD")
+    
     #############
     # CALLBACKS #
     #############
@@ -390,14 +400,14 @@ class View(Frame):
                 self.Fingerprint(None)
             else:
                 self._doc.register(self.log)
-                self._readPassport(self._doc, fingerprint)
-                self.addDataButton.config(state=NORMAL)
-                self.viewLogButton.config(state=NORMAL)
+                self._readPassport(self._doc)
+                self.overview.additionalButton.config(state=NORMAL)
+                self.overview.logButton.config(state=NORMAL)
        
     def load(self, event=None):
         directory = askdirectory(title="Select directory", mustexist=1)
         if directory:
-            self.clear()
+            self.clean()
             directory = str(directory)
             r = pypassport.reader.ReaderManager().create("DumpReader")
             r.connect(directory)
@@ -405,7 +415,7 @@ class View(Frame):
             self._doc.CSCADirectory = configManager.configManager().getOption('Options', 'certificate')
             self._doc.openSslDirectory = configManager.configManager().getOption('Options', 'openssl')
             try:
-                self.t = dialog.ReadingDialog(self, self._doc, False)
+                self.t = dialog.ReadingDialog(self, self._doc)
                 self.t.read.register(self._dgRead)
                 self.t.showSafe()
             except pypassport.doc9303.bac.BACException, msg:
@@ -413,11 +423,15 @@ class View(Frame):
             except Exception, msg:
                 tkMessageBox.showerror("Reader", "Please verify data source:\n" + str(msg[0]))            
             
-    def AdditionalData(self, event=None):
+    def AdditionalData(self):
         try:
-            dialog.AdditionalData(self, self.t.ep)
-        except Exception:
-            tkMessageBox.showinfo("No document open", "Please open a document before.")
+            if GTK:
+                tvexample = dialog.AdditionalDialog(self.t.ep)
+                gtk.main()
+            else:
+                dialog.AdditionalData(self, self.t.ep)
+        except Exception, msg:
+            tkMessageBox.showinfo("No document open", "Please open a document before.\n{0}".format(str(msg)))
     
     
     def create(self, event=None):
@@ -432,35 +446,23 @@ class View(Frame):
             fp = pypassport.fingerPrint.FingerPrint(self._doc)
             dialog.FingerPrintDialog(self, fp.analyse())
         except Exception, msg:
-            tkMessageBox.showinfo("No document open", msg)            
-    
-    def clearFull(self):
-        self.clear()
-        self.clearMRZ()
-            
-    def clear(self, event=None):
-        self._doc = None
-        self.clean()
-        self.overview.clear()
-        self.security.clear()
-        self.footer.clear()
+            tkMessageBox.showinfo("No document open", msg)
         
     def _detectReader(self, mrz):
         reader = None
         
         try:
-            reader = pypassport.reader.ReaderManager().waitForCard()
+            reader = pypassport.reader.ReaderManager().waitForCard(3)
             return pypassport.epassport.EPassport(reader, mrz)
         
         except Exception, msg:
-            tkMessageBox.showerror("ePassport not found", str(msg[0]))
+            tkMessageBox.showerror("ePassport not found", "{0}.\nPlease check you passport is on the reader".format(str(msg)))
 
             
-    def _readPassport(self, doc, fingerprint=False):
+    def _readPassport(self, doc):
         try:
-            self.t = dialog.ReadingDialog(self, doc, fingerprint)
+            self.t = dialog.ReadingDialog(self, doc)
             self.t.read.register(self._dgRead)
-#           if fingerprint: self.t.register(self.log)
             self.t.show()
         except pypassport.doc9303.bac.BACException, msg:
             tkMessageBox.showerror("Reader", "Please verify the MRZ:\n" + str(msg[0]))
@@ -472,13 +474,13 @@ class View(Frame):
         if DG in ["61", "67", "6B", "6C", "75"]:
             self.overview.loadDG(DG, DGdata)
         if DG == '61':
-            self.security.setSecurity(BAC=self._doc._iso7816._ciphering)
+            self.overview.security.setSecurity(BAC=self._doc._iso7816._ciphering)
             name, mrz = self.extractOwnerInfo(DGdata)
             self.addToHistory(name, mrz)
         if DG == 'AA':
-            self.security.setSecurity(AA=DGdata)
+            self.overview.security.setSecurity(AA=DGdata)
         if DG == 'PA':
-            self.security.setSecurity(PA=DGdata)
+            self.overview.security.setSecurity(PA=DGdata)
     
     def extractOwnerInfo(self, data):
         if not data.has_key('5F1F') or not data.has_key('5F5B'): 
@@ -551,11 +553,7 @@ class View(Frame):
     ################################
     # METHODS FROM FORMER MRZINPUT #
     ################################
-    
-    def clean(self):
-        self.setColorNo('white')
-        self.setColorDob('white')
-        self.setColorDoe('white')
+
         
     def setMRZ(self, mrz):
         passportNo = mrz[0:9]
@@ -641,13 +639,12 @@ class View(Frame):
         pers_num_full = pers_num + self._calculCheckDigit(pers_num)
         return id_pass_full + "???" + dob_full + "?" + exp_full + pers_num_full + self._calculCheckDigit(id_pass_full+dob_full+exp_full+pers_num_full)
         
-    def fingerprint(self, event=None):
+    def fingerprint(self):
         try:
-            self.clean()
+            self.clear()
             if self.checkMRZ():
                 mrz = self.buildMRZ()
                 self.gotMRZ(mrz, True)
-            
         except epassport.mrz.MRZException, msg:
             if DEBUG: print msg
             else: tkMessageBox.showerror("Read Error", msg) 
@@ -689,8 +686,20 @@ class View(Frame):
             history = history[:MAX_HISTORY]
         self.saveHistory(history)
         
-    def refreshHistory(self, event=None):
+    def refreshHistory(self):
         self.historyMenu.delete(0, END)
+        i = 0
         for name, mrz in self.loadHistory():
+            i += 1
             self.historyMenu.add_command(label=name, command=callback.Callback(self.setMRZ, mrz))
-
+        if i: clearstate=NORMAL
+        else: 
+            self.historyMenu.add_command(label="Empty", underline=0, state=DISABLED)
+            clearstate=DISABLED
+        self.historyMenu.add_separator()
+        self.historyMenu.add_command(label="Clear", underline=0, state=clearstate, command=self.clearHistory)
+        
+    def clearHistory(self):
+        os.remove(HISTORY)
+        
+        

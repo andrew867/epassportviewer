@@ -16,6 +16,13 @@
 # License along with epassportviewer.
 # If not, see <http://www.gnu.org/licenses/>.
 
+try:
+    import pygtk
+    pygtk.require('2.0')
+    import gtk
+except:
+    GTK = False
+
 from Tkinter import *
 import tkMessageBox
 import thread
@@ -443,6 +450,8 @@ class Log(Toplevel):
          
         log = ScrollFrame(self, self.txt)
         log.pack(side=TOP, fill=BOTH, expand=True)
+        
+        
 
 class AdditionalData(Toplevel):
     def __init__(self, master, doc):
@@ -476,6 +485,8 @@ class AdditionalData(Toplevel):
         
     def clickOk(self, event=None):
         self.destroy()
+        
+        
         
 class FingerPrintDialog(Toplevel):
     
@@ -549,6 +560,8 @@ class FingerPrintDialog(Toplevel):
 
     def clickOK(self, event):
         self.destroy()
+        
+        
 
 class ProgressBar(Frame):
     def __init__(self, master=None, orientation="horizontal",
@@ -624,13 +637,17 @@ class ProgressBar(Frame):
             self.canvas.itemconfig(self.label, text=self.labelFormat % self.labelText)
         self.canvas.update_idletasks()
         
+        
+class WrongMRZ(Exception):
+    def __init__(self, *params):
+        Exception.__init__(self, *params)
+        
 class ReadingDialog(threading.Thread, Toplevel):       
     
-    def __init__(self, master, doc9303, fingerprint):
+    def __init__(self, master, doc9303):
         threading.Thread.__init__(self)
         Toplevel.__init__(self, master)
         self.log = datagroup.Events()
-        self.fingerprint = fingerprint
         self.queue = Queue.Queue()
         self.master = master
         
@@ -644,23 +661,26 @@ class ReadingDialog(threading.Thread, Toplevel):
         
         self.title("Reading...")
         self.transient(master)
-#        self.grab_set()
-        self.transient = self.master
+        self.grab_set()
+        #self.transient = self.master
         self.protocol("WM_DELETE_WINDOW", self.stopReading)
         
-        self.lPassport=Label(self,text="Passport processing")
+        
+        # GRAPHIC COMPONENTS
+        self.lPassport=Label(self, text="Passport processing")
+        self.lPassport.grid(column=1, columnspan=3, padx=5)
+        
         self.pbPassport = ProgressBar(self, value=1)
+        self.pbPassport.grid(column=1, columnspan=3, padx=5, pady=5)
+        
         self.svDG = StringVar()
         self.lDG=Label(self,textvariable=self.svDG)
-        self.pbDG = ProgressBar(self)
-        self.svCancel = StringVar()
-        self.svCancel.set("Cancel")
-        self.bcancel=Button(self,textvariable=self.svCancel,command=self.stopReading)
-        
-        self.lPassport.grid(column=1, columnspan=3, padx=5)
-        self.pbPassport.grid(column=1, columnspan=3, padx=5, pady=5)
         self.lDG.grid(column=1, columnspan=3, padx=5)
+        
+        self.pbDG = ProgressBar(self)
         self.pbDG.grid(column=1, columnspan=3, padx=5, pady=5)
+        
+        self.bcancel=Button(self, text="Cancel", command=self.stopReading)
         self.bcancel.grid(column=2, padx=5, pady=5)
         
         #CallBack
@@ -685,9 +705,11 @@ class ReadingDialog(threading.Thread, Toplevel):
                     self.svDG.set(cpt)
                 if msg == 'Quit':
                     self.stopReading()
-                    self.stop = True
-                elif msg == 'Clear':
+                elif msg == 'Reset':
+                    self.stopReading()
                     self.master.clear()
+                    self.doc = None
+                    self.ep = None
                 elif msg:
                     self.read.log(msg)
                 if self.stop:
@@ -725,10 +747,10 @@ class ReadingDialog(threading.Thread, Toplevel):
             
             try:
                 self.dgList = self._reorder(self.doc["Common"]["5C"])
-            except BACException:
-                tkMessageBox.showinfo("Wrong MRZ", "Please check you wrote the correct MRZ")
+            except epassport.bac.BACException, msg:
+                raise WrongMRZ("Please check you wrote the correct MRZ.".format(type(msg), msg))
             except Exception, msg:
-                tkMessageBox.showinfo("Error: {0}".format(type(msg)), "{0}".format(msg))
+                raise Exception(msg)
             
             c = len(self.dgList)
             if configManager().getOption('Security','pa'):
@@ -751,7 +773,7 @@ class ReadingDialog(threading.Thread, Toplevel):
                     dgValidList.append(item)
                     self.ep[item] = dg
                 except BACException:
-                    tkMessageBox.showinfo("EAC required", "{0} can't be read".format(tagLDSToName[item]))
+                    self.queue.put((("EAC", "EAC required", "{0} can't be read".format(tagLDSToName[item])), None, 0))
                     self.rstConnection()
                     dg = ''
                     
@@ -812,17 +834,18 @@ class ReadingDialog(threading.Thread, Toplevel):
                 self.queue.put((None, 'passport', cpt))
                 
             self.master.footer.set("Reading Time : " + str(time.time() - start)[:5] + " sec ")
-                
-        except epassport.bac.BACException, msg:
-            self.queue.put(('Clear', None, 0))
-            raise Exception(msg)
-#        except epassport.iso7816.Iso7816Exception, msg: 
-#            print 'error', msg
-        except Exception, msg:
-            self.queue.put(('Clear', None, 0))
-            tkMessageBox.showerror("Unknown Error", msg)
-        finally:
             self.queue.put(('Quit', 'dg', 100))
+        
+        except WrongMRZ, msg:
+            self.queue.put(('Reset', None, 0))
+            tkMessageBox.showinfo("Wrong MRZ", str(msg))
+        except epassport.bac.BACException, msg:
+            self.queue.put(('Reset', None, 0))
+            tkMessageBox.showinfo("BAC error", "{0}.\nPlease try to read the passport again.".format(str(msg)))
+        except Exception, msg:
+            self.queue.put(('Reset', None, 0))
+            tkMessageBox.showinfo("Unknown error", "{0}.\nPlease try to read the passport again.".format(str(msg)))
+            
         
     def periodicCall(self):
         self.processIncoming()
@@ -876,7 +899,9 @@ class ReadingDialog(threading.Thread, Toplevel):
         finally:
             log.close()
        
-    dgList = property(_getDGList, _setDGList)     
+    dgList = property(_getDGList, _setDGList)   
+    
+      
         
 class ScrollFrame(Frame):
     def __init__(self, master, txt, height=24):
@@ -885,9 +910,11 @@ class ScrollFrame(Frame):
         scrollbar.pack(side=RIGHT, fill=Y)
         text = Text(self, yscrollcommand=scrollbar.set, height=height)
         text.insert(END, txt)
+        text.config(state=DISABLED)
         text.pack(side=TOP, fill=BOTH, expand=True)
         scrollbar.config(command=text.yview) 
-
+        
+        
 ######
 # HELP
 ######
@@ -908,5 +935,109 @@ class InfoBoxWindows(Toplevel):
         closeButton = Button(helpFrame, text="Close", command=self.destroy)
         closeButton.pack(padx=5, pady=5)
     
+
+class Tooltip(Toplevel):
+	def __init__(self, parent=None, tip='',time=500):
+		Toplevel.__init__(self, parent, bd=1, bg='black')
+		self.time = time
+		self.parent = parent
+		self.withdraw()
+		self.overrideredirect(1)
+		self.transient()     
+		l = Label(self, text=tip, bg="#FFFECD", justify='left')
+		l.update_idletasks()
+		l.pack()
+		l.update_idletasks()
+		self.tipwidth = l.winfo_width()
+		self.tipheight = l.winfo_height()
+		self.parent.bind('<Enter>', self.delay)
+		self.parent.bind('<Button-1>', self.clear)
+		self.parent.bind('<Leave>', self.clear)
+		
+	def delay(self,event):
+		self.action = self.parent.after(self.time, self.show)
+		
+	def show(self):
+		self.update_idletasks()
+		posX = self.parent.winfo_rootx()+self.parent.winfo_width()-10
+		posY = self.parent.winfo_rooty()+self.parent.winfo_height()-10
+		if posX + self.tipwidth > self.winfo_screenwidth():
+			posX = posX-self.winfo_width()-self.tipwidth
+		if posY + self.tipheight > self.winfo_screenheight():
+			posY = posY-self.winfo_height()-self.tipheight
+		self.geometry('+%d+%d'%(posX,posY))
+		self.deiconify()
+		
+	def clear(self, event):
+		self.withdraw()
+		self.parent.after_cancel(self.action)
+ 
+
+class AdditionalDialog:
+    
+    # close the window and quit
+    def delete_event(self, widget, event, data=None):
+        gtk.main_quit()
+        return False
+
+    def __init__(self, dgs):
+        
+        # Create a new window
+        self.window = gtk.Window(gtk.WINDOW_TOPLEVEL)
+
+        self.window.set_title("Additional Data")
+
+        self.window.set_size_request(500, 600)
+
+        self.window.connect("delete_event", self.delete_event)
+        
+        self.doc = dgs
+        
+        # create a TreeStore with one string column to use as the model
+        self.treestore = gtk.TreeStore(str)
+        
+        for item in self.doc.keys():
+            root = self.treestore.append(None, [toDG(item)])
+            for value in self.doc[item]:
+                branch = self.treestore.append(root, [str(value)])
+                if type(self.doc[item][value]) == str:
+                    leave = self.treestore.append(branch, [self.doc[item][value]])
+                elif type(self.doc[item][value]) == list:
+                    for data in self.doc[item][value]:
+                        self.treestore.append(leave, [data])
+                elif type(self.doc[item][value]) == type(datagroup.DataGroup()):
+                    self.treestore.append(leave, [str(self.doc[item][value])])
+                
+        # create the TreeView using treestore
+        self.treeview = gtk.TreeView(self.treestore)
+
+        # create the TreeViewColumn to display the data
+        self.tvcolumn = gtk.TreeViewColumn('Data groups')
+
+        # add tvcolumn to treeview
+        self.treeview.append_column(self.tvcolumn)
+
+        # create a CellRendererText to render the data
+        self.cell = gtk.CellRendererText()
+
+        # add the cell to the tvcolumn and allow it to expand
+        self.tvcolumn.pack_start(self.cell, True)
+
+        # set the cell "text" attribute to column 0 - retrieve text
+        # from that column in treestore
+        self.tvcolumn.add_attribute(self.cell, 'text', 0)
+
+        # make it searchable
+        self.treeview.set_search_column(0)
+
+        # Allow sorting on the column
+        self.tvcolumn.set_sort_column_id(0)
+
+        # Allow drag and drop reordering of rows
+        self.treeview.set_reorderable(True)
+
+        self.window.add(self.treeview)
+
+        self.window.show_all()
 
 

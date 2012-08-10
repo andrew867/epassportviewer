@@ -173,7 +173,7 @@ class BAC(Logger):
         self.log("Concatenate RND.IFD, RND.ICC and Kifd")       
         self.log("\tS: " + binToHexRep(s))
          
-        tdes= DES3.new(self._ksenc,DES.MODE_CBC)
+        tdes= DES3.new(self._ksenc,DES.MODE_CBC, b'\x00\x00\x00\x00\x00\x00\x00\x00')
         eifd= tdes.encrypt(s)
         self.log("Encrypt S with TDES key Kenc as calculated in Appendix 5.2")
         self.log("\tEifd: " + binToHexRep(eifd))
@@ -206,7 +206,7 @@ class BAC(Logger):
         if mac(self._ksmac, pad(data[0:32])) != data[32:]:
             raise Exception, "The MAC value is not correct"
         
-        tdes= DES3.new(self._ksenc,DES.MODE_CBC)
+        tdes= DES3.new(self._ksenc,DES.MODE_CBC, b'\x00\x00\x00\x00\x00\x00\x00\x00')
         response = tdes.decrypt(data[0:32])
         response_kicc = response[16:32]
         Kseed = self._xor(self._kifd, response_kicc)

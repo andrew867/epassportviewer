@@ -189,7 +189,7 @@ class SecureMessaging(Ciphering):
         data = []
         if(do87Data):
             #There is a payload
-            tdes= DES3.new(self._ksenc,DES.MODE_CBC)
+            tdes= DES3.new(self._ksenc,DES.MODE_CBC, b'\x00\x00\x00\x00\x00\x00\x00\x00')
             data = unpad(tdes.decrypt(do87Data))
             self.log("Decrypt data of DO'87 with KSenc")
             self.log("\tDecryptedData: " + binToHexRep(data))
@@ -212,7 +212,7 @@ class SecureMessaging(Ciphering):
     
     def _padAndEncryptData(self, apdu):
         """ Pad the data, encrypt data with KSenc and build DO'87"""
-        tdes= DES3.new(self._ksenc,DES.MODE_CBC) 
+        tdes= DES3.new(self._ksenc,DES.MODE_CBC, b'\x00\x00\x00\x00\x00\x00\x00\x00') 
         paddedData = pad( hexRepToBin(apdu.getData()))
         enc = tdes.encrypt( paddedData )
         self.log("Pad data")

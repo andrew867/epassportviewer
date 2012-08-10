@@ -1,6 +1,6 @@
 #!/usr/bin/python2.7
 
-# Copyright 2009 Jean-Francois Houzard, Olivier Roger
+# Copyright 2012 Jean-Francois Houzard, Olivier Roger, Antonin Beaujeant
 #
 # This file is part of epassportviewer.
 #

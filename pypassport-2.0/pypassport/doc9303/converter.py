@@ -17,6 +17,7 @@
 # If not, see <http://www.gnu.org/licenses/>.
 
 class types(object):
+    DISP = "DISP"
     DG = "DG"
     EF = "EF"
     SEF = "SEF"
@@ -28,6 +29,7 @@ class types(object):
     GRT = "GRT"
 
 _Table = {
+         types.DISP : ["Common", "DG 1", "DG 2", "DG 3", "DG 4", "DG 5", "DG 6", "DG 7", "DG 8", "DG 9", "DG 10", "DG 11", "DG 12", "DG 13", "DG 14", "DG 15", "DG 16", "Security Data"],
          types.DG : ["Common", "DG1", "DG2", "DG3", "DG4", "DG5", "DG6", "DG7", "DG8", "DG9", "DG10", "DG11", "DG12", "DG13", "DG14", "DG15", "DG16", "SecurityData"],
          types.EF : ["EF.COM", "EF.DG1", "EF.DG2", "EF.DG3", "EF.DG4", "EF.DG5", "EF.DG6", "EF.DG7", "EF.DG8", "EF.DG9", "EF.DG10", "EF.DG11", "EF.DG12", "EF.DG13", "EF.DG14", "EF.DG15", "EF.DG16", "EF.SOD"],
          types.SEF : ["1E", "01", "02", "03", "04", "05", "06", "07", "08", "09", "0A", "0B", "0C", "0D", "0E", "0F", "10", "1D"],
@@ -41,7 +43,15 @@ _Table = {
          types.ORDER : ["00", "01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12", "13", "14", "15", "16", "17"],
          types.GRT : ["EF_COM", "Datagroup1", "Datagroup2", "Datagroup3", "Datagroup4", "Datagroup5", "Datagroup6", "Datagroup7", "Datagroup8", "Datagroup9", "Datagroup10", "Datagroup11", "Datagroup12", "Datagroup13", "Datagroup14", "Datagroup15", "Datagroup16", "EF_SOD"]
          }
-    
+
+def toDISP(data):
+    """ 
+    Transform the data value to its value to display
+    If the data value does not come from the Table A1 from the doc9303, 
+    an exception is raised
+    """
+    return to(types.DISP, data)
+
 def toDG(data):
     """ 
     Transform the data value to its DG representation
