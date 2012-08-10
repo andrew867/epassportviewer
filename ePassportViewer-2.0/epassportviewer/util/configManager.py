@@ -38,8 +38,9 @@ class configManager(singleton.Singleton, dict):
                            'pa'         : True
                           },
                 'Logs':   {'api'        : True,
-                           'sm'         : False,
-                           'apdu'       : False
+                           'sm'         : True,
+                           'apdu'       : True,
+                           'bac'        : True
                            }
             }
 
@@ -60,6 +61,7 @@ class configManager(singleton.Singleton, dict):
         self['Logs']['api'] = BooleanVar()
         self['Logs']['sm'] = BooleanVar()
         self['Logs']['apdu'] = BooleanVar()
+        self['Logs']['bac'] = BooleanVar()
 
     def loadConfig(self, file=CONFIG, autoSaveChanges=True):            
         self.parser = ConfigParser.ConfigParser()

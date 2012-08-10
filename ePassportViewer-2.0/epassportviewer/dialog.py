@@ -32,7 +32,7 @@ import Image, ImageTk
 import Queue
 import time
 import re
-from tkFileDialog import askdirectory, askopenfilename
+from tkFileDialog import askdirectory, askopenfilename, asksaveasfilename
 
 from epassportviewer.const import *
 from epassportviewer.util import forge
@@ -444,124 +444,57 @@ class Log(Toplevel):
         self.transient(master)
         self.grab_set()
         
-        file = open(LOG,'r')
-        self.txt = file.read()
-        file.close()
-         
-        log = ScrollFrame(self, self.txt)
-        log.pack(side=TOP, fill=BOTH, expand=True)
-        
-        
+        self.logFrame = ScrollFrame(self)
+        self.logFrame.pack(side=TOP, fill=BOTH, expand=True)
 
-class AdditionalData(Toplevel):
-    def __init__(self, master, doc):
-        Toplevel.__init__(self, master)
-        self.title("Additional Data")
-        self.transient(master)
-        self.doc = doc    
+        self.epCheck = BooleanVar()
+        self.epCheck.set(configManager().getOption('Logs','api'))
+        ep = Checkbutton(self, text="EPassport", variable=self.epCheck, command=self.refresh)
+        ep.pack(side=LEFT, padx=5)
         
-
+        self.smCheck = BooleanVar()
+        self.smCheck.set(configManager().getOption('Logs','sm'))
+        sm = Checkbutton(self, text="Secure Messaging", variable=self.smCheck, command=self.refresh)
+        sm.pack(side=LEFT, padx=5)
         
-        self.files = Listbox(self, width=12)
-        self.files.pack(side=LEFT, fill=Y)
+        self.isoCheck = BooleanVar()
+        self.isoCheck.set(configManager().getOption('Logs','apdu'))
+        iso = Checkbutton(self, text="ISO7816", variable=self.isoCheck, command=self.refresh)
+        iso.pack(side=LEFT, padx=5)
         
-        scrollbar = Scrollbar(self)
-        scrollbar.pack(side=LEFT, fill=BOTH)        
-        scrollbar.config(command=self.files.yview)
+        self.bacCheck = IntVar()
+        self.bacCheck.set(configManager().getOption('Logs','bac'))
+        bac = Checkbutton(self, text="BAC", variable=self.bacCheck, command=self.refresh)
+        bac.pack(side=LEFT, padx=5)
         
-        self.files['yscrollcommand'] = scrollbar.set
+        self.createLog()
         
-        self.data = DataGroupGridList(self, None, ['Tag', 'Value'], 10, None, None)
+    def refresh(self):
+        configManager().setOption('Logs','api', self.epCheck.get())
+        configManager().setOption('Logs','sm', self.smCheck.get())
+        configManager().setOption('Logs','apdu', self.isoCheck.get())
+        configManager().setOption('Logs','bac', self.bacCheck.get())
         
-        for item in doc.keys():
-            self.files.insert(END, toDG(item))
-            
-        self.files.bind('<<ListboxSelect>>', self.onSelectDG)
-        
-        self.data.load(self.doc[toTAG("DG1")])
-            
-    def onSelectDG(self, event=None):
-        self.data.load(self.doc[toTAG(self.files.get(event.widget.curselection()))])
-        
-    def clickOk(self, event=None):
-        self.destroy()
-        
-        
-        
-class FingerPrintDialog(Toplevel):
+        self.createLog()
     
-    def __init__(self, master, data):
-        Toplevel.__init__(self, master)
-        self.title("Fingerprint")
-        self.transient(master)
-        self.grab_set()
+    
+    def createLog(self):
+        l = list()
+        if self.epCheck.get(): l.append("EPassport")
+        if self.smCheck.get(): l.append("SM")
+        if self.isoCheck.get(): l.append("ISO7816")
+        if self.bacCheck.get(): l.append("BAC")
         
-        self.txt = ""
-        self.txt += "Unique ID (random): " + data["UID"] + "\n"
-        self.txt += "Answer-To-Reset: " + data["ATR"] + "\n"
-        self.txt += "Generation: " + str(data["generation"]) + "\n"
-        self.txt += "Reading time: " + str(data["ReadingTime"]) + "\n"
-        self.txt += "Data Groups size: "
-        if type(data["DGs"]) == type([]):
-            self.txt += "\n"
-            for key, value in data["DGs"]:
-                self.txt += "   - " + str(key) + ": " + str(value) + "\n"
-        else:
-            self.txt += data["DGs"] + "\n"
-        self.txt += "\n"
-        self.txt += "\n"
-        self.txt += "SECURITY\n"
-        self.txt += "\n"
-        self.txt += "   Basic Access Control: " + data["bac"] + "\n"
-        self.txt += "   Active Authentication: " + data["activeAuth"] + "\n"
-        self.txt += "   Active Authentication without BAC: " + str(data["activeAuthWithoutBac"]) + "\n"
-        if data["activeAuthWithoutBac"]: self.txt += "    * Vulnerable to AA traceability\n"
-        self.txt += "   Diffirent repsonse time for wrong message or MAC: " + str(data["macTraceability"]) + "\n"
-        if data["macTraceability"]: 
-            self.txt += "    * Vulnerable to MAC traceability\n"
-            self.txt += "      Note: If french passport, this might be a false positive due to the anti brute-force \n"
-        self.txt += "\n"
-        self.txt += "\n"
-        self.txt += "CERTIFICATES/SIGNATURES\n"
-        self.txt += "\n"
-        self.txt += "Certificate Serial Number: " + data["certSerialNumber"] + "\n"
-        self.txt += "Certificate Fingerprint: " + data["certFingerPrint"] + "\n"
-        self.txt += "\n"
-        self.txt += "Document Signer " + data["DSCertificate"] + "\n"
-        self.txt += "\n"
-        self.txt += data["pubKey"] + "\n"
+        with open(LOG,'r') as f:
+            lines = f.readlines()
         
-        log = ScrollFrame(self, self.txt)
-        log.pack(side=TOP, fill=BOTH, expand=True)
+        textlog = ""
+        for line in lines:
+            for category in l:
+                if line[:len(category)] == category:
+                    textlog += line
         
-        saveButton = Button(self, text="Save")
-        saveButton.pack(side=RIGHT, ipadx=10)
-        saveButton.bind("<Button-1>", self.save)
-        
-        okButton = Button(self, text="OK")
-        okButton.pack(side=RIGHT, ipadx=10)
-        okButton.bind("<Button-1>", self.clickOK)
-
-    def save(self, event):
-        from tkFileDialog import asksaveasfilename
-        formats = [
-            ('Text','*.txt'),
-            ]
-        
-        fileName = asksaveasfilename(parent=self,filetypes=formats ,title="Save as...")
-        if len(fileName) > 0:
-            try:
-                file = open(str(fileName), 'w')
-                file.write(self.txt)
-            except Exception, msg:
-                tkMessageBox.showerror("Save error", str(msg))
-            finally:
-                file.close()
-
-    def clickOK(self, event):
-        self.destroy()
-        
-        
+        self.logFrame.update(textlog)
 
 class ProgressBar(Frame):
     def __init__(self, master=None, orientation="horizontal",
@@ -904,15 +837,21 @@ class ReadingDialog(threading.Thread, Toplevel):
       
         
 class ScrollFrame(Frame):
-    def __init__(self, master, txt, height=24):
+    def __init__(self, master, txt='', height=24):
         Frame.__init__(self, master)
         scrollbar = Scrollbar(self)
         scrollbar.pack(side=RIGHT, fill=Y)
-        text = Text(self, yscrollcommand=scrollbar.set, height=height)
-        text.insert(END, txt)
-        text.config(state=DISABLED)
-        text.pack(side=TOP, fill=BOTH, expand=True)
-        scrollbar.config(command=text.yview) 
+        self.text = Text(self, yscrollcommand=scrollbar.set, height=height)
+        self.text.insert(END, txt)
+        self.text.config(state=DISABLED)
+        self.text.pack(side=TOP, fill=BOTH, expand=True)
+        scrollbar.config(command=self.text.yview)
+       
+    def update(self, txt):
+        self.text.config(state=NORMAL)
+        self.text.delete("1.0", END)
+        self.text.insert(END, txt)
+        self.text.config(state=DISABLED)
         
         
 ######
@@ -973,6 +912,40 @@ class Tooltip(Toplevel):
 		self.parent.after_cancel(self.action)
  
 
+class AdditionalData(Toplevel):
+    def __init__(self, master, doc):
+        Toplevel.__init__(self, master)
+        self.title("Additional Data")
+        self.transient(master)
+        self.doc = doc    
+        
+
+        
+        self.files = Listbox(self, width=12)
+        self.files.pack(side=LEFT, fill=Y)
+        
+        scrollbar = Scrollbar(self)
+        scrollbar.pack(side=LEFT, fill=BOTH)        
+        scrollbar.config(command=self.files.yview)
+        
+        self.files['yscrollcommand'] = scrollbar.set
+        
+        self.data = DataGroupGridList(self, None, ['Tag', 'Value'], 10, None, None)
+        
+        for item in doc.keys():
+            self.files.insert(END, toDG(item))
+            
+        self.files.bind('<<ListboxSelect>>', self.onSelectDG)
+        
+        self.data.load(self.doc[toTAG("DG1")])
+            
+    def onSelectDG(self, event=None):
+        self.data.load(self.doc[toTAG(self.files.get(event.widget.curselection()))])
+        
+    def clickOk(self, event=None):
+        self.destroy()
+        
+        
 class AdditionalDialog:
     
     # close the window and quit
@@ -987,7 +960,7 @@ class AdditionalDialog:
 
         self.window.set_title("Additional Data")
 
-        self.window.set_size_request(500, 600)
+        self.window.set_size_request(500, 400)
 
         self.window.connect("delete_event", self.delete_event)
         
@@ -996,7 +969,13 @@ class AdditionalDialog:
         # create a TreeStore with one string column to use as the model
         self.treestore = gtk.TreeStore(str)
         
-        for item in self.doc.keys():
+        #for item in self.doc.keys():
+        orderedlist = list()
+        for val in self.doc.keys():
+            orderedlist.append(toOrder(val))
+        orderedlist.sort()
+        for order in orderedlist:
+            item = toTAG(order)
             root = self.treestore.append(None, [toDG(item)])
             for value in self.doc[item]:
                 branch = self.treestore.append(root, [str(value)])
@@ -1031,13 +1010,170 @@ class AdditionalDialog:
         self.treeview.set_search_column(0)
 
         # Allow sorting on the column
-        self.tvcolumn.set_sort_column_id(0)
+        self.tvcolumn.set_sort_column_id(1)
 
         # Allow drag and drop reordering of rows
         self.treeview.set_reorderable(True)
+        
+        self.scollwin = gtk.ScrolledWindow()
+        self.scollwin.add_with_viewport(self.treeview)
 
-        self.window.add(self.treeview)
+        self.window.add(self.scollwin)
 
         self.window.show_all()
 
 
+
+#####################################
+class FingerprintProcess(threading.Thread, Toplevel):       
+    
+    def __init__(self, master, doc9303):
+        threading.Thread.__init__(self)
+        Toplevel.__init__(self, master)
+        self.queue = Queue.Queue()
+        
+        self.doc = doc9303
+        self.master = master
+        
+        self.resizable(False, False)
+        
+        self.title("Generating the report...")
+        self.transient(master)
+        self.grab_set()
+        self.protocol("WM_DELETE_WINDOW", self.stopReading)
+        
+        
+        # GRAPHIC COMPONENTS
+        self.svDG = StringVar()
+        self.lfp = Label(self,textvariable=self.svDG)
+        self.lfp.pack(side=TOP, fill=X, padx=5)
+        
+        self.pbfp = ProgressBar(self)
+        self.pbfp.pack(side=TOP, fill=X, padx=5, pady=5)
+        
+        self.stop = False
+        self.destoyed = False
+        self.periodicCall()
+        
+    def processIncoming(self):
+        while self.queue.qsize() and not self.destoyed:
+            try:
+                a = self.queue.get(0)
+                if not a: continue
+                msg, widget, cpt = a
+                if widget == 'fp':
+                    self.pbfp.updateProgress(cpt)
+                elif widget == 'slfp':
+                    self.svDG.set(cpt)
+                if msg == 'Quit':
+                    self.stopReading()
+                elif msg == 'Reset':
+                    self.stopReading()
+                    self.master.clean()
+                    self.doc = None
+                if self.stop:
+                    self.destroy()
+                    self.destoyed = True
+            except Queue.Empty, msg:
+                if DEBUG: 'Queue Error:', msg
+                pass
+        
+    def showSafe(self):
+        self.thread = threading.Thread(target=self.startReading)
+        self.thread.start()
+        
+    def startReading(self):
+        self.queue.put((None, 'slfp', "Initializing"))
+        self.queue.put((None, 'fp', 0))
+        fp = fingerPrint.FingerPrint(self.doc)
+        self.queue.put((None, 'slfp', "Collecting data (~20s)..."))
+        self.queue.put((None, 'fp', 10))
+        data = fp.analyse()
+        self.queue.put((None, 'slfp', "Building the report"))
+        self.queue.put((None, 'fp', 90))
+        
+        self.txt = ""
+        self.txt += "Unique ID (random): " + data["UID"] + "\n"
+        self.txt += "Answer-To-Reset: " + data["ATR"] + "\n"
+        self.txt += "Generation: " + str(data["generation"]) + "\n"
+        self.txt += "Reading time: " + str(data["ReadingTime"]) + "\n"
+        self.txt += "Data Groups size: "
+        if type(data["DGs"]) == type([]):
+            self.txt += "\n"
+            for key, value in data["DGs"]:
+                self.txt += "   - " + str(key) + ": " + str(value) + "\n"
+        else:
+            self.txt += data["DGs"] + "\n"
+        self.txt += "\n"
+        self.txt += "\n"
+        self.txt += "SECURITY\n"
+        self.txt += "\n"
+        self.txt += "   Basic Access Control: " + data["bac"] + "\n"
+        self.txt += "   Active Authentication: " + data["activeAuth"] + "\n"
+        self.txt += "   Active Authentication without BAC: " + str(data["activeAuthWithoutBac"]) + "\n"
+        if data["activeAuthWithoutBac"]: self.txt += "    * Vulnerable to AA traceability\n"
+        self.txt += "   Diffirent repsonse time for wrong message or MAC: " + str(data["macTraceability"]) + "\n"
+        if data["macTraceability"]: 
+            self.txt += "    * Vulnerable to MAC traceability\n"
+            self.txt += "      Note: If french passport, this might be a false positive due to the anti brute-force \n"
+        self.txt += "\n"
+        self.txt += "\n"
+        self.txt += "CERTIFICATES/SIGNATURES\n"
+        self.txt += "\n"
+        self.txt += "Certificate Serial Number: " + data["certSerialNumber"] + "\n"
+        self.txt += "Certificate Fingerprint: " + data["certFingerPrint"] + "\n"
+        self.txt += "\n"
+        self.txt += "Document Signer " + data["DSCertificate"] + "\n"
+        self.txt += "\n"
+        self.txt += data["pubKey"] + "\n"
+        
+        self.queue.put(('Quit', 'fp', 100))
+        
+        FingerPrintDialog(self.master, self.txt)
+        
+            
+        
+    def periodicCall(self):
+        self.processIncoming()
+        if not self.destoyed:
+            self.after(100, self.periodicCall)
+        
+    def stopReading(self):
+        self.doc.stopReading()
+        self.stop = True
+#####################################
+
+
+class FingerPrintDialog(Toplevel):
+    
+    def __init__(self, master, data):
+        Toplevel.__init__(self, master)
+        self.title("Fingerprint")
+        self.transient(master)
+
+        log = ScrollFrame(self, data)
+        log.pack(side=TOP, fill=BOTH, expand=True)
+        
+        saveButton = Button(self, text="Save", command=self.save)
+        saveButton.pack(side=LEFT, ipadx=10)
+        
+        okButton = Button(self, text="OK", command=self.clickOK)
+        okButton.pack(side=LEFT, ipadx=10)
+
+    def save(self):
+        formats = [('Raw text','*.txt'),('PDF','*.pdf'),('XML','*.xml')]
+        
+        fileName = asksaveasfilename(parent=self,filetypes=formats ,title="Save as...")
+        if len(fileName) > 0:
+            try:
+                file = open(str(fileName), 'w')
+                file.write(data)
+            except Exception, msg:
+                tkMessageBox.showerror("Save error", str(msg))
+            finally:
+                file.close()
+
+    def clickOK(self):
+        self.destroy()
+        
+        

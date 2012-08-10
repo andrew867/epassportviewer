@@ -20,6 +20,7 @@ from Tkinter import *
 import tkMessageBox
 
 from epassportviewer.const import *
+from epassportviewer.dialog import Tooltip
 from epassportviewer.util.configManager import configManager
 
 class securityFrame(Frame):
@@ -29,11 +30,17 @@ class securityFrame(Frame):
         
         
         self.BAC = Label(self, text="Basic Access Control", anchor=W)
-        self.AA = Label(self, text="Active Auth.", anchor=W)
-        self.PA = Label(self, text="Passive Auth.", anchor=W)
         self.BAC.pack(side=TOP, expand=True, fill=BOTH)
+        self.tipBAC = None
+        
+        self.AA = Label(self, text="Active Auth.", anchor=W)
         self.AA.pack(side=TOP, expand=True, fill=BOTH)
+        self.tipAA = None
+        
+        
+        self.PA = Label(self, text="Passive Auth.", anchor=W)
         self.PA.pack(side=LEFT, expand=True, fill=BOTH)
+        self.tipPA = None
         
         dgFrame = Frame(self)
         dgFrame.pack(side=TOP, expand=True, fill=BOTH)
@@ -51,12 +58,15 @@ class securityFrame(Frame):
         if BAC != None:
             if BAC == False:
                 self.BAC.configure(fg='red')
-            else: self.BAC.configure(fg=green)
+            else: 
+                self.BAC.configure(fg=green)
+                self.tipBAC = Tooltip(parent=self.BAC, tip="The BAC succeed")
                         
         if AA != None:
             self.AA.configure(fg='black')
             if AA == True:
                 self.AA.configure(fg=green)
+                self.tipAA = Tooltip(parent=self.AA, tip="The AA succeed")
             elif AA == "NO_OPENSSL":
                 self.AA.configure(fg=orange)
             elif AA == "NO_DG_15":
@@ -85,6 +95,7 @@ class securityFrame(Frame):
                 self.PA.configure(fg=orange)
             elif not set:
                 self.PA.configure(fg=green)
+                self.tipPA = Tooltip(parent=self.PA, tip="The PA succeed")
             
             if CA != None:
                 self.dg['SOD'].configure(fg='black')
@@ -104,3 +115,13 @@ class securityFrame(Frame):
         for dg in range(1,17):
             self.dg['DG'+str(dg)].configure(fg='black')
         self.dg['SOD'].configure(fg='black')
+        
+        if self.tipBAC:
+            self.tipBAC.destroy()
+            self.tipBAC = None
+        if self.tipAA:
+            self.tipAA.destroy()
+            self.tipAA = None
+        if self.tipPA:
+            self.tipPA.destroy()
+            self.tipPA = None

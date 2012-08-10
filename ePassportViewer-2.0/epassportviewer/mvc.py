@@ -337,11 +337,7 @@ class View(Frame):
         
     def log(self, name, data):
         
-        l = []
-        if configManager.configManager().getOption('Logs','api'): l.append("EPassport")
-        if configManager.configManager().getOption('Logs','sm'): l.append("SM")
-        if configManager.configManager().getOption('Logs','apdu'): l.append("ISO7816")
-#       if configManager.configManager().getOption('Logs','bac'): l.append("BAC")
+        l = ["EPassport", "SM", "ISO7816", "BAC"]
         
         if name in l:
             try:
@@ -397,7 +393,7 @@ class View(Frame):
             self._doc.openSslDirectory = configManager.configManager().getOption('Options', 'openssl')
             self.clearLog()
             if fingerprint:
-                self.Fingerprint(None)
+                self.Fingerprint(self._doc)
             else:
                 self._doc.register(self.log)
                 self._readPassport(self._doc)
@@ -441,10 +437,12 @@ class View(Frame):
             tkMessageBox.showinfo("Error create", msg)
     
     
-    def Fingerprint(self, event=None):
+    def Fingerprint(self, doc):
         try:
-            fp = pypassport.fingerPrint.FingerPrint(self._doc)
-            dialog.FingerPrintDialog(self, fp.analyse())
+            self.thFp = dialog.FingerprintProcess(self, doc)
+            self.thFp.showSafe()
+            #fp = pypassport.fingerPrint.FingerPrint(doc)
+            #dialog.FingerPrintDialog(self, fp.analyse())
         except Exception, msg:
             tkMessageBox.showinfo("No document open", msg)
         
@@ -461,9 +459,9 @@ class View(Frame):
             
     def _readPassport(self, doc):
         try:
-            self.t = dialog.ReadingDialog(self, doc)
-            self.t.read.register(self._dgRead)
-            self.t.show()
+            self.thEp = dialog.ReadingDialog(self, doc)
+            self.thEp.read.register(self._dgRead)
+            self.thEp.show()
         except pypassport.doc9303.bac.BACException, msg:
             tkMessageBox.showerror("Reader", "Please verify the MRZ:\n" + str(msg[0]))
         except Exception, msg:
