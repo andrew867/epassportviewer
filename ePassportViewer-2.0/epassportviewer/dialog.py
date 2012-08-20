@@ -324,14 +324,21 @@ class WaitDialog(Toplevel):
         self.transient(master)
         self.grab_set()
         
-        waitFrame = Frame(self, borderwidth=1, relief=GROOVE)
-        waitFrame.pack(fill=BOTH, expand=1)
+        self.waitFrame = Frame(self)
+        self.waitFrame.pack(fill=BOTH, expand=1)
         
-        waitLabel = Label(waitFrame, text="Please wait while the ePassport is generated")
-        waitLabel.grid(row=0, column=0, padx=10, pady=10)
+        self.txt = StringVar()
+        self.txt.set("Please wait...")
+        self.waitLabel = Label(self.waitFrame, textvariable=self.txt, justify=LEFT)
+        self.waitLabel.pack(padx=20, pady=20)
         
     def closeDialog(self):
         self.destroy()
+    
+    def setMessage(self, message):
+        self.txt.set(message)
+        self.update()
+        self.deiconify()
             
             
             
@@ -346,9 +353,7 @@ This application is based on the pyPassport Project\n\
 and illustrate how to use it.\n\
 Features include viewing data, fingerprinting and\n\
 performing e-Passport security mechanisms."""    
-    
-    AUTHORS = "\nJean Francois HOUZARD (jhouzard@gmail.com)\n\
- Olivier ROGER (olivier.roger@gmail.com)\n"
+
     PLACE = "Universite Catholique de Louvain (UCL) @ 2009"
     GROUP = "http://sites.uclouvain.be/security/"
     
@@ -450,22 +455,25 @@ class Log(Toplevel):
         self.epCheck = BooleanVar()
         self.epCheck.set(configManager().getOption('Logs','api'))
         ep = Checkbutton(self, text="EPassport", variable=self.epCheck, command=self.refresh)
-        ep.pack(side=LEFT, padx=5)
+        ep.pack(side=LEFT)
         
         self.smCheck = BooleanVar()
         self.smCheck.set(configManager().getOption('Logs','sm'))
         sm = Checkbutton(self, text="Secure Messaging", variable=self.smCheck, command=self.refresh)
-        sm.pack(side=LEFT, padx=5)
+        sm.pack(side=LEFT, padx=10)
         
         self.isoCheck = BooleanVar()
         self.isoCheck.set(configManager().getOption('Logs','apdu'))
         iso = Checkbutton(self, text="ISO7816", variable=self.isoCheck, command=self.refresh)
-        iso.pack(side=LEFT, padx=5)
+        iso.pack(side=LEFT)
         
         self.bacCheck = IntVar()
         self.bacCheck.set(configManager().getOption('Logs','bac'))
         bac = Checkbutton(self, text="BAC", variable=self.bacCheck, command=self.refresh)
-        bac.pack(side=LEFT, padx=5)
+        bac.pack(side=LEFT, padx=10)
+        
+        saveButton = Button(self, text="Save...", command=self.save)
+        saveButton.pack(side=RIGHT, padx=5, pady=3)
         
         self.createLog()
         
@@ -495,6 +503,22 @@ class Log(Toplevel):
                     textlog += line
         
         self.logFrame.update(textlog)
+    
+    
+    def save(self):
+        formats = [('Raw text','*.txt')]
+        
+        fileName = asksaveasfilename(parent=self,filetypes=formats ,title="Save as...")
+        if len(fileName) > 0:
+            try:
+                file = open(str(fileName), 'w')
+                file.write(self.logFrame.text.get(1.0, END))
+                tkMessageBox.showinfo("Log saved", "Log saved as: {}".format(str(fileName)))
+            except Exception, msg:
+                tkMessageBox.showerror("Save error", str(msg))
+            finally:
+                file.close()
+                
 
 class ProgressBar(Frame):
     def __init__(self, master=None, orientation="horizontal",
@@ -680,6 +704,7 @@ class ReadingDialog(threading.Thread, Toplevel):
             
             try:
                 self.dgList = self._reorder(self.doc["Common"]["5C"])
+                self.queue.put((("BAC", True), 'None', 0))
             except epassport.bac.BACException, msg:
                 raise WrongMRZ("Please check you wrote the correct MRZ.".format(type(msg), msg))
             except Exception, msg:
@@ -706,7 +731,7 @@ class ReadingDialog(threading.Thread, Toplevel):
                     dgValidList.append(item)
                     self.ep[item] = dg
                 except BACException:
-                    self.queue.put((("EAC", "EAC required", "{0} can't be read".format(tagLDSToName[item])), None, 0))
+                    self.queue.put((("EAC", item), 'None', 0))
                     self.rstConnection()
                     dg = ''
                     
@@ -746,7 +771,9 @@ class ReadingDialog(threading.Thread, Toplevel):
                 except epassport.openssl.OpenSSLException, msg:
                     certif = "NO_OPENSSL"
                 except epassport.passiveauthentication.PassiveAuthenticationException, msg:
-                    certif = "NO_OPENSSL"
+                    certif = "CA_NOT_SET"
+                except Exception, msg:
+                    tkMessageBox.showinfo("DEBUG", "{}.\n{}".format(str(msg), type(msg)))
                 
                 self.queue.put((None, 'svdg', "Passive Authentication: Data Group Integrity Verification"))
                 self.queue.put((None, 'dg', 50))
@@ -1024,7 +1051,6 @@ class AdditionalDialog:
 
 
 
-#####################################
 class FingerprintProcess(threading.Thread, Toplevel):       
     
     def __init__(self, master, doc9303):
@@ -1141,7 +1167,6 @@ class FingerprintProcess(threading.Thread, Toplevel):
     def stopReading(self):
         self.doc.stopReading()
         self.stop = True
-#####################################
 
 
 class FingerPrintDialog(Toplevel):
@@ -1176,4 +1201,4 @@ class FingerPrintDialog(Toplevel):
     def clickOK(self):
         self.destroy()
         
-        
+

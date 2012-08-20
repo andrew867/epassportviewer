@@ -276,12 +276,12 @@ class PassiveAuthentication(Logger):
         
     def __str__(self):
         res =  "version: " + self._content["version"] + "\n"
-        res += "hashAlgorithm: " + self._content["hashAlgorithm"] + "\n"
-        res += "dataGroupHashValues: " + "\n"
+        res += "Hash algorithm: " + OID[self._content["hashAlgorithm"]] + " (" + self._content["hashAlgorithm"] + ")\n"
+        res += "Data group hash values: " + "\n"
         
         for dghv in self._content["dataGroupHashValues"].keys():
-            res += "dataGroupNumber: " + dghv + "\n"
-            res += "dataGroupHashValue: " + binToHexRep(self._content["dataGroupHashValues"][dghv]) + "\n"
+            res += "Data group: " + converter.toEF(dghv) + "\n"
+            res += "Hash value: " + binToHexRep(self._content["dataGroupHashValues"][dghv]) + "\n"
 
         return res
     

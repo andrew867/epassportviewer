@@ -266,7 +266,7 @@ class View(Frame):
             readers = pypassport.reader.ReaderManager().getReaderList()
             i = 0
             for r in readers:
-                self.readerMenu.add_radiobutton(label=r, variable=configManager.configManager().getVariable('Options','reader'), value=i)
+                self.readerMenu.add_radiobutton(label=r, variable=configManager.configManager().getVariable('Options','reader'), value=i, state=DISABLED)
                 i += 1
         except NameError, msg:
             pass
@@ -361,6 +361,7 @@ class View(Frame):
     def clearFull(self):
         self.clean()
         self.clearMRZ()
+        os.remove(LOG)
         
         
     def clean(self):
@@ -393,10 +394,10 @@ class View(Frame):
             self._doc.openSslDirectory = configManager.configManager().getOption('Options', 'openssl')
             self.clearLog()
             if fingerprint:
-                self.Fingerprint(self._doc)
+                self.Fingerprint()
             else:
                 self._doc.register(self.log)
-                self._readPassport(self._doc)
+                self._readPassport()
                 self.overview.additionalButton.config(state=NORMAL)
                 self.overview.logButton.config(state=NORMAL)
        
@@ -437,12 +438,10 @@ class View(Frame):
             tkMessageBox.showinfo("Error create", msg)
     
     
-    def Fingerprint(self, doc):
+    def Fingerprint(self):
         try:
-            self.thFp = dialog.FingerprintProcess(self, doc)
+            self.thFp = dialog.FingerprintProcess(self, self._doc)
             self.thFp.showSafe()
-            #fp = pypassport.fingerPrint.FingerPrint(doc)
-            #dialog.FingerPrintDialog(self, fp.analyse())
         except Exception, msg:
             tkMessageBox.showinfo("No document open", msg)
         
@@ -450,18 +449,17 @@ class View(Frame):
         reader = None
         
         try:
-            reader = pypassport.reader.ReaderManager().waitForCard(3)
+            reader = pypassport.reader.ReaderManager().waitForCard()
             return pypassport.epassport.EPassport(reader, mrz)
-        
         except Exception, msg:
             tkMessageBox.showerror("ePassport not found", "{0}.\nPlease check you passport is on the reader".format(str(msg)))
 
             
-    def _readPassport(self, doc):
+    def _readPassport(self):
         try:
-            self.thEp = dialog.ReadingDialog(self, doc)
-            self.thEp.read.register(self._dgRead)
-            self.thEp.show()
+            self.t = dialog.ReadingDialog(self, self._doc)
+            self.t.read.register(self._dgRead)
+            self.t.show()
         except pypassport.doc9303.bac.BACException, msg:
             tkMessageBox.showerror("Reader", "Please verify the MRZ:\n" + str(msg[0]))
         except Exception, msg:
@@ -472,13 +470,16 @@ class View(Frame):
         if DG in ["61", "67", "6B", "6C", "75"]:
             self.overview.loadDG(DG, DGdata)
         if DG == '61':
-            self.overview.security.setSecurity(BAC=self._doc._iso7816._ciphering)
             name, mrz = self.extractOwnerInfo(DGdata)
             self.addToHistory(name, mrz)
+        if DG == 'BAC':
+            self.overview.security.setSecurity(BAC=DGdata)
         if DG == 'AA':
             self.overview.security.setSecurity(AA=DGdata)
         if DG == 'PA':
             self.overview.security.setSecurity(PA=DGdata)
+        if DG == 'EAC':
+            self.overview.security.setSecurity(EAC=DGdata)
     
     def extractOwnerInfo(self, data):
         if not data.has_key('5F1F') or not data.has_key('5F5B'): 
@@ -631,10 +632,12 @@ class View(Frame):
         dob = self.dob.get()
         exp = self.doe.get()
         pers_num="<<<<<<<<<<<<<<"
+        if id_pass=="" or dob=="" or pers_num=="": return None
         id_pass_full = id_pass + (9-len(id_pass))*'<' + self._calculCheckDigit(id_pass)
         dob_full = dob + self._calculCheckDigit(dob)
         exp_full = exp + self._calculCheckDigit(exp)
         pers_num_full = pers_num + self._calculCheckDigit(pers_num)
+        print id_pass_full + "???" + dob_full + "?" + exp_full + pers_num_full + self._calculCheckDigit(id_pass_full+dob_full+exp_full+pers_num_full)
         return id_pass_full + "???" + dob_full + "?" + exp_full + pers_num_full + self._calculCheckDigit(id_pass_full+dob_full+exp_full+pers_num_full)
         
     def fingerprint(self):

@@ -18,7 +18,9 @@
 
 import os
 import time
-from pypassport import epassport
+from pypassport.iso7816 import Iso7816Exception
+from pypassport.doc9303 import passiveauthentication
+from pypassport import epassport, iso7816
 from pypassport.hexfunctions import *
 from pypassport.doc9303.converter import *
 from pypassport.apdu import CommandAPDU
@@ -30,17 +32,13 @@ from smartcard.util import toHexString
 
 class FingerPrint(object):
     
-    def __init__(self, epassport):
+    def __init__(self, epassport, callback=None):
         self._doc = epassport
-        self._mrz = self._doc._mrz
+        self.curMRZ = None
         self._comm = self._doc.getCommunicationLayer()
-        self._bac = False
-        self._aa = False
-        self._aaUnsecure = False
-        self._pubKey = False
-        self._DSCertificate = False
-        self._gen = None
+        self._pa = passiveauthentication.PassiveAuthentication(epassport)
         self._certInfo = None
+        self.callback = callback
         
         self._comm.rstConnection()
 
@@ -55,6 +53,9 @@ class FingerPrint(object):
         
         res["activeAuthWithoutBac"] = False
         res["macTraceability"] = False
+        res["blockAfterFail"] = False
+        res["delaySecurity"] = False
+        res["selectNull"] = "N/A"
         res["bac"] = "Failed"
         res["DSCertificate"] = "Document Signer Certificate: N/A"
         res["pubKey"] = "Private key: N/A"
@@ -66,6 +67,11 @@ class FingerPrint(object):
         res["UID"] = "N/A"
         res["DGs"] = "Cannot calculate the DG size"
         res["ReadingTime"] = "N/A"
+        res["SOD"] = "N/A"
+        res["Integrity"] = "N/A"
+        res["Hashes"] = "N/A"
+        res["failedToRead"] = list()
+        res["EP"] = dict()
         
         try:
             res["UID"] = binToHexRep(self._comm.getUID())
@@ -77,19 +83,57 @@ class FingerPrint(object):
         except Exception, msg:
             pass
         
+        res["blockAfterFail"] = self.blockAfterFail()
+        
         res["activeAuthWithoutBac"] = self.checkInternalAuth()
-        self._comm.rstConnection()
         
         res["macTraceability"] = self.checkMACTraceability()
+        
+        res["selectNull"] = binToHexRep(self.getSelectNull())
+        
         self._comm.rstConnection()
-            
         #Check if the secure-messaging is set.
+        sod = None
         try:        
             sod = self._doc["SecurityData"]
             if self._comm._ciphering:
                 res["bac"] = "Done"
         except Exception:
             self._comm.rstConnection()
+        
+        #Read SOD
+        if sod != None:
+            with open('sod', 'wb') as fd:
+                fd.write(sod.body)
+            f = os.popen("openssl asn1parse -in sod -inform DER -i")
+            res["SOD"] = f.read().strip()
+            os.remove('sod')
+            
+        #Read DGs
+        self._comm.rstConnection()
+        data = {}
+        start = time.time()
+        res["EP"]["Common"] = self._doc["Common"]
+        for dg in res["EP"]["Common"]["5C"]:
+            try:
+                res["EP"][toDG(dg)] = self._doc[dg]
+                data[toDG(dg)] = len(self._doc[dg].file)
+            except Exception:
+                res["failedToRead"].append(toDG(dg))
+                self._comm.rstConnection()
+        res["ReadingTime"] = time.time() - start
+        lengths = data.items()
+        lengths.sort()
+        res["DGs"] = lengths
+        
+        # Get hashed
+        dgs = list()
+        for dg in res["EP"]:
+            dgs.append(res["EP"][dg])
+        
+        #Passive Authentication
+        res["Integrity"] = self._pa.executePA(sod, dgs)
+        res["Hashes"] = self._pa._calculateHashes(dgs)
             
         #Check if there is a certificate 
         try:
@@ -138,15 +182,7 @@ class FingerPrint(object):
             except:
                 res["generation"] = 4
                     
-        try:
-            res["DGs"] = self.calculateDGSize()
-        except Exception:
-            self._comm.rstConnection()
-            
-        try:
-            res["ReadingTime"] = self.calculateReadingTime()
-        except Exception, msg:
-            pass 
+        res["delaySecurity"] = self.checkDelaySecurity()
             
         return res
     
@@ -157,16 +193,6 @@ class FingerPrint(object):
         
         cardservice.connection.connect()
         return toHexString(cardservice.connection.getATR())
-        
-    
-    def calculateDGSize(self):
-        data = {}
-        for x in self._doc:
-            data[toDG(x)] = len(self._doc[x].file)
-            
-        items = data.items()
-        items.sort()
-        return items
             
     def checkInternalAuth(self):
         self._comm.rstConnection()
@@ -178,15 +204,60 @@ class FingerPrint(object):
             return False
             
     def checkMACTraceability(self):
+        self._comm.rstConnection()
         attack = macTraceability.MacTraceability(self._comm)
-        attack.setMRZ(str(self._mrz))
+        attack.setMRZ(str(self.curMRZ))
         return attack.isVulnerable()
-        
-    def calculateReadingTime(self):
-        for x in self._doc.keys():
-            self._doc.__delitem__(x)
-            
+    
+    def checkDelaySecurity(self):
+        self._comm.rstConnection()
+        self._doc.doBasicAccessControl()
+        self._comm.rstConnection()
         start = time.time()
-        self._doc.readPassport()
-        return time.time() - start
+        self._doc.doBasicAccessControl()
+        first = time.time() - start
+        rndMRZ = "AB12345671ETH0101011M1212318<<<<<<<<<<<<<<04"
+        self.curMRZ = self._doc.switchMRZ(rndMRZ)
+        for x in range(4):
+            try:
+                self._comm.rstConnection()
+                self._doc.doBasicAccessControl()
+            except Exception:
+                pass
+        self._doc.switchMRZ(self.curMRZ)
+        self._comm.rstConnection()
+        start = time.time()
+        self._doc.doBasicAccessControl()
+        if time.time() - start > 0.01:
+            return True
+        else: False
         
+        print first-second
+    
+    def blockAfterFail(self):
+        self._comm.rstConnection()
+        rndMRZ = "AB12345671ETH0101011M1212318<<<<<<<<<<<<<<04"
+        self.curMRZ = self._doc.switchMRZ(rndMRZ)
+        try:
+            self._doc.doBasicAccessControl()
+        except Exception:
+            pass
+        self._doc.switchMRZ(self.curMRZ)
+        try:
+            self._doc.doBasicAccessControl()
+        except Exception:
+            return True
+        return False
+    
+    def getSelectNull(self):
+        self._comm.rstConnection()
+        try:
+            return self._comm.selectFile("00", "00", file="", cla="00", ins="A4")
+        except Iso7816Exception, msg:
+            (data, sw1, sw2) =  msg
+            return "Error SW1: {} SW2:{}".format(sw1, sw2)
+        return 0
+    
+    
+    
+    

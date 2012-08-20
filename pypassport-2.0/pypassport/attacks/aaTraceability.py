@@ -233,10 +233,3 @@ class AATraceability(Logger):
             else:   return False
         
 
-
-
-
-
-
-
-

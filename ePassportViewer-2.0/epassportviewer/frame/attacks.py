@@ -23,7 +23,7 @@ import Image, ImageTk
 import os
 import re
 import pickle
-from tkFileDialog import askdirectory, askopenfilename
+from tkFileDialog import askdirectory, askopenfilename, asksaveasfilename
 
 from pypassport.attacks import macTraceability, bruteForce, aaTraceability, signEverything, errorFingerprinting
 from pypassport import reader
@@ -32,6 +32,8 @@ from pypassport.doc9303.mrz import MRZ
 from epassportviewer.util.image import ImageFactory
 from epassportviewer.dialog import InfoBoxWindows
 from epassportviewer.const import *
+from epassportviewer.errorhandler import *
+from epassportviewer import dialog
 
 
 ###################
@@ -53,17 +55,17 @@ class AttacksFrame(Frame):
         menuFrame = Frame(self, borderwidth=1, relief=GROOVE)
         menuFrame.pack(fill=BOTH, expand=1)
         
-        self.macTraceabilityButton = Button(menuFrame, text="MAC Traceability", bg=bgcolor, width=15, command=self.switchMac)
-        self.macTraceabilityButton.pack(side=LEFT, padx=5, pady=5)
+        self.errorFingerprintingButton = Button(menuFrame, text="Error Fingerprinting", bg=bgcolor, width=15, command=self.switchError)
+        self.errorFingerprintingButton.pack(side=LEFT, padx=5, pady=5) 
         
         self.bruteForceButton = Button(menuFrame, text="Brute Force", bg=bgcolor, width=15, command=self.switchBrute)
         self.bruteForceButton.pack(side=LEFT, padx=5, pady=5)
         
+        self.macTraceabilityButton = Button(menuFrame, text="MAC Traceability", bg=bgcolor, width=15, command=self.switchMac)
+        self.macTraceabilityButton.pack(side=LEFT, padx=5, pady=5)
+        
         self.activeAuthenticationButton = Button(menuFrame, text="Active Authentication", bg=bgcolor, width=15, command=self.switchAA)
         self.activeAuthenticationButton.pack(side=LEFT, padx=5, pady=5)
-        
-        self.errorFingerprintingButton = Button(menuFrame, text="Error Fingerprinting", bg=bgcolor, width=15, command=self.switchError)
-        self.errorFingerprintingButton.pack(side=LEFT, padx=5, pady=5) 
         
         
         ######################
@@ -78,6 +80,9 @@ class AttacksFrame(Frame):
         self.frenchVar = IntVar()
         reachMaxCheck = Checkbutton(reachMaxFrame, text="Reach max", variable=self.frenchVar, bg=bgcolor)
         reachMaxCheck.pack(side=LEFT, padx=5, pady=5)
+        
+        self.nbReach = Entry(reachMaxFrame, width=3)
+        self.nbReach.pack(side=LEFT, padx=5, pady=5)
         
         helpReachMax = Button(reachMaxFrame, image=image, command=self.helpReachMaxDialog)
         helpReachMax.image = image
@@ -124,7 +129,7 @@ class AttacksFrame(Frame):
         self.coFileForm = Entry(checkFrame, width=3)
         self.coFileForm.pack(side=LEFT, padx=5, pady=5)
         
-        helpCheck = Button(checkFrame, image=image, command=self.helpCheckDialog)
+        helpCheck = Button(checkFrame, image=image, command=self.helpCheckFromFileDialog)
         helpCheck.image = image
         helpCheck.pack(side=RIGHT, padx=5, pady=5)
         
@@ -180,10 +185,14 @@ class AttacksFrame(Frame):
         # VERBOSE
         verboseMACFrame = Frame(self.macTraceabilityFrame, bg=bgcolor)
         verboseMACFrame.pack(fill=BOTH, expand=1)
+        
+        # CLEAR LOG
+        clearMACButton = Button(verboseMACFrame, text="Clear log", command=self.clearMAC)
+        clearMACButton.pack(side=RIGHT, padx=5, pady=5)
 
         self.verboseMACVar = IntVar()
         verboseMACCheck = Checkbutton(verboseMACFrame, text="Verbose", variable=self.verboseMACVar, bg=bgcolor)
-        verboseMACCheck.pack(side=LEFT, padx=5, pady=5)
+        verboseMACCheck.pack(side=RIGHT, padx=5, pady=5)
         
         # DESCRIPTION
         macDescription = "\
@@ -355,10 +364,14 @@ captured previously and store the response time (RT2). If RT1 > RT2 and RT1 - RT
         # VERBOSE
         verboseBruteFrame = Frame(self.bruteForceFrame, bg=bgcolor)
         verboseBruteFrame.pack(fill=BOTH, expand=1)
+        
+        # CLEAR LOG
+        clearBFButton = Button(verboseBruteFrame, text="Clear log", command=self.clearBF)
+        clearBFButton.pack(side=RIGHT, padx=5, pady=5)
 
         self.verboseBruteVar = IntVar()
         verboseBruteCheck = Checkbutton(verboseBruteFrame, text="Verbose", variable=self.verboseBruteVar, bg=bgcolor)
-        verboseBruteCheck.pack(side=LEFT, padx=5, pady=5)
+        verboseBruteCheck.pack(side=RIGHT, padx=5, pady=5)
         
                 # DESCRIPTION
         bfDescription = "\
@@ -527,10 +540,14 @@ attacker. Whenever a BAC succeed, this means the MRZ tried is correct one."
         # VERBOSE
         verboseAAFrame = Frame(self.activeAuthenticationFrame, bg=bgcolor)
         verboseAAFrame.pack(fill=BOTH, expand=1)
+        
+        # CLEAR LOG
+        clearAAButton = Button(verboseAAFrame, text="Clear log", command=self.clearAA)
+        clearAAButton.pack(side=RIGHT, padx=5, pady=5)
 
         self.verboseAAVar = IntVar()
         verboseAACheck = Checkbutton(verboseAAFrame, text="Verbose", variable=self.verboseAAVar, bg=bgcolor)
-        verboseAACheck.pack(side=LEFT, padx=5, pady=5)
+        verboseAACheck.pack(side=RIGHT, padx=5, pady=5)
         
         # DESCRIPTION
         aaDescription = "\
@@ -659,10 +676,14 @@ the one to which belongs the modulo."
         # VERBOSE
         verboseErrorFrame = Frame(self.errorFingerprintingFrame, bg=bgcolor)
         verboseErrorFrame.pack(fill=BOTH, expand=1)
+        
+        # CLEAR LOG
+        clearErrorButton = Button(verboseErrorFrame, text="Clear log", command=self.clearError)
+        clearErrorButton.pack(side=RIGHT, padx=5, pady=5)
 
         self.verboseErrorVar = IntVar()
         verboseErrorCheck = Checkbutton(verboseErrorFrame, text="Verbose", variable=self.verboseErrorVar, bg=bgcolor)
-        verboseErrorCheck.pack(side=LEFT, padx=5, pady=5)
+        verboseErrorCheck.pack(side=RIGHT, padx=5, pady=5)
         
         # DESCRIPTION
         errDescription = "\
@@ -677,9 +698,9 @@ an error that the attacker knows the answer will be different regarding the coun
         
 
         # PACK
-        self.currentFrame = self.macTraceabilityFrame
+        self.currentFrame = self.errorFingerprintingFrame
         self.currentFrame.pack(fill=BOTH, expand=1)
-        self.currentButton = self.macTraceabilityButton
+        self.currentButton = self.errorFingerprintingButton
         self.currentButton.config(relief=SUNKEN, bg="#D1D1D1")
         
         
@@ -698,17 +719,29 @@ an error that the attacker knows the answer will be different regarding the coun
         if desc: self.logMACFrame.insert(END, "{0} > {1}\n".format(msg, desc))
         else: self.logMACFrame.insert(END, "{0}\n".format(msg))
     
+    def clearMAC(self):
+        self.logMACFrame.delete()
+    
     def writeToLogBF(self, msg, desc=None):
         if desc: self.logBruteFrame.insert(END, "{0} > {1}\n".format(msg, desc))
         else: self.logBruteFrame.insert(END, "{0}\n".format(msg))
+        
+    def clearBF(self):
+        self.logBruteFrame.delete()
     
     def writeToLogAA(self, msg, desc=None):
         if desc: self.logAAFrame.insert(END, "{0} > {1}\n".format(msg, desc), False)
         else: self.logAAFrame.insert(END, "{0}\n".format(msg), False)
     
+    def clearAA(self):
+        self.logAAFrame.delete(False)
+    
     def writeToLogERR(self, msg, desc=None):
         if desc: self.logErrorFrame.insert(END, "{0} > {1}\n".format(msg, desc))
         else: self.logErrorFrame.insert(END, "{0}\n".format(msg))
+    
+    def clearError(self):
+        self.logErrorFrame.delete()
     
     def switchMac(self):
         self.currentButton.config(relief=RAISED)
@@ -747,34 +780,50 @@ an error that the attacker knows the answer will be different regarding the coun
     # ACTION MAC TRACEABILITY
     #########################
     
+    def reachMaxDelay(self, attack):
+        if self.nbReach.get() == "": rm = 13
+        else: rm = int(self.nbReach.get())
+        attack.reachMaxDelay(rm)
+    
     # IS VULNERABLE?
     def isVulnerable(self):
+        pleasewait = dialog.WaitDialog(self.mrz)
+        pleasewait.setMessage("Please wait. Depending on the security measures implemented \non the passport, the verification may takes from few seconds to \nfew minutes if \"Reach max\" is checked.")
         try:
+            if self.mrz.buildMRZ():
+                if self.coForm.get(): co = self.coForm.get()
+                else: co = 1.7
 
-            if self.coForm.get(): co = self.coForm.get()
-            else: co = 1.7
-
-            r = reader.ReaderManager().waitForCard()
-            attack = macTraceability.MacTraceability(Iso7816(r))
-            if self.verboseMACVar.get():
-                attack.register(self.writeToLogMAC)
-            if attack.setMRZ(self.mrz.buildMRZ()):
-                if self.frenchVar.get(): attack.reachMaxDelay()
-                self.writeToLogMAC("Is vulnerable? : {0}".format(attack.isVulnerable(int(co))))
+                r = reader.ReaderManager().waitForCard()
+                attack = macTraceability.MacTraceability(Iso7816(r))
+                if self.verboseMACVar.get():
+                    attack.register(self.writeToLogMAC)                
+                if attack.setMRZ(self.mrz.buildMRZ()):
+                    pleasewait.update()
+                    pleasewait.deiconify()
+                    if self.frenchVar.get(): self.reachMaxDelay(attack)
+                    self.writeToLogMAC("Is vulnerable? : {0}".format(attack.isVulnerable(int(co))))
+                else:
+                    tkMessageBox.showerror("Error: Wrong MRZ", "The check digits are not correct")
             else:
-                tkMessageBox.showerror("Error: Wrong MRZ", "The check digits are not correct")
+                tkMessageBox.showinfo("MRZ not set", "You have to set the MRZ in order to verify is the passport is vulnerable.")
 
         except Exception, msg:
             tkMessageBox.showerror("Error: is vulnerable", str(msg))
+        finally:
+            pleasewait.closeDialog()
     
     # SAVE
     def save(self):
         
         try:
-            
-            directory = askdirectory(title="Select directory", mustexist=1)
-            if directory:
-                directory = str(directory)
+            formats = [('Raw text','*.txt')]
+            fileName = asksaveasfilename(parent=self, title="Save as...")
+            if len(fileName) > 0:
+                fileName = str(fileName)
+                s = fileName.split(os.sep)
+                fn = s[-1]
+                directory = fileName[0:len(fileName)-len(fn)]
                 if os.path.isdir(directory):
 
                     r = reader.ReaderManager().waitForCard()
@@ -782,8 +831,8 @@ an error that the attacker knows the answer will be different regarding the coun
                     if self.verboseMACVar.get():
                         attack.register(self.writeToLogMAC)
                     if attack.setMRZ(self.mrz.buildMRZ()):
-                        attack.savePair(directory)
-                        tkMessageBox.showinfo("Save successful", "The pair has bee saved in:\n{0}".format(directory))
+                        attack.savePair(directory, fn)
+                        tkMessageBox.showinfo("Save successful", "The pair has bee saved as:\n{0}".format(fileName))
                     else:
                         tkMessageBox.showerror("Error: Wrong MRZ", "The check digits are not correct")
                 else:
@@ -805,7 +854,7 @@ an error that the attacker knows the answer will be different regarding the coun
                     attack = macTraceability.MacTraceability(Iso7816(r))
                     if self.verboseMACVar.get():
                         attack.register(self.writeToLogMAC)
-                    if self.frenchVar.get(): attack.reachMaxDelay()
+                    if self.frenchVar.get(): self.reachMaxDelay(attack)
                     self.writeToLogMAC("Does the pair belongs the the passport scanned: {0}".format(attack.checkFromFile(directory, co)))
                 else:
                     tkMessageBox.showerror("Error: save", "The path you selected is not a file")
@@ -814,28 +863,34 @@ an error that the attacker knows the answer will be different regarding the coun
     
     # TEST
     def test(self):
+        pleasewait = dialog.WaitDialog(self.mrz)
+        pleasewait.setMessage("Please wait. Depending on the security measures implemented \non the passport, the test may takes from few seconds to \nfew minutes regarding what you set.")
         try:
-
-            r = reader.ReaderManager().waitForCard()
-            attack = macTraceability.MacTraceability(Iso7816(r))
-            if self.verboseMACVar.get():
-                attack.register(self.writeToLogMAC)
-            if attack.setMRZ(self.mrz.buildMRZ()):
-                if self.untilForm.get(): until = int(self.untilForm.get())
-                else: until = 20
-                if self.perDelayForm.get(): per_delay = int(self.perDelayForm.get())
-                else: per_delay = 10
-                
-                j = 0
-                while j<until:
-                    self.writeToLogMAC("Delay increased between {0} and {1} error(s)".format(j, j+1))
-                    self.writeToLogMAC("Average: {0}".format(attack.test(j, per_delay)))
-                    j+=1
+            if self.mrz.buildMRZ():
+                r = reader.ReaderManager().waitForCard()
+                attack = macTraceability.MacTraceability(Iso7816(r))
+                if self.verboseMACVar.get():
+                    attack.register(self.writeToLogMAC)
+                if attack.setMRZ(self.mrz.buildMRZ()):
+                    if self.untilForm.get(): until = int(self.untilForm.get())
+                    else: until = 20
+                    if self.perDelayForm.get(): per_delay = int(self.perDelayForm.get())
+                    else: per_delay = 10
+                    pleasewait.update()
+                    pleasewait.deiconify()
+                    j = 0
+                    while j<until:
+                        self.writeToLogMAC("Delay increased between {0} and {1} error(s)".format(j, j+1))
+                        self.writeToLogMAC("Average: {0}".format(attack.test(j, per_delay)))
+                        j+=1
+                else:
+                    tkMessageBox.showerror("Error: Wrong MRZ", "The check digits are not correct")
             else:
-                tkMessageBox.showerror("Error: Wrong MRZ", "The check digits are not correct")
-
+                tkMessageBox.showinfo("MRZ not set", "You have to set the MRZ in order to verify is the passport is vulnerable.")
         except Exception, msg:
             tkMessageBox.showerror("Error: is vulnerable", str(msg))
+        finally:
+            pleasewait.closeDialog()
         
     # BAC RESET
     def reset(self):
@@ -850,7 +905,7 @@ an error that the attacker knows the answer will be different regarding the coun
             else:
                 tkMessageBox.showerror("Error: Wrong MRZ", "The check digits are not correct")
         except Exception, msg:
-            tkMessageBox.showerror("Error: is vulnerable", str(msg))
+            tkMessageBox.showerror("Error: reseting", str(msg))
     
     # DEMO
     def demo(self):
@@ -866,7 +921,7 @@ an error that the attacker knows the answer will be different regarding the coun
             else:
                 tkMessageBox.showerror("Error: Wrong MRZ", "The check digits are not correct")
         except Exception, msg:
-            tkMessageBox.showerror("Error: is vulnerable", str(msg))
+            tkMessageBox.showerror("Error: demo", str(msg))
     
     
     ####################
@@ -876,25 +931,27 @@ an error that the attacker knows the answer will be different regarding the coun
     # Init Data
     def initData(self):
         try:
+            non_decimal = re.compile(r'[^\d]+')
+
             r = reader.ReaderManager().waitForCard()
             bf = bruteForce.BruteForce(Iso7816(r))
             if self.verboseBruteVar.get():
                 bf.register(self.writeToLogBF)
 
             if self.minDocForm.get() == '': minDoc = None
-            else: minDoc = self.minDocForm.get()
+            else: minDoc = non_decimal.sub('', self.minDocForm.get())
             if self.maxDocForm.get() == '': maxDoc = None
-            else: maxDoc = self.maxDocForm.get()
+            else: maxDoc = non_decimal.sub('', self.maxDocForm.get())
             
             if self.minDOBForm.get() == 'YYMMDD': minDOB = None
-            else: minDOB = self.minDOBForm.get()
+            else: minDOB = non_decimal.sub('', self.minDOBForm.get())
             if self.maxDOBForm.get() == 'YYMMDD': maxDOB = None
-            else: maxDOB = self.maxDOBForm.get()
+            else: maxDOB = non_decimal.sub('', self.maxDOBForm.get())
 
             if self.minDOEForm.get() == 'YYMMDD': minDOE = None
-            else: minDOE = self.minDOEForm.get()
+            else: minDOE = non_decimal.sub('', self.minDOEForm.get())
             if self.maxDOEForm.get() == 'YYMMDD': maxDOE = None
-            else: maxDOE = self.maxDOEForm.get()
+            else: maxDOE = non_decimal.sub('', self.maxDOEForm.get())
             
             bf.setID(minDoc, maxDoc)
             bf.setDOB(minDOB, maxDOB)
@@ -992,7 +1049,9 @@ an error that the attacker knows the answer will be different regarding the coun
             attack = aaTraceability.AATraceability(Iso7816(r))
             if self.verboseAAVar.get():
                 attack.register(self.writeToLogAA)
-            self.writeToLogAA("Is vulnerable? : {0}".format(attack.isVulnerable()))
+            if attack.isVulnerable(): result = "True: The passport allow to proceed the active authentication before the the BAC."
+            else: result = "False: The passport does not implement the AA or require a to execute a BAC first."
+            self.writeToLogAA("Is vulnerable?\n{0}".format(result))
         except Exception, msg:
             tkMessageBox.showerror("Error: Is vulnerable", str(msg))
     
@@ -1015,14 +1074,14 @@ an error that the attacker knows the answer will be different regarding the coun
     # GET MODULO
     def getModulo(self):
         try:
-            if self.mrz.buildMRZ()!='':
+            if self.mrz.buildMRZ():
                 r = reader.ReaderManager().waitForCard()
                 attack = aaTraceability.AATraceability(Iso7816(r))
                 if self.verboseAAVar.get():
                     attack.register(self.writeToLogAA)
                 self.writeToLogAA("Modulo: {0}".format(attack.getModulo(self.mrz.buildMRZ())))
             else:
-                tkMessageBox.showerror("Error: Wrong MRZ", "You have to set the proper MRZ")
+                tkMessageBox.showinfo("MRZ not set", "You have to set the MRZ in order to verify is the passport is vulnerable.")
         except Exception, msg:
             tkMessageBox.showerror("Error: Get modulo", str(msg))
     
@@ -1116,10 +1175,7 @@ an error that the attacker knows the answer will be different regarding the coun
             if self.verboseAAVar.get():
                 attack.register(self.writeToLogAA)
             
-            if self.mrz.buildMRZ()!='': mrz = self.mrz.buildMRZ()
-            else: mrz = None
-            
-            (signature, validated) = attack.sign(self.nonceToSignForm.get(), mrz)
+            (signature, validated) = attack.sign(self.nonceToSignForm.get(), self.mrz.buildMRZ())
             self.writeToLogAA("{0} signed: {1}".format(self.nonceToSignForm.get(), signature))
             self.writeToLogAA("Validated?: {0}".format(validated))
             
@@ -1255,7 +1311,7 @@ If the file exist, a number will be add automatically.\n\
 @return: the path and the name of the file where the pair has been saved."
         InfoBoxWindows(self, title, text)
     
-    def helpCheckDialog(self):
+    def helpCheckFromFileDialog(self):
         title = "check from file"
         text = "checkFromFile read a file that contains a pair and check if the pair has been capture from the passport .\n\
 \n\
@@ -1514,5 +1570,15 @@ class ScrollFrame(Frame):
         self.text.yview(END)
         if dis:
             self.text.config(state=DISABLED)
+        
+    def delete(self, dis=True):
+        if dis:
+            self.text.config(state=NORMAL)
+        self.text.delete(1.0, END)    
+        if dis:
+            self.text.config(state=DISABLED)
+        
+        
+        
         
         

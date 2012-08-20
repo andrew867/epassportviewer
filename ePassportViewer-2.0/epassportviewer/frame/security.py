@@ -19,6 +19,8 @@
 from Tkinter import *
 import tkMessageBox
 
+from pypassport.doc9303.converter import *
+
 from epassportviewer.const import *
 from epassportviewer.dialog import Tooltip
 from epassportviewer.util.configManager import configManager
@@ -26,38 +28,46 @@ from epassportviewer.util.configManager import configManager
 class securityFrame(Frame):
 
     def __init__(self, master):
-        Frame.__init__(self, master, relief=GROOVE, bd=1)
+        Frame.__init__(self, master)
         
-        
-        self.BAC = Label(self, text="Basic Access Control", anchor=W)
-        self.BAC.pack(side=TOP, expand=True, fill=BOTH)
+        bacFrame = Frame(self)
+        bacFrame.pack(side=TOP, expand=True, fill=BOTH)
+        self.BAC = Label(bacFrame, text="Basic Access Control")
+        self.BAC.pack(side=LEFT)
         self.tipBAC = None
         
-        self.AA = Label(self, text="Active Auth.", anchor=W)
-        self.AA.pack(side=TOP, expand=True, fill=BOTH)
+        aaFrame = Frame(self)
+        aaFrame.pack(side=TOP, expand=True, fill=BOTH)
+        self.AA = Label(aaFrame, text="Active Auth.")
+        self.AA.pack(side=LEFT)
         self.tipAA = None
         
-        
-        self.PA = Label(self, text="Passive Auth.", anchor=W)
-        self.PA.pack(side=LEFT, expand=True, fill=BOTH)
+        paFrame = Frame(self)
+        paFrame.pack(side=TOP, expand=True, fill=BOTH)
+        self.PA = Label(paFrame, text="Passive Auth.")
+        self.PA.pack(side=LEFT)
         self.tipPA = None
         
-        dgFrame = Frame(self)
-        dgFrame.pack(side=TOP, expand=True, fill=BOTH)
+        dgFrame = Frame(paFrame)
+        dgFrame.pack(side=LEFT, expand=True, fill=BOTH)
         self.dg = {}
+        self.tips = {}
         for dg in range(1,17):
-            self.dg['DG'+str(dg)] = Label(self, text="DG"+str(dg))
+            self.tips['DG'+str(dg)] = None
+            self.dg['DG'+str(dg)] = Label(dgFrame, text="DG"+str(dg))
             self.dg['DG'+str(dg)].pack(side=LEFT, expand=True, fill=BOTH)
-        self.dg['SOD'] = Label(self, text=str('SOD'))
+        self.dg['SOD'] = Label(dgFrame, text=str('SOD'))
         self.dg['SOD'].pack(side=LEFT, expand=True, fill=BOTH)
+        self.tips['SOD'] = None
         
-    def setSecurity(self, BAC=None, AA=None, PA=None):
+    def setSecurity(self, BAC=None, AA=None, PA=None, EAC=None):
         green = "#00B738"
         orange = "#E28000"
         
         if BAC != None:
             if BAC == False:
                 self.BAC.configure(fg='red')
+                self.tipBAC = Tooltip(parent=self.BAC, tip="The BAC failed. Check you wrote the correct MRZ.")
             else: 
                 self.BAC.configure(fg=green)
                 self.tipBAC = Tooltip(parent=self.BAC, tip="The BAC succeed")
@@ -66,10 +76,12 @@ class securityFrame(Frame):
             self.AA.configure(fg='black')
             if AA == True:
                 self.AA.configure(fg=green)
-                self.tipAA = Tooltip(parent=self.AA, tip="The AA succeed")
+                self.tipAA = Tooltip(parent=self.AA, tip="The active authentication succeed")
             elif AA == "NO_OPENSSL":
                 self.AA.configure(fg=orange)
+                self.tipAA = Tooltip(parent=self.AA, tip="Cannot use OpenSSL.")
             elif AA == "NO_DG_15":
+                self.tipAA = Tooltip(parent=self.AA, tip="There is no private key (DG15).\nNot possible to execute an active authentication.")
                 self.AA.configure(fg=orange)
             elif AA == False:
                 self.AA.configure(fg='red')
@@ -77,22 +89,35 @@ class securityFrame(Frame):
         if PA != None:
             CA, PA = PA
             set = False
+            for dg in range(1,17):
+                if not self.tips['DG'+str(dg)]:
+                    self.tips['DG'+str(dg)] = Tooltip(parent=self.dg['DG'+str(dg)], tip="DG not present.")
             for dg in PA:
                 try:
                     self.dg[str(dg)].configure(fg='black')
                     if PA[dg] == True:
                         self.dg[str(dg)].configure(fg=green)
+                        self.tips[str(dg)].destroy()
+                        self.tips[str(dg)] = Tooltip(parent=self.dg[str(dg)], tip="Intergrity verified with the SOD")
                     elif PA[dg] == False:
                         self.PA.configure(fg='red')
                         set = True
                         self.dg[str(dg)].configure(fg='red')
+                        self.tips[str(dg)].destroy()
+                        self.tips[str(dg)] = Tooltip(parent=self.dg[str(dg)], tip="Hashes does not match (with SOD)")
                     elif PA[dg] == "NO_OPENSSL":
                         self.dg[str(dg)].configure(fg=orange)
+                        self.tips[str(dg)].destroy()
+                        self.tips[str(dg)] = Tooltip(parent=self.dg[str(dg)], tip="Cannot use OpenSSL.")
                 except KeyError:
                     pass
                 
             if CA == "NO_OPENSSL":
                 self.PA.configure(fg=orange)
+                self.tipsPA = Tooltip(parent=self.PA, tip="Cannot use OpenSSL.")
+            if CA == "CA_NOT_SET":
+                self.PA.configure(fg=orange)
+                self.tipPA = Tooltip(parent=self.PA, tip='No root certificate loaded. Cannot verify the SOD.\nPlease go to "Configure > Import root certificate..."')
             elif not set:
                 self.PA.configure(fg=green)
                 self.tipPA = Tooltip(parent=self.PA, tip="The PA succeed")
@@ -105,7 +130,14 @@ class securityFrame(Frame):
                     self.dg['SOD'].configure(fg='red')
                 elif CA == "NO_OPENSSL":
                     self.dg['SOD'].configure(fg=orange)
+                elif CA == "CA_NOT_SET":
+                    self.dg['SOD'].configure(fg=orange)
+                    self.tips['SOD'] = Tooltip(parent=self.dg['SOD'], tip='No root certificate loaded. Cannot verify the SOD.\nPlease go to "Configure > Import root certificate..."')
                     
+        if EAC != None:
+            self.dg[toDG(EAC)].configure(fg='red')
+            self.tips[toDG(EAC)] = Tooltip(parent=self.dg[toDG(EAC)], tip="EAC is not yet implemented.\nThus it is not possible to read this DG.")
+        
         self.update()
                 
     def clear(self):
@@ -114,7 +146,14 @@ class securityFrame(Frame):
         self.PA.configure(fg='black')
         for dg in range(1,17):
             self.dg['DG'+str(dg)].configure(fg='black')
+            if self.tips['DG'+str(dg)]:
+                self.tips['DG'+str(dg)].destroy()
+                self.tips['DG'+str(dg)] = None
+            self.tips['DG'+str(dg)] = None
         self.dg['SOD'].configure(fg='black')
+        if self.tips['SOD']:
+                self.tips['SOD'].destroy()
+                self.tips['SOD'] = None
         
         if self.tipBAC:
             self.tipBAC.destroy()

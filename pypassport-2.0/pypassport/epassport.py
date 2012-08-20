@@ -340,7 +340,10 @@ class EPassport(dict, logger.Logger):
         """
         list = []
         for dg in self["Common"]["5C"]:
-            list.append(self[dg])
+            try:
+                list.append(self[dg])
+            except Exception:
+                self.getCommunicationLayer().rstConnection()
         return list
             
     def readPassport(self):
@@ -526,6 +529,13 @@ class EPassport(dict, logger.Logger):
         
     def _logFct(self, name, msg):
         self.log(msg, name)
+        
+    def switchMRZ(self, newMRZ):
+        currentMRZ = self._mrz
+        self._mrz = mrz.MRZ(newMRZ)
+        if self._mrz.checkMRZ() == False:
+            raise EPassportException("Invalid MRZ")
+        return str(currentMRZ)
         
     CSCADirectory = property(getCSCADirectory, setCSCADirectory)
     isSecureMessaging = property(_isSecureMessaging)

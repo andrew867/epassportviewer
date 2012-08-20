@@ -17,6 +17,7 @@
 # If not, see <http://www.gnu.org/licenses/>.
 
 from Tkinter import *
+import tkFont
 import tkMessageBox
 import Image, ImageTk
 from tkFileDialog import askdirectory, askopenfilename
@@ -53,13 +54,15 @@ class CustomFrame(Frame):
         
         self.mrz = mrz
         
+        title = tkFont.Font(size=12)
+        
         #########################
         ## AUTOMATIC FUNCTIONS ##
 
         self.automaticFrame = Frame(self, borderwidth=1, relief=GROOVE)
         self.automaticFrame.pack(fill=BOTH, expand=1)
         
-        automaticLabel = Label(self.automaticFrame, text="Automatic functions", justify=LEFT, font=("Helvetica", 12))
+        automaticLabel = Label(self.automaticFrame, text="Automatic functions", justify=LEFT, font=title)
         automaticLabel.grid(row=0, column=0, columnspan=2, padx=5, pady=5, sticky=W)
 
         initButton = Button(self.automaticFrame, text="Init (select file)", width=13, command=self.init)
@@ -87,7 +90,7 @@ class CustomFrame(Frame):
         buttonToolsFrame = Frame(self.toolsFrame)
         buttonToolsFrame.pack(fill=BOTH, expand=1)
         
-        toolsLabel = Label(buttonToolsFrame, text="Tools", justify=LEFT, font=("Helvetica", 12))
+        toolsLabel = Label(buttonToolsFrame, text="Tools", justify=LEFT, font=title)
         toolsLabel.grid(row=0, column=0, columnspan=3, padx=5, pady=5, sticky=W)
         
         # CRYPTO
@@ -150,7 +153,7 @@ class CustomFrame(Frame):
         menuRequestsFrame = Frame(self.requestsFrame)
         menuRequestsFrame.pack(fill=BOTH, expand=1)
         
-        requestsLabel = Label(menuRequestsFrame, text="Requests", justify=LEFT, font=("Helvetica", 12))
+        requestsLabel = Label(menuRequestsFrame, text="Requests", justify=LEFT, font=title)
         requestsLabel.grid(row=0, column=0, padx=5, pady=5, sticky=W)
 
         selectFileButton = Button(menuRequestsFrame, text="Select file", width=13, command=self.setSelectFile)
@@ -262,7 +265,7 @@ class CustomFrame(Frame):
         self.responseFrame = Frame(self, borderwidth=1, relief=GROOVE)
         self.responseFrame.pack(fill=BOTH, expand=1)
         
-        requestsLabel = Label(self.responseFrame, text="Response", justify=LEFT, font=("Helvetica", 12))
+        requestsLabel = Label(self.responseFrame, text="Response", justify=LEFT, font=title)
         requestsLabel.grid(row=0, column=0, padx=5, pady=5, sticky=W, columnspan=4)
 
         customCLALabel = Label(self.responseFrame, text="APDU:", justify=LEFT)
@@ -315,7 +318,7 @@ class CustomFrame(Frame):
     #########
     
     def writeToLog(self, msg):
-        self.logFrame.insert(END, "{0}\n".format(msg))
+        self.logFrame.insert(END, "{0}\n".format(msg), False)
     
     def initIso7816(self):
         try:
@@ -378,7 +381,7 @@ class CustomFrame(Frame):
     
     def tdesEncrypt(self):
         try:
-            tdes= DES3.new(hexRepToBin(self.field2Form.get()), DES.MODE_CBC)
+            tdes= DES3.new(hexRepToBin(self.field2Form.get()), DES.MODE_CBC, b'\x00\x00\x00\x00\x00\x00\x00\x00')
             m = tdes.encrypt(hexRepToBin(self.field1Form.get()))
             
             self.writeToLog("TDES ENCRYPTION:\n  message: {0}\n  key: {1}\n  cipher: {2}".format(self.field1Form.get(),
@@ -394,7 +397,7 @@ class CustomFrame(Frame):
     
     def tdesDecrypt(self):
         try:
-            tdes= DES3.new(hexRepToBin(self.field2Form.get()), DES.MODE_CBC)
+            tdes= DES3.new(hexRepToBin(self.field2Form.get()), DES.MODE_CBC, b'\x00\x00\x00\x00\x00\x00\x00\x00')
             m = tdes.decrypt(hexRepToBin(self.field1Form.get()))
             
             self.writeToLog("TDES DECRYPTION:\n  cipher: {0}\n  key: {1}\n  message: {2}".format(self.field1Form.get(),
