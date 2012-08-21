@@ -637,7 +637,6 @@ class View(Frame):
         dob_full = dob + self._calculCheckDigit(dob)
         exp_full = exp + self._calculCheckDigit(exp)
         pers_num_full = pers_num + self._calculCheckDigit(pers_num)
-        print id_pass_full + "???" + dob_full + "?" + exp_full + pers_num_full + self._calculCheckDigit(id_pass_full+dob_full+exp_full+pers_num_full)
         return id_pass_full + "???" + dob_full + "?" + exp_full + pers_num_full + self._calculCheckDigit(id_pass_full+dob_full+exp_full+pers_num_full)
         
     def fingerprint(self):

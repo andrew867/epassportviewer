@@ -42,7 +42,9 @@ from epassportviewer.util.configManager import configManager
 
 from pypassport import epassport
 from pypassport import fingerPrint
+from pypassport.hexfunctions import *
 from pypassport.doc9303 import datagroup
+from pypassport.doc9303.datagroup import *
 from pypassport.doc9303.converter import *
 from pypassport.doc9303.tagconverter import *
 from pypassport.doc9303.bac import BACException
@@ -1077,6 +1079,8 @@ class FingerprintProcess(threading.Thread, Toplevel):
         self.pbfp = ProgressBar(self)
         self.pbfp.pack(side=TOP, fill=X, padx=5, pady=5)
         
+        self.txt = ""
+        
         self.stop = False
         self.destoyed = False
         self.periodicCall()
@@ -1111,53 +1115,161 @@ class FingerprintProcess(threading.Thread, Toplevel):
     def startReading(self):
         self.queue.put((None, 'slfp', "Initializing"))
         self.queue.put((None, 'fp', 0))
-        fp = fingerPrint.FingerPrint(self.doc)
-        self.queue.put((None, 'slfp', "Collecting data (~20s)..."))
-        self.queue.put((None, 'fp', 10))
-        data = fp.analyse()
-        self.queue.put((None, 'slfp', "Building the report"))
-        self.queue.put((None, 'fp', 90))
+        try:
+            fp = fingerPrint.FingerPrint(self.doc, self.queue)
+            self.buildText(fp.analyse())
+            self.queue.put(('Quit', 'fp', 100))
+        except Exception, msg:
+            self.queue.put(('Quit', 'fp', 100))
+            tkMessageBox.showerror("Fingerprint error", "{0}.\nPlease try to run the fingerprint again.".format(str(msg)))
+            
         
-        self.txt = ""
+        FingerPrintDialog(self.master, self.txt)
+        
+    def buildText(self, data):
+        self.txt += "====================\n"
+        self.txt += "   IDENTIFICATION   \n"
+        self.txt += "====================\n"
+        self.txt += "\n"
+        self.txt += "Holder's name: " + data["EP"]["DG1"]["5F5B"].replace("<", " ") + "\n"
+        self.txt += "\n"
         self.txt += "Unique ID (random): " + data["UID"] + "\n"
         self.txt += "Answer-To-Reset: " + data["ATR"] + "\n"
         self.txt += "Generation: " + str(data["generation"]) + "\n"
+        self.txt += "\n"
+        self.txt += "\n"
+        self.txt += "==========================\n"
+        self.txt += "   Basic Access Control   \n"
+        self.txt += "==========================\n"
+        self.txt += "\n"
+        self.txt += "Basic Access Control: " + data["bac"] + "\n"
         self.txt += "Reading time: " + str(data["ReadingTime"]) + "\n"
+        self.txt += "\n"
         self.txt += "Data Groups size: "
         if type(data["DGs"]) == type([]):
             self.txt += "\n"
             for key, value in data["DGs"]:
-                self.txt += "   - " + str(key) + ": " + str(value) + "\n"
+                self.txt += "   - " + str(key) + ": " + str(value) + " octets\n"
         else:
             self.txt += data["DGs"] + "\n"
         self.txt += "\n"
+        for dg in data["EP"]:
+            self.txt += dg + "\n"
+            self.txt += "====\n"
+            self.browseDGs(data["EP"][dg].parse())
+            self.txt += "\n\n"
         self.txt += "\n"
-        self.txt += "SECURITY\n"
+        self.txt += "============================\n"
+        self.txt += "   Passive Authentication   \n"
+        self.txt += "============================\n"
         self.txt += "\n"
-        self.txt += "   Basic Access Control: " + data["bac"] + "\n"
-        self.txt += "   Active Authentication: " + data["activeAuth"] + "\n"
-        self.txt += "   Active Authentication without BAC: " + str(data["activeAuthWithoutBac"]) + "\n"
-        if data["activeAuthWithoutBac"]: self.txt += "    * Vulnerable to AA traceability\n"
-        self.txt += "   Diffirent repsonse time for wrong message or MAC: " + str(data["macTraceability"]) + "\n"
-        if data["macTraceability"]: 
-            self.txt += "    * Vulnerable to MAC traceability\n"
-            self.txt += "      Note: If french passport, this might be a false positive due to the anti brute-force \n"
+        self.txt += "DG integrity\n"
+        self.txt += "============\n"
+        for dgi in data["Integrity"]:
+            self.txt += dgi + ": "
+            self.txt += ("Verified") if data["Integrity"][dgi] else ("Not verified")
+            self.txt += "\n"
         self.txt += "\n"
+        self.txt += "DG hashes\n"
+        self.txt += "=========\n"
+        for dgi in data["Hashes"]:
+            self.txt += dgi + ": " + binToHexRep(data["Hashes"][dgi]) + "\n"
+        self.txt += "\n"
+        self.txt += "SOD:\n"
+        self.txt += "\n"
+        self.txt += data["SOD"] + "\n"
+        self.txt += "\n"
+        self.txt += "\n"
+        self.txt += "===========================\n"
+        self.txt += "   Active Authentication   \n"
+        self.txt += "===========================\n"
+        self.txt += "\n"
+        self.txt += "Active Authentication executed " + data["activeAuth"] + "\n"
         self.txt += "\n"
         self.txt += "CERTIFICATES/SIGNATURES\n"
+        self.txt += "=======================\n"
         self.txt += "\n"
-        self.txt += "Certificate Serial Number: " + data["certSerialNumber"] + "\n"
-        self.txt += "Certificate Fingerprint: " + data["certFingerPrint"] + "\n"
+        self.txt += "Certificate Serial Number:" + data["certSerialNumber"] + "\n"
+        self.txt += "Certificate Fingerprint:" + data["certFingerPrint"] + "\n"
         self.txt += "\n"
-        self.txt += "Document Signer " + data["DSCertificate"] + "\n"
+        self.txt += "Document Signer\n"
+        self.txt += "===============\n"
+        self.txt += data["DSCertificate"] + "\n"
         self.txt += "\n"
+        self.txt += "Public Key\n"
+        self.txt += "==========\n"
         self.txt += data["pubKey"] + "\n"
+        self.txt += "\n"
+        self.txt += "\n"
+        self.txt += "=============================\n"
+        self.txt += "   Extended Access Control   \n"
+        self.txt += "=============================\n"
+        self.txt += "\n"
+        self.txt += "EAC has not been implemented yet.\n"
+        self.txt += "Here is of DG that the reader cannot access:\n"
+        for fdg in data["failedToRead"]:
+            self.txt += "  - " + fdg + "\n"
+        if not data["failedToRead"]:
+            self.txt += "  List empty: No EAC implemented in passport\n"
+        self.txt += "\n"
+        self.txt += "\n"
+        self.txt += "============================\n"
+        self.txt += "   Security investigation   \n"
+        self.txt += "============================\n"
+        self.txt += "\n"
+        self.txt += "Security measures\n"
+        self.txt += "=================\n"
+        self.txt += "\n"
+        self.txt += "Delay security measure after a wrong BAC: " + str(data["delaySecurity"]) + "\n"
+        self.txt += "Block the communication after a wrong BAC: " + str(data["blockAfterFail"]) + "\n"
+        self.txt += "\n"
+        self.txt += "Potential vulnerabilities\n"
+        self.txt += "=========================\n"
+        self.txt += "\n"
+        (vuln, ans) = data["activeAuthWithoutBac"]
+        self.txt += "Active Authentication before BAC: " + str(vuln) + "\n"
+        if vuln: self.txt += "  * Vulnerable to AA Traceability\n"
+        self.txt += "Diffirent repsonse time for wrong message or MAC: " + str(data["macTraceability"]) + "\n"
+        if data["macTraceability"]: 
+            self.txt += "  * Vulnerable to MAC traceability\n"
+            self.txt += "    Note: If delay security measure implemented, this might be a false positive\n"
+        (vuln, error) = data["getChallengeNull"]
+        self.txt += "Passport answer to a GET CHALLENGE with the Le set to '00': " + str(vuln) + "\n"
+        if vuln:
+            self.txt += "  * Vulnerable to lookup brute force\n"
+        self.txt += "\n"
+        self.txt += "Error Fingerprinting\n"
+        self.txt += "====================\n"
+        self.txt += "\n"
+        for ins in data["Errors"]:
+            self.txt += 'APDU "00" "' + ins + '" "00" "00" "" "" "00": ' + data["Errors"][ins] + "\n"
         
-        self.queue.put(('Quit', 'fp', 100))
         
-        FingerPrintDialog(self.master, self.txt)
         
-            
+    
+    def browseDGs(self, data, level=0):
+        dgtypes = [DataGroup1, DataGroup2, DataGroup3, DataGroup4, DataGroup5,
+                   DataGroup6, DataGroup7, DataGroup8, DataGroup9, DataGroup10,
+                   DataGroup11, DataGroup12, DataGroup13, DataGroup14, DataGroup15,
+                   DataGroup16, Com, SOD]
+        i = level
+        if type(data) == type(dict()) or type(data) in dgtypes:
+            for x in data:
+                self.txt += self.truncate(x, i*"  ")
+                if type(data[x]) == type(dict()) or type(data[x]) == type(list()) or type(data[x]) in dgtypes:
+                    self.browseDGs(data[x], i+1)
+                else:
+                    self.txt += self.truncate(data[x], (i+1)*"  ")
+                    
+        elif type(data) == type(list()):
+            for x in data:
+                if type(x) == type(dict()) or type(x) == type(list()) or type(x) in dgtypes:
+                    self.browseDGs(x, i+1)
+                else:
+                    self.txt += self.truncate(x, (i+1)*" ")
+
+    def truncate(self, data, sep="  ", length=200):
+        return sep + (str(data)[:length] + '..') if len(str(data)) > length else sep + str(data) + "\n"
         
     def periodicCall(self):
         self.processIncoming()
