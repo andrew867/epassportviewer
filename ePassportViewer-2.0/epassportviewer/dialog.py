@@ -35,10 +35,11 @@ import re
 from tkFileDialog import askdirectory, askopenfilename, asksaveasfilename
 
 from epassportviewer.const import *
-from epassportviewer.util import forge
+from epassportviewer.util import forge, inOut
 from epassportviewer.util.image import ImageFactory
 from epassportviewer.util.components import DataGroupGridList
 from epassportviewer.util.configManager import configManager
+from epassportviewer import errorhandler
 
 from pypassport import epassport
 from pypassport import fingerPrint
@@ -666,7 +667,7 @@ class ReadingDialog(threading.Thread, Toplevel):
                     self.stopReading()
                 elif msg == 'Reset':
                     self.stopReading()
-                    self.master.clear()
+                    self.master.clean()
                     self.doc = None
                     self.ep = None
                 elif msg:
@@ -696,7 +697,7 @@ class ReadingDialog(threading.Thread, Toplevel):
             self.doc.getCommunicationLayer().rstConnection()
             self.doc.doBasicAccessControl()
         except Exception, msg:
-            tkMessageBox.showerror("Error", msg)
+            tkMessageBox.showerror("Error while reseting", "{}\nPlease try to read the passport again.".format(errorhandler.getID(msg)))
         
     def startReading(self):
         
@@ -762,18 +763,20 @@ class ReadingDialog(threading.Thread, Toplevel):
                 self.queue.put((None, 'passport', cpt))
                 
             # PASSIVE AUTHENTICATION
-            # PA is not possible if one of the DG cannot be read
-            # Therefore no PA is executed if at least one dg failed
             if configManager().getOption('Security','pa'):
                 self.queue.put((None, 'svdg', "Passive Authentication: Certificate Verification"))
                 self.queue.put((None, 'dg', 0))
                 
                 try:
+                    if configManager().getOption('Options','certificate'):
+                        self.doc.setCSCADirectory(configManager().getOption('Options','certificate'), True)
                     certif = self.doc.doVerifySODCertificate()
+                    if not configManager().getOption('Options','certificate'):
+                        certif = "CA_NOT_SET"
                 except epassport.openssl.OpenSSLException, msg:
-                    certif = "NO_OPENSSL"
+                    certif = "OPENSSL_ERROR"
                 except epassport.passiveauthentication.PassiveAuthenticationException, msg:
-                    certif = "CA_NOT_SET"
+                    certif = "PA_ERROR"
                 except Exception, msg:
                     tkMessageBox.showinfo("DEBUG", "{}.\n{}".format(str(msg), type(msg)))
                 
@@ -800,13 +803,16 @@ class ReadingDialog(threading.Thread, Toplevel):
         
         except WrongMRZ, msg:
             self.queue.put(('Reset', None, 0))
+            time.sleep(0.3)
             tkMessageBox.showinfo("Wrong MRZ", str(msg))
         except epassport.bac.BACException, msg:
             self.queue.put(('Reset', None, 0))
-            tkMessageBox.showinfo("BAC error", "{0}.\nPlease try to read the passport again.".format(str(msg)))
+            time.sleep(0.3)
+            tkMessageBox.showinfo("BAC error", "{}\nPlease try to read the passport again.".format(errorhandler.getID(msg)))
         except Exception, msg:
             self.queue.put(('Reset', None, 0))
-            tkMessageBox.showinfo("Unknown error", "{0}.\nPlease try to read the passport again.".format(str(msg)))
+            time.sleep(0.3)
+            tkMessageBox.showinfo("Unknown error", "{}\nPlease try to read the passport again.".format(errorhandler.getID(msg)))
             
         
     def periodicCall(self):
@@ -876,11 +882,13 @@ class ScrollFrame(Frame):
         self.text.pack(side=TOP, fill=BOTH, expand=True)
         scrollbar.config(command=self.text.yview)
        
-    def update(self, txt):
+    def update(self, txt, disable=True):
         self.text.config(state=NORMAL)
         self.text.delete("1.0", END)
         self.text.insert(END, txt)
-        self.text.config(state=DISABLED)
+        if disable:
+            self.text.config(state=DISABLED)
+        self.update()
         
         
 ######
@@ -1079,7 +1087,7 @@ class FingerprintProcess(threading.Thread, Toplevel):
         self.pbfp = ProgressBar(self)
         self.pbfp.pack(side=TOP, fill=X, padx=5, pady=5)
         
-        self.txt = ""
+        #self.txt = ""
         
         self.stop = False
         self.destoyed = False
@@ -1099,7 +1107,7 @@ class FingerprintProcess(threading.Thread, Toplevel):
                     self.stopReading()
                 elif msg == 'Reset':
                     self.stopReading()
-                    self.master.clean()
+                    self.master.clear()
                     self.doc = None
                 if self.stop:
                     self.destroy()
@@ -1116,23 +1124,100 @@ class FingerprintProcess(threading.Thread, Toplevel):
         self.queue.put((None, 'slfp', "Initializing"))
         self.queue.put((None, 'fp', 0))
         try:
-            fp = fingerPrint.FingerPrint(self.doc, self.queue)
-            self.buildText(fp.analyse())
+            certfir = None
+            if configManager().getOption('Options','certificate'):
+                certfir = configManager().getOption('Options','certificate')
+            fp = fingerPrint.FingerPrint(self.doc, certfir, self.queue)
+            data = fp.analyse()
             self.queue.put(('Quit', 'fp', 100))
+            FingerPrintDialog(self.master, data)
         except Exception, msg:
             self.queue.put(('Quit', 'fp', 100))
-            tkMessageBox.showerror("Fingerprint error", "{0}.\nPlease try to run the fingerprint again.".format(str(msg)))
+            time.sleep(0.3)
+            tkMessageBox.showinfo("Report error", "{}\nPlease try to run the report again.".format(errorhandler.getID(msg)))
             
         
-        FingerPrintDialog(self.master, self.txt)
         
-    def buildText(self, data):
+    def periodicCall(self):
+        self.processIncoming()
+        if not self.destoyed:
+            self.after(100, self.periodicCall)
+        
+    def stopReading(self):
+        self.doc.stopReading()
+        self.stop = True
+
+
+class FingerPrintDialog(Toplevel):
+    
+    def __init__(self, master, data):
+        self.txt = ""
+        self.analyse = data
+        self.buildText()
+        
+        self.buttonText = StringVar()
+        self.buttonText.set("Send report")
+        
+        Toplevel.__init__(self, master)
+        self.title("Report")
+        self.transient(master)
+        
+        self.log = ScrollFrame(self, self.txt)
+        self.log.pack(side=TOP, fill=BOTH, expand=True)
+        
+        saveButton = Button(self, width=10, text="Save...", command=self.save)
+        saveButton.pack(side=LEFT, ipadx=10)
+        
+        sendButton = Button(self, width=10, textvariable=self.buttonText, command=self.anonymize)
+        sendButton.pack(side=LEFT, ipadx=10)
+        
+        self.withdraw()
+        self.deiconify()
+        self.update()
+
+    def save(self):
+        formats = [('Raw text','*.txt'),('PDF','*.pdf')]
+        
+        fileName = asksaveasfilename(parent=self,filetypes=formats ,title="Save current frame as...")
+        if fileName[-4:] == ".txt":
+            try:
+                with open(str(fileName), 'w') as file:
+                    file.write(self.txt)
+                    tkMessageBox.showinfo("File saved", "File saved as "+fileName)
+            except Exception, msg:
+                tkMessageBox.showerror("Save error", str(msg))
+                
+        elif fileName[-4:] == ".pdf":
+            inOut.toPDF(self.analyse, fileName)   
+            tkMessageBox.showinfo("File saved", "File saved as "+fileName)
+    
+    def anonymize(self):
+        self.txt = ""
+        
+        if self.buttonText.get() == "Send report":
+            self.buildText(anonymize=True)
+            self.buttonText.set("Reset")
+            self.log.update(self.txt, False)
+            
+            
+        elif self.buttonText.get() == "Reset":
+            self.buildText()
+            self.buttonText.set("Send report")
+            self.log.update(self.txt)
+    
+    def buildText(self, anonymize=False):
+        data = self.analyse
+        if anonymize:
+            self.txt += "Please send (copy all) this anonymized report to: " + CONTACT + "\n"
+            self.txt += "with the subject: ePassport Viewer Report\n"
+            self.txt += "\n"
         self.txt += "====================\n"
         self.txt += "   IDENTIFICATION   \n"
         self.txt += "====================\n"
         self.txt += "\n"
-        self.txt += "Holder's name: " + data["EP"]["DG1"]["5F5B"].replace("<", " ") + "\n"
-        self.txt += "\n"
+        if not anonymize:
+            self.txt += "Holder's name: " + data["EP"]["DG1"]["5F5B"].replace("<", " ") + "\n"
+            self.txt += "\n"
         self.txt += "Unique ID (random): " + data["UID"] + "\n"
         self.txt += "Answer-To-Reset: " + data["ATR"] + "\n"
         self.txt += "Generation: " + str(data["generation"]) + "\n"
@@ -1153,15 +1238,20 @@ class FingerprintProcess(threading.Thread, Toplevel):
         else:
             self.txt += data["DGs"] + "\n"
         self.txt += "\n"
-        for dg in data["EP"]:
-            self.txt += dg + "\n"
-            self.txt += "====\n"
-            self.browseDGs(data["EP"][dg].parse())
-            self.txt += "\n\n"
+        if not anonymize:
+            for dg in data["EP"]:
+                self.txt += dg + "\n"
+                self.txt += "====\n"
+                if dg == "DG15":
+                    self.txt += "See section Active Authentication\n"
+                self.browseDGs(data["EP"][dg].parse())
+                self.txt += "\n"
         self.txt += "\n"
         self.txt += "============================\n"
         self.txt += "   Passive Authentication   \n"
         self.txt += "============================\n"
+        self.txt += "\n"
+        self.txt += "SOD verify by CSCA: " + str(data["verifySOD"]) + "\n"
         self.txt += "\n"
         self.txt += "DG integrity\n"
         self.txt += "============\n"
@@ -1170,15 +1260,27 @@ class FingerprintProcess(threading.Thread, Toplevel):
             self.txt += ("Verified") if data["Integrity"][dgi] else ("Not verified")
             self.txt += "\n"
         self.txt += "\n"
-        self.txt += "DG hashes\n"
-        self.txt += "=========\n"
-        for dgi in data["Hashes"]:
-            self.txt += dgi + ": " + binToHexRep(data["Hashes"][dgi]) + "\n"
-        self.txt += "\n"
-        self.txt += "SOD:\n"
-        self.txt += "\n"
-        self.txt += data["SOD"] + "\n"
-        self.txt += "\n"
+        if not anonymize:
+            self.txt += "DG hashes\n"
+            self.txt += "=========\n"
+            for dgi in data["Hashes"]:
+                self.txt += dgi + ": " + binToHexRep(data["Hashes"][dgi]) + "\n"
+            self.txt += "\n"
+            self.txt += "SOD\n"
+            self.txt += "===\n"
+            self.txt += "\n"
+            self.txt += data["SOD"] + "\n"
+            self.txt += "\n"
+            self.txt += "CERTIFICATES\n"
+            self.txt += "============\n"
+            self.txt += "\n"
+            self.txt += "Certificate Serial Number:" + data["certSerialNumber"] + "\n"
+            self.txt += "Certificate Fingerprint:" + data["certFingerPrint"] + "\n"
+            self.txt += "\n"
+            self.txt += "Document Signer\n"
+            self.txt += "===============\n"
+            self.txt += data["DSCertificate"] + "\n"
+            self.txt += "\n"
         self.txt += "\n"
         self.txt += "===========================\n"
         self.txt += "   Active Authentication   \n"
@@ -1186,20 +1288,11 @@ class FingerprintProcess(threading.Thread, Toplevel):
         self.txt += "\n"
         self.txt += "Active Authentication executed " + data["activeAuth"] + "\n"
         self.txt += "\n"
-        self.txt += "CERTIFICATES/SIGNATURES\n"
-        self.txt += "=======================\n"
-        self.txt += "\n"
-        self.txt += "Certificate Serial Number:" + data["certSerialNumber"] + "\n"
-        self.txt += "Certificate Fingerprint:" + data["certFingerPrint"] + "\n"
-        self.txt += "\n"
-        self.txt += "Document Signer\n"
-        self.txt += "===============\n"
-        self.txt += data["DSCertificate"] + "\n"
-        self.txt += "\n"
-        self.txt += "Public Key\n"
-        self.txt += "==========\n"
-        self.txt += data["pubKey"] + "\n"
-        self.txt += "\n"
+        if not anonymize:
+            self.txt += "Public Key\n"
+            self.txt += "==========\n"
+            self.txt += data["pubKey"] + "\n"
+            self.txt += "\n"
         self.txt += "\n"
         self.txt += "=============================\n"
         self.txt += "   Extended Access Control   \n"
@@ -1251,7 +1344,7 @@ class FingerprintProcess(threading.Thread, Toplevel):
         dgtypes = [DataGroup1, DataGroup2, DataGroup3, DataGroup4, DataGroup5,
                    DataGroup6, DataGroup7, DataGroup8, DataGroup9, DataGroup10,
                    DataGroup11, DataGroup12, DataGroup13, DataGroup14, DataGroup15,
-                   DataGroup16, Com, SOD]
+                   DataGroup16, DataGroup, Com, SOD]
         i = level
         if type(data) == type(dict()) or type(data) in dgtypes:
             for x in data:
@@ -1269,48 +1362,12 @@ class FingerprintProcess(threading.Thread, Toplevel):
                     self.txt += self.truncate(x, (i+1)*" ")
 
     def truncate(self, data, sep="  ", length=200):
-        return sep + (str(data)[:length] + '..') if len(str(data)) > length else sep + str(data) + "\n"
-        
-    def periodicCall(self):
-        self.processIncoming()
-        if not self.destoyed:
-            self.after(100, self.periodicCall)
-        
-    def stopReading(self):
-        self.doc.stopReading()
-        self.stop = True
-
-
-class FingerPrintDialog(Toplevel):
-    
-    def __init__(self, master, data):
-        Toplevel.__init__(self, master)
-        self.title("Fingerprint")
-        self.transient(master)
-
-        log = ScrollFrame(self, data)
-        log.pack(side=TOP, fill=BOTH, expand=True)
-        
-        saveButton = Button(self, text="Save", command=self.save)
-        saveButton.pack(side=LEFT, ipadx=10)
-        
-        okButton = Button(self, text="OK", command=self.clickOK)
-        okButton.pack(side=LEFT, ipadx=10)
-
-    def save(self):
-        formats = [('Raw text','*.txt'),('PDF','*.pdf'),('XML','*.xml')]
-        
-        fileName = asksaveasfilename(parent=self,filetypes=formats ,title="Save as...")
-        if len(fileName) > 0:
-            try:
-                file = open(str(fileName), 'w')
-                file.write(data)
-            except Exception, msg:
-                tkMessageBox.showerror("Save error", str(msg))
-            finally:
-                file.close()
-
-    def clickOK(self):
-        self.destroy()
+        try:
+            return sep + (str(data)[:length].encode("utf-8") + '..') if len(str(data).encode("utf-8")) > length else sep + str(data).encode("utf-8") + "\n"
+        except Exception:
+            return sep + "UNPRINTABLE BINARY VALUE\n"
+            
+            
+            
         
 

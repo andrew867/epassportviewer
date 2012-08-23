@@ -55,7 +55,7 @@ def getItemRaw(dic, *tags):
         
     try:
         if len(value) > 50:
-            value = split_len(value, 50)
+            value = split_len(value, 44)
         value = replace(value,"<","&lt;")
     except Exception, msg:
         return ""

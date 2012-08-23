@@ -21,7 +21,7 @@ import os.path
 import shutil
 from pypassport.logger import Logger
 
-CertFormat = ["PEM", "DER"]
+CertFormat = ["DER", "PEM"]
     
 class CAManager(object):
     """
@@ -40,13 +40,18 @@ class CAManager(object):
         For each certificate, create  a new certificate named with the hash value of the issuer followed with .0
         By this way, the corresponding CSCA certificate of the DS certificate can be found easily by openSSL.
         """
+        existing = False
         for fileName in os.listdir(self.dir):
             file = self.dir + os.path.sep + fileName
             
             if not fileName.endswith(".0") and fileName.endswith(".cer"):
+                existing = True
                 (hash, format) = self._getHash(file)
                 hashName = hash + os.path.extsep + "0"
                 self._toPEM(file, format, hashName, self.dir + os.path.sep)
+                
+        if not existing:
+            raise Exception("No certificate (*.cer) has been found.")
 
     def _getHash(self, file):
         """ 
@@ -67,7 +72,7 @@ class CAManager(object):
             if data: break
             
         if not data:
-            raise Exception, "The certificate format is unknow for file: " + str(file) + "\nor OpenSSL is not set"
+            raise Exception("The certificate format is unknow for file: " + str(file) + "\nor OpenSSL is not set")
         return (data, format)
     
     def _toPEM(self, certif, format, name, path):

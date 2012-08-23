@@ -20,12 +20,11 @@ import os
 import time
 from pypassport.iso7816 import Iso7816Exception
 from pypassport.doc9303 import passiveauthentication
-from pypassport import iso7816
+from pypassport import iso7816, apdu, camanager
 from pypassport.hexfunctions import *
 from pypassport.doc9303.converter import *
 from pypassport.apdu import CommandAPDU
 from pypassport.attacks import macTraceability
-from pypassport import apdu
 from pypassport.epassport import EPassportException
 
 from smartcard.CardType import AnyCardType
@@ -34,13 +33,22 @@ from smartcard.util import toHexString
 
 class FingerPrint(object):
     
-    def __init__(self, epassport, callback=None):
+    def __init__(self, epassport, certdir=None, callback=None):
         self._doc = epassport
         self.curMRZ = None
         self._comm = self._doc.getCommunicationLayer()
         self._pa = passiveauthentication.PassiveAuthentication(epassport)
         self._certInfo = None
         self.callback = callback
+        self.doPA = False
+        
+        if certdir:
+            try:
+                self.csca = camanager.CAManager(certdir)
+                self.csca.toHashes()
+                self.doPA = True
+            except Exception:
+                pass
         
         self._comm.rstConnection()
 
@@ -59,6 +67,7 @@ class FingerPrint(object):
         res["delaySecurity"] = False
         res["getChallengeNull"] = "N/A"
         res["bac"] = "Failed"
+        res["verifySOD"] = "No certificate imported"
         res["DSCertificate"] = "Document Signer Certificate: N/A"
         res["pubKey"] = "Private key: N/A"
         res["activeAuth"] = "Failed"
@@ -142,9 +151,9 @@ class FingerPrint(object):
             sod = self._doc["SecurityData"]
             if self._comm._ciphering:
                 res["bac"] = "Done"
-        except Exception:
+        except Exception, msg:
             self._comm.rstConnection()
-            raise EPassportException("Invalid MRZ")
+            raise Exception(msg)
         
         #Read SOD body
         if self.callback: 
@@ -157,11 +166,24 @@ class FingerPrint(object):
             f = os.popen("openssl asn1parse -in sod -inform DER -i")
             res["SOD"] = f.read().strip()
             os.remove('sod')
+            
+            #Verify SOD body
+            if self.callback: 
+                self.callback.put((None, 'slfp', "Verify SOD with CSCA"))
+                self.callback.put((None, 'fp', 50))
+            
+            if self.doPA:
+                try:
+                    pa = passiveauthentication.PassiveAuthentication()
+                    res["verifySOD"] = pa.verifySODandCDS(sod, self.csca)
+                except Exception:
+                    res["verifySOD"] = "No certificate imported verify the SOD"
+                    pass
         
         #Read DGs and get the file content
         if self.callback: 
             self.callback.put((None, 'slfp', "Read DGs"))
-            self.callback.put((None, 'fp', 50))
+            self.callback.put((None, 'fp', 55))
             
         self._comm.rstConnection()
         data = {}
@@ -182,7 +204,7 @@ class FingerPrint(object):
         # Get hashed
         if self.callback: 
             self.callback.put((None, 'slfp', "Get hashes of DG files"))
-            self.callback.put((None, 'fp', 60))
+            self.callback.put((None, 'fp', 65))
             
         dgs = list()
         for dg in res["EP"]:

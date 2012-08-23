@@ -31,4 +31,5 @@ VERSION = '2.0'
 WEBSITE = "http://code.google.com/p/epassportviewer/"
 DISCLAMER = """Before using pyPassport, you must be sure that you are allowed to read the contactless\n chip of your passport, according to the laws and regulations of the country that issued it."""
 LICENSE = "LICENSE"
+CONTACT = "antonin.beaujeant@uclouvain.be"
 

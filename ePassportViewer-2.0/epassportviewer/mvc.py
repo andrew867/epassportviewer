@@ -31,6 +31,8 @@ from epassportviewer.util import configManager, callback, image, inOut, helper
 from epassportviewer import dialog
 from pypassport.doc9303 import converter
 from pypassport import epassport
+from epassportviewer import errorhandler
+
 import pypassport
 
 import time
@@ -163,12 +165,8 @@ class View(Frame):
         fileMenu.add_command(label="Create...", underline=0, command=self.create)
         fileMenu.add_separator()    
         fileMenu.add_command(label="Open...", underline=0, command=self.load)
-        fileMenu.add_command(label="Save...", underline=0, command=self.save)
-        saveAs = Menu(fileMenu, tearoff=0)
-        saveAs.add_command(label="Generate", underline=0, command=self.fingerprint)
-        saveAs.add_command(label="PDF...", underline=0, command=self.exportToPDF)
-        saveAs.add_command(label="XML...", underline=0, command=self.exportToXML)                
-        fileMenu.add_cascade(label="Generate report", underline=0, menu=saveAs)
+        fileMenu.add_command(label="Save...", underline=0, command=self.save)              
+        fileMenu.add_command(label="Generate report...", underline=0, command=self.fingerprint)
         fileMenu.add_command(label="Clear", underline=0, command=self.clearFull)
         fileMenu.add_separator()
         fileMenu.add_command(label="Quit", underline=0, command=self.exit)
@@ -220,7 +218,7 @@ class View(Frame):
         #self.certificateMenu.add_command(label="Import", underline=0, command=self.importCertificate)                
         #configureMenu.add_cascade(label="Certificate Directory", underline=0, menu=self.certificateMenu)
         
-        configureMenu.add_command(label="Import root certificates...", underline=0, command=self.importCertificate)
+        configureMenu.add_command(label="Import CSCA certificates...", underline=0, command=self.importCertificate)
         configureMenu.add_separator()
         configureMenu.add_command(label="Reset to default", underline=0, command=self.resetConfig)
         
@@ -290,16 +288,16 @@ class View(Frame):
             menu.entryconfigure(0, label=openssl)
 
     def importCertificate(self):
-        directory = askdirectory(title="Select directory", mustexist=1)
+        directory = askdirectory(title="Certificates (*.cer) directory", mustexist=1)
         if directory:
             directory = str(directory)
             try:
                 CA = pypassport.camanager.CAManager(directory)
                 CA.toHashes()
+                configManager.configManager().setOption("Options", 'certificate', str(directory))
                 tkMessageBox.showwarning("Import Certificate", 'All present certificates have been imported!') 
             except Exception, msg:
-                if DEBUG: print "Error while importing certificates", msg
-                else: tkMessageBox.showwarning("Error while importing certificates", msg)         
+                tkMessageBox.showwarning("Error: Importing certificates", msg)         
         
     def onAbout(self):
         dialog.About(self)
@@ -368,12 +366,12 @@ class View(Frame):
         self.overview.clear()
         self.overview.security.clear()
         self.footer.clear()
-        self.setColorNo('white')
-        self.setColorDob('white')
-        self.setColorDoe('white')
         self.clear()
     
     def clear(self):
+        self.setColorNo('white')
+        self.setColorDob('white')
+        self.setColorDoe('white')
         self._doc = None
         self.t = None
         
@@ -381,6 +379,7 @@ class View(Frame):
         self.passportNo.set("")
         self.dob.set("YYMMDD")
         self.doe.set("YYMMDD")
+        
     
     #############
     # CALLBACKS #
@@ -467,19 +466,23 @@ class View(Frame):
     
     def _dgRead(self, data):
         (DG, DGdata) = data
-        if DG in ["61", "67", "6B", "6C", "75"]:
-            self.overview.loadDG(DG, DGdata)
-        if DG == '61':
-            name, mrz = self.extractOwnerInfo(DGdata)
-            self.addToHistory(name, mrz)
-        if DG == 'BAC':
-            self.overview.security.setSecurity(BAC=DGdata)
-        if DG == 'AA':
-            self.overview.security.setSecurity(AA=DGdata)
-        if DG == 'PA':
-            self.overview.security.setSecurity(PA=DGdata)
-        if DG == 'EAC':
-            self.overview.security.setSecurity(EAC=DGdata)
+        try:
+            if DG in ["61", "67", "6B", "6C", "75"]:
+                self.overview.loadDG(DG, DGdata)
+            if DG == '61':
+                name, mrz = self.extractOwnerInfo(DGdata)
+                self.addToHistory(name, mrz)
+            if DG == 'BAC':
+                self.overview.security.setSecurity(BAC=DGdata)
+            if DG == 'AA':
+                self.overview.security.setSecurity(AA=DGdata)
+            if DG == 'PA':
+                self.overview.security.setSecurity(PA=DGdata)
+            if DG == 'EAC':
+                self.overview.security.setSecurity(EAC=DGdata)
+        except Exception, msg:
+            self.t.stopReading()
+            tkMessageBox.showerror("Error while reading", errorhandler.getID(msg))
     
     def extractOwnerInfo(self, data):
         if not data.has_key('5F1F') or not data.has_key('5F5B'): 

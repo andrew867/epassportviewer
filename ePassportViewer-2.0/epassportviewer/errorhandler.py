@@ -18,18 +18,21 @@
 import tkMessageBox
 
     
-_Errors = {  "('Security status not satisfied', 105, 130)": ('Error #101: The passport requires to first establish the connection with a valid BAC.', "error")
-    }
+Errors = {  # APDU PROBLEMS
+             "('Security status not satisfied', 105, 130)": 'Error #101: An error occur during the BAC.',
+             "('SM data objects incorrect', 105, 136)": 'Error #102: An error occur during the BAC.',
+             # READER ISSUES
+             "Failed to transmit with protocol TO. Card was reset.": 'Error #201: An error with the reader.',
+             # UNCLASSIFIED ERRORS
+             "Wrong MRZ": 'Check you set the correct MRZ.',
+             "sodObj must be a sod object": "Error #301: Internal error.",
+             "'NoneType' object has no attribute '__getitem__'": "Error #302: Internal error."
+}
     
     
-def  showError(message="Empty", title="Error"):
+def  getID(message):
     try:
-        error, symbol = Errors[str(message)]
-        if symbol == "error":
-            tkMessageBox.showerror(title, error)
-        if symbol == "warning":
-            tkMessageBox.showwarning(title, error)
-        if symbol == "info":
-            tkMessageBox.showinfo(title, error)
+        return Errors[str(message)]
     except Exception:
-        tkMessageBox.showerror("Error not identify", "Error #404: Error has not been identify.\n{}".format(message))
+        print str(message)
+        return "Error #404: Error has not been identify.\n{}".format(str(message))

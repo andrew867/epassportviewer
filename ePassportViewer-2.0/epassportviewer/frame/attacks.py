@@ -81,6 +81,9 @@ class AttacksFrame(Frame):
         reachMaxCheck = Checkbutton(reachMaxFrame, text="Reach max", variable=self.frenchVar, bg=bgcolor)
         reachMaxCheck.pack(side=LEFT, padx=5, pady=5)
         
+        rmLabel = Label(reachMaxFrame, text="          Nb of failed BAC:", justify=LEFT, bg=bgcolor)
+        rmLabel.pack(side=LEFT, padx=5, pady=5)
+        
         self.nbReach = Entry(reachMaxFrame, width=3)
         self.nbReach.pack(side=LEFT, padx=5, pady=5)
         

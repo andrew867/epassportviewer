@@ -305,7 +305,7 @@ class Overview(Frame):
         self.updatePicture( ImageFactory().create(ImageFactory().NOPICTURE), self.IMAGE)
         self.updatePicture( ImageFactory().create(ImageFactory().TRANSPARENT), self.SIGN)
         self.additionalButton.config(state=DISABLED)
-        self.logButton.config(state=DISABLED)
+        #self.logButton.config(state=DISABLED)
         for field in self.fields:
             self.fields[field].set("N/A")
         self.fields["mrz"].set("")
