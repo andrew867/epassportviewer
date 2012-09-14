@@ -16,11 +16,13 @@
 # License along with epassportviewer.
 # If not, see <http://www.gnu.org/licenses/>.
 
+import os
+
 from Tkinter import *
 import tkFont
 import tkMessageBox
 import Image, ImageTk
-from tkFileDialog import askdirectory, askopenfilename
+from tkFileDialog import askdirectory, askopenfilename, asksaveasfilename
 
 from Crypto.Cipher import DES3
 from Crypto.Cipher import DES
@@ -30,8 +32,10 @@ from pypassport import reader, apdu, iso9797, asn1
 from pypassport.hexfunctions import hexToHexRep, binToHexRep, hexRepToBin
 from pypassport.iso7816 import Iso7816, Iso7816Exception
 from pypassport.doc9303 import bac, mrz, securemessaging
+
 from epassportviewer.util.image import ImageFactory
 from epassportviewer.frame.attacks import ScrollFrame
+from epassportviewer.dialog import Tooltip, WaitDialog
 
 from smartcard.CardType import AnyCardType
 from smartcard.CardRequest import CardRequest
@@ -56,6 +60,30 @@ class CustomFrame(Frame):
         
         title = tkFont.Font(size=12)
         
+        ###############
+        ## ANALYZING ##
+
+        self.analyzingFrame = Frame(self, borderwidth=1, relief=GROOVE)
+        self.analyzingFrame.pack(fill=BOTH, expand=1)
+        
+        analyzingLabel = Label(self.analyzingFrame, text="Analyzing", justify=LEFT, font=title)
+        analyzingLabel.grid(row=0, column=0, columnspan=2, padx=5, pady=5, sticky=W)
+
+        randomButton = Button(self.analyzingFrame, text="Dump randomness", width=13, command=self.dumprnd)
+        randomButton.grid(row=1, column=0, padx=5, pady=5)
+        Tooltip(parent=randomButton, tip="Generate a string of concatenated random number (Get challenge)\nand store it in a file.")
+        
+        nbRNDLabel = Label(self.analyzingFrame, text="Nb of GET Challenge:", justify=LEFT)
+        nbRNDLabel.grid(row=1, column=1, padx=5, pady=5, sticky=W)
+        
+        self.nbRND = Entry(self.analyzingFrame, width=5)
+        self.nbRND.grid(row=1, column=2, padx=5, pady=5, sticky=W)
+        
+        #self.rstVar = IntVar()
+        #rstCheck = Checkbutton(self.analyzingFrame, text="Reset", variable=self.rstVar)
+        #rstCheck.grid(row=1, column=3, padx=5, pady=5, sticky=W)
+        
+        
         #########################
         ## AUTOMATIC FUNCTIONS ##
 
@@ -67,18 +95,23 @@ class CustomFrame(Frame):
 
         initButton = Button(self.automaticFrame, text="Init (select file)", width=13, command=self.init)
         initButton.grid(row=1, column=0, padx=5, pady=5)
+        Tooltip(parent=initButton, tip="Initialise the connection by selecting\nthe Application Identifier.")
         
         resetButton = Button(self.automaticFrame, text="Reset", width=13, command=self.reset)
         resetButton.grid(row=1, column=1, padx=5, pady=5)
+        Tooltip(parent=resetButton, tip="Reset the connection.")
         
         bacButton = Button(self.automaticFrame, text="BAC", width=13, command=self.performBAC)
         bacButton.grid(row=1, column=2, padx=5, pady=5)
+        Tooltip(parent=bacButton, tip="Perform a complete BAC.")
         
         genBACKeysButton = Button(self.automaticFrame, text="Generate BAC keys", width=13, command=self.genBACKeys)
         genBACKeysButton.grid(row=1, column=3, padx=5, pady=5)
+        Tooltip(parent=genBACKeysButton, tip="Derive Kenc and Kmac for the BAC\nbased on the MRZ set above.")
         
         getATRButton = Button(self.automaticFrame, text="Get ATR", width=6, command=self.getATR)
         getATRButton.grid(row=1, column=4, padx=5, pady=5)
+        Tooltip(parent=genBACKeysButton, tip="Get the Answer to Reset.")
 
     
         ###########
@@ -98,32 +131,43 @@ class CustomFrame(Frame):
         cryptoLabel.grid(row=1, column=0, padx=5, pady=5, sticky=W)
         
         tdesEncryptionButton = Button(buttonToolsFrame, text="3DES >", width=10, command=self.tdesEncrypt)
-        tdesEncryptionButton.grid(row=1, column=1, padx=5, pady=5)
+        tdesEncryptionButton.grid(row=1, column=1, pady=5)
+        Tooltip(parent=tdesEncryptionButton, tip="Encrypt in 3DES the hex value in the 1st field\nwith the key encryption in the 2nd field.")
         
         tdesDecryptionButton = Button(buttonToolsFrame, text="3DES <", width=10, command=self.tdesDecrypt)
-        tdesDecryptionButton.grid(row=1, column=2, padx=5, pady=5)
+        tdesDecryptionButton.grid(row=1, column=3, padx=5, pady=5)
+        Tooltip(parent=tdesDecryptionButton, tip="Decrypt the 3DES cipher hex value in the 1st field\nwith the key encryption in the 2nd field.")
 
         sha1EncryptionButton = Button(buttonToolsFrame, text="SHA-1", width=10, command=self.sha1Hash)
-        sha1EncryptionButton.grid(row=1, column=3, padx=5, pady=5)
-
-        xorButton = Button(buttonToolsFrame, text="XOR", width=10, command=self.xor)
-        xorButton.grid(row=1, column=4, padx=5, pady=5)
+        sha1EncryptionButton.grid(row=1, column=4, padx=5, pady=5)
+        Tooltip(parent=sha1EncryptionButton, tip="Hash with SHA-1 algorithm\nthe value in the 1st field.")
+        
+        createMACButton = Button(buttonToolsFrame, text="Create MAC", width=10, command=self.createMAC)
+        createMACButton.grid(row=1, column=5, padx=5, pady=5)
+        Tooltip(parent=createMACButton, tip="Create the message authentication code of\nthe cipher in the 1st field  with the Kmac\nin the 2nd field.")
+        
         
         # FUNCTIONS
         functionsLabel = Label(buttonToolsFrame, text="Functions:", justify=LEFT)
         functionsLabel.grid(row=2, column=0, padx=5, pady=5, sticky=W)
-
-        createMACButton = Button(buttonToolsFrame, text="Create MAC", width=10, command=self.createMAC)
-        createMACButton.grid(row=2, column=1, padx=5, pady=5)
+        
+        xorButton = Button(buttonToolsFrame, text="XOR", width=10, command=self.xor)
+        xorButton.grid(row=2, column=1, pady=5)
+        Tooltip(parent=xorButton, tip="XOR the hex value of the 1st field\nwith the value of the 2nd field.")
         
         keyDerivationButton = Button(buttonToolsFrame, text="Key  derivation", width=10, command=self.keyDerivation)
-        keyDerivationButton.grid(row=2, column=2, padx=5, pady=5)
+        keyDerivationButton.grid(row=2, column=3, padx=5, pady=5)
+        Tooltip(parent=keyDerivationButton, tip="Derive the session keys such as:\nK = 16 msb of SHA-1(Kseed||0000000[1,2])\nwhere Kseed is the 1st field and 0000000[1,2]\nis the 2nd field.")
         
         sscGeneratorButton = Button(buttonToolsFrame, text="SSC generator", width=10, command=self.sscGenerator)
-        sscGeneratorButton.grid(row=2, column=3, padx=5, pady=5)
+        sscGeneratorButton.grid(row=2, column=4, padx=5, pady=5)
+        Tooltip(parent=sscGeneratorButton, tip="Compute the SSC such as:\nSSC = 4 lsb of RND.ICC || 4 lsb RND.IFD\nRND.ICC is in the 1st field and RND.IFD\nis in the 2nd field.")
         
         readHeaderButton = Button(buttonToolsFrame, text="Read header", width=10, command=self.readHeader)
-        readHeaderButton.grid(row=2, column=4, padx=5, pady=5)
+        readHeaderButton.grid(row=2, column=5, padx=5, pady=5)
+        Tooltip(parent=readHeaderButton, tip="Read the first bytes of an EF (header)\nand return the header's size and the\nEF size.")
+        
+        self.update()
 
         
         # FIELDS
@@ -316,6 +360,43 @@ class CustomFrame(Frame):
     #########
     # METHODS
     #########
+    
+    def dumprnd(self):
+        try:
+            formats = [('Raw text','*.bin')]
+            fileName = asksaveasfilename(parent=self, filetypes=formats, title="Save as...")
+            if self.nbRND.get(): until = int(self.nbRND.get())
+            else: until = 200
+            pleasewait = WaitDialog(self.mrz)
+            pleasewait.setMessage("Please wait until {} GET CHALLENGE\nhave been performed.".format(until))
+            if len(fileName) > 0:
+                fileName = str(fileName)
+                s = fileName.split(os.sep)
+                fn = s[-1]
+                directory = fileName[0:len(fileName)-len(fn)]
+                if os.path.isdir(directory):
+                    pleasewait.withdraw()
+                    pleasewait.deiconify()
+                    pleasewait.update()
+                    self.initIso7816()
+                    self._iso7816.rstConnection()
+                    rndstr = ""
+                    i = 0
+                    while i < until:
+                        rndstr += self._iso7816.getChallenge()
+                        #if self.rstVar.get():
+                        #    self._iso7816.rstConnection()
+                        i += 1
+                    
+                    with open(fileName, 'wb') as frnd:
+                        frnd.write(rndstr)
+                    tkMessageBox.showinfo("Save successful", "The randomness has been saved as:\n{0}".format(fileName))
+                else:
+                    tkMessageBox.showerror("Error: save", "The path you selected is not a directory")
+        except Exception, msg:
+            tkMessageBox.showerror("Error: Dump randomness", str(msg))
+        finally:
+            pleasewait.closeDialog()
     
     def writeToLog(self, msg):
         self.logFrame.insert(END, "{0}\n".format(msg), False)

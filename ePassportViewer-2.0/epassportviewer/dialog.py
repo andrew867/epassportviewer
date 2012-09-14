@@ -1129,6 +1129,8 @@ class FingerprintProcess(threading.Thread, Toplevel):
                 certfir = configManager().getOption('Options','certificate')
             fp = fingerPrint.FingerPrint(self.doc, certfir, self.queue)
             data = fp.analyse()
+            name, mrz = self.master.extractOwnerInfo(self.doc["DG1"])
+            self.master.addToHistory(name, mrz)
             self.queue.put(('Quit', 'fp', 100))
             FingerPrintDialog(self.master, data)
         except Exception, msg:
@@ -1156,7 +1158,7 @@ class FingerPrintDialog(Toplevel):
         self.buildText()
         
         self.buttonText = StringVar()
-        self.buttonText.set("Send report")
+        self.buttonText.set("Anonymize report")
         
         Toplevel.__init__(self, master)
         self.title("Report")
@@ -1194,7 +1196,7 @@ class FingerPrintDialog(Toplevel):
     def anonymize(self):
         self.txt = ""
         
-        if self.buttonText.get() == "Send report":
+        if self.buttonText.get() == "Anonymize report":
             self.buildText(anonymize=True)
             self.buttonText.set("Reset")
             self.log.update(self.txt, False)
@@ -1202,7 +1204,7 @@ class FingerPrintDialog(Toplevel):
             
         elif self.buttonText.get() == "Reset":
             self.buildText()
-            self.buttonText.set("Send report")
+            self.buttonText.set("Anonymize report")
             self.log.update(self.txt)
     
     def buildText(self, anonymize=False):
@@ -1211,6 +1213,9 @@ class FingerPrintDialog(Toplevel):
             self.txt += "Please send (copy all) this anonymized report to: " + CONTACT + "\n"
             self.txt += "with the subject: ePassport Viewer Report\n"
             self.txt += "\n"
+            self.txt += "Country: " + data["EP"]['DG1']['5F28'] + "\n"
+            self.txt += "Issue Date: " + data["EP"]['DG12']['5F26'][:4] + "\n"
+            self.txt += "\n"
         self.txt += "====================\n"
         self.txt += "   IDENTIFICATION   \n"
         self.txt += "====================\n"
@@ -1218,9 +1223,8 @@ class FingerPrintDialog(Toplevel):
         if not anonymize:
             self.txt += "Holder's name: " + data["EP"]["DG1"]["5F5B"].replace("<", " ") + "\n"
             self.txt += "\n"
-        self.txt += "Unique ID (random): " + data["UID"] + "\n"
+        self.txt += "Unique ID: " + data["UID"] + "\n"
         self.txt += "Answer-To-Reset: " + data["ATR"] + "\n"
-        self.txt += "Generation: " + str(data["generation"]) + "\n"
         self.txt += "\n"
         self.txt += "\n"
         self.txt += "==========================\n"
@@ -1257,7 +1261,14 @@ class FingerPrintDialog(Toplevel):
         self.txt += "============\n"
         for dgi in data["Integrity"]:
             self.txt += dgi + ": "
-            self.txt += ("Verified") if data["Integrity"][dgi] else ("Not verified")
+            if data["Integrity"][dgi] == True:
+                self.txt += "Verified"
+            elif data["Integrity"][dgi] == False:
+                self.txt += "Not verified"
+            elif data["Integrity"][dgi] == None:
+                self.txt += "No hash present in SOD for this EF"
+            else:
+                self.txt += "N/A"
             self.txt += "\n"
         self.txt += "\n"
         if not anonymize:
@@ -1266,27 +1277,34 @@ class FingerPrintDialog(Toplevel):
             for dgi in data["Hashes"]:
                 self.txt += dgi + ": " + binToHexRep(data["Hashes"][dgi]) + "\n"
             self.txt += "\n"
+        if anonymize:
+            self.txt += "SOD\n"
+            self.txt += "===\n"
+            self.txt += "\n"
+            self.txt += "Hash algorithm: " + data["Algo"] + "\n"
+            self.txt += "\n"
+        else:
             self.txt += "SOD\n"
             self.txt += "===\n"
             self.txt += "\n"
             self.txt += data["SOD"] + "\n"
             self.txt += "\n"
-            self.txt += "CERTIFICATES\n"
-            self.txt += "============\n"
-            self.txt += "\n"
-            self.txt += "Certificate Serial Number:" + data["certSerialNumber"] + "\n"
-            self.txt += "Certificate Fingerprint:" + data["certFingerPrint"] + "\n"
-            self.txt += "\n"
-            self.txt += "Document Signer\n"
-            self.txt += "===============\n"
-            self.txt += data["DSCertificate"] + "\n"
-            self.txt += "\n"
+        self.txt += "CERTIFICATES\n"
+        self.txt += "============\n"
+        self.txt += "\n"
+        self.txt += "Certificate Serial Number:" + data["certSerialNumber"] + "\n"
+        self.txt += "Certificate Fingerprint:" + data["certFingerPrint"] + "\n"
+        self.txt += "\n"
+        self.txt += "Document Signer\n"
+        self.txt += "===============\n"
+        self.txt += data["DSCertificate"] + "\n"
+        self.txt += "\n"
         self.txt += "\n"
         self.txt += "===========================\n"
         self.txt += "   Active Authentication   \n"
         self.txt += "===========================\n"
         self.txt += "\n"
-        self.txt += "Active Authentication executed " + data["activeAuth"] + "\n"
+        self.txt += "Active Authentication " + data["activeAuth"] + "\n"
         self.txt += "\n"
         if not anonymize:
             self.txt += "Public Key\n"
@@ -1327,7 +1345,7 @@ class FingerPrintDialog(Toplevel):
             self.txt += "  * Vulnerable to MAC traceability\n"
             self.txt += "    Note: If delay security measure implemented, this might be a false positive\n"
         (vuln, error) = data["getChallengeNull"]
-        self.txt += "Passport answer to a GET CHALLENGE with the Le set to '00': " + str(vuln) + "\n"
+        self.txt += "Passport answer to a GET CHALLENGE with the Le set to '01': " + str(vuln) + "\n"
         if vuln:
             self.txt += "  * Vulnerable to lookup brute force\n"
         self.txt += "\n"

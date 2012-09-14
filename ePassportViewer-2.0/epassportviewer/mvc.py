@@ -361,7 +361,6 @@ class View(Frame):
         self.clearMRZ()
         os.remove(LOG)
         
-        
     def clean(self):
         self.overview.clear()
         self.overview.security.clear()
@@ -373,7 +372,6 @@ class View(Frame):
         self.setColorDob('white')
         self.setColorDoe('white')
         self._doc = None
-        self.t = None
         
     def clearMRZ(self):
         self.passportNo.set("")
@@ -391,10 +389,10 @@ class View(Frame):
         if self._doc != None:
             self._doc.CSCADirectory = configManager.configManager().getOption('Options', 'certificate')
             self._doc.openSslDirectory = configManager.configManager().getOption('Options', 'openssl')
-            self.clearLog()
             if fingerprint:
                 self.Fingerprint()
             else:
+                self.clearLog()
                 self._doc.register(self.log)
                 self._readPassport()
                 self.overview.additionalButton.config(state=NORMAL)
@@ -411,6 +409,7 @@ class View(Frame):
             self._doc.CSCADirectory = configManager.configManager().getOption('Options', 'certificate')
             self._doc.openSslDirectory = configManager.configManager().getOption('Options', 'openssl')
             try:
+                self.t = None
                 self.t = dialog.ReadingDialog(self, self._doc)
                 self.t.read.register(self._dgRead)
                 self.t.showSafe()
@@ -456,6 +455,7 @@ class View(Frame):
             
     def _readPassport(self):
         try:
+            self.t = None
             self.t = dialog.ReadingDialog(self, self._doc)
             self.t.read.register(self._dgRead)
             self.t.show()

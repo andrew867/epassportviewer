@@ -130,10 +130,10 @@ class securityFrame(Frame):
                     self.PA.configure(fg=green)
                     self.tipPA = Tooltip(parent=self.PA, tip="The PA succeed")
                 else:
-                    self.PA.configure(fg=red)
+                    self.PA.configure(fg='red')
                     self.tipPA = Tooltip(parent=self.PA, tip="SOD not verify with CSCA")
             else:
-                self.PA.configure(fg=red)
+                self.PA.configure(fg='red')
                 self.tipPA = Tooltip(parent=self.PA, tip="One or more hash does not match with the SOD")
                 
             if CA == "OPENSSL_ERROR":
@@ -146,7 +146,7 @@ class securityFrame(Frame):
                 self.dg['SOD'].configure(fg=green)
                 self.tips['SOD'] = Tooltip(parent=self.dg['SOD'], tip="Intergrity verified with the CSCA")
             else:
-                self.dg['SOD'].configure(fg=red)
+                self.dg['SOD'].configure(fg='red')
                 self.tips['SOD'] = Tooltip(parent=self.dg['SOD'], tip="SOD not verify with CSCA")
                 
                     

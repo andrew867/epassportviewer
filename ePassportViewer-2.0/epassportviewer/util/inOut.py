@@ -273,9 +273,16 @@ def toPDF(data, filename):
     Story.append(Spacer(1, 12))
     
     Story.append(Paragraph("Passive Authentication", styles["Heading2"]))
-    Story.append(Paragraph("DG intergrity:", styles["Heading3"]))
+    Story.append(Paragraph("DG integrity:", styles["Heading3"]))
     for dgi in data["Integrity"]:
-        v = ("Verified") if data["Integrity"][dgi] else ("Not verified")
+        if data["Integrity"][dgi] == True:
+            v = "Verified"
+        elif data["Integrity"][dgi] == False:
+            v = "Not verified"
+        elif data["Integrity"][dgi] == None:
+            v = "No hash present in SOD for this EF"
+        else:
+            v = "N/A"
         Story.append(Paragraph("<font size=12>  "+dgi+": "+v+"</font>", styles["Normal"]))
     Story.append(Paragraph("DG hashes:", styles["Heading3"]))
     for dgi in data["Hashes"]:
@@ -320,16 +327,13 @@ def toPDF(data, filename):
     Story.append(Paragraph("<font size=12>Active Authentication before BAC: " + str(vuln) + "</font>", styles["Normal"]))
     if vuln: Story.append(Paragraph("<font size=12>&nbsp;&nbsp;* Vulnerable to AA Traceability</font>", styles["Normal"]))
     Story.append(Spacer(1, 12))
-    Story.append(Paragraph("<font size=12>Active Authentication before BAC: " + str(vuln) + "</font>", styles["Normal"]))
-    if vuln: Story.append(Paragraph("<font size=12>&nbsp;&nbsp;* Vulnerable to AA Traceability</font>", styles["Normal"]))
-    Story.append(Spacer(1, 12))
-    Story.append(Paragraph("<font size=12>Diffirent repsonse time for wrong message or MAC: " + str(data["macTraceability"]) + "</font>", styles["Normal"]))
+    Story.append(Paragraph("<font size=12>Different response time for wrong message or MAC: " + str(data["macTraceability"]) + "</font>", styles["Normal"]))
     if data["macTraceability"]: 
         Story.append(Paragraph("<font size=12>&nbsp;&nbsp;* Vulnerable to MAC traceability</font>", styles["Normal"]))
         Story.append(Paragraph("<font size=12>&nbsp;&nbsp;&nbsp;&nbsp;Note: If delay security measure implemented, this might be a false positive</font>", styles["Normal"]))
     Story.append(Spacer(1, 12))
     (vuln, error) = data["getChallengeNull"]
-    Story.append(Paragraph("<font size=12>Passport answer to a GET CHALLENGE with the Le set to '00': " + str(vuln) + "</font>", styles["Normal"]))
+    Story.append(Paragraph("<font size=12>Passport answers to a GET CHALLENGE with the Le set to '01': " + str(vuln) + "</font>", styles["Normal"]))
     if vuln: Story.append(Paragraph("<font size=12>&nbsp;&nbsp;* Vulnerable to lookup brute force</font>", styles["Normal"]))
     
     Story.append(Paragraph("Error Fingerprinting", styles["Heading3"]))
@@ -341,8 +345,10 @@ def toPDF(data, filename):
     
     if tag != None:
         os.remove(profile)
-        os.remove(signature)
-    
+        try:
+            os.remove(signature)
+        except NameError:
+            pass
     
 
 def browseDGs(data, level=0):

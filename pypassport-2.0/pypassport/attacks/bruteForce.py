@@ -99,8 +99,8 @@ class BruteForce(Logger):
             if low=="0": high = "ZZZZZZZZZ"
             else: high = low
 
-        self._id_low = low
-        self._id_high = high
+        self._id_low = low.upper()
+        self._id_high = high.upper()
         
         if high:
             (value_low, value_high) = self._weightValue(self._id_low, self._id_high)
@@ -126,13 +126,15 @@ class BruteForce(Logger):
         self.log("\tHigh: {0}".format(high))
 
         today = datetime.date.today()
+        
 
         if high==None:
-            if low==None: high = today.strftime("%y%m%d")
+            if low==None: 
+                high = today.strftime("%y%m%d")
             else: high = None
         
         if low==None:
-            low_date = datetime.date(today.year-100, today.month, today.day)
+            low_date = datetime.date(today.year-99, today.month, today.day)
             low = low_date.strftime("%y%m%d")
 
         date_cmp = [self.twodyear(low[0:2]), low[2:4], low[4:6]]
@@ -419,7 +421,7 @@ class BruteForce(Logger):
 
         s = rnd_ifd + rnd_icc + kifd    
 
-        tdes= DES3.new(kenc,DES.MODE_CBC)
+        tdes= DES3.new(kenc,DES.MODE_CBC, b'\x00\x00\x00\x00\x00\x00\x00\x00')
         eifd= tdes.encrypt(s)
         
         mifd = mac(kmac, pad(eifd))

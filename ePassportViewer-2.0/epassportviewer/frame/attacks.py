@@ -29,6 +29,7 @@ from pypassport.attacks import macTraceability, bruteForce, aaTraceability, sign
 from pypassport import reader
 from pypassport.iso7816 import Iso7816
 from pypassport.doc9303.mrz import MRZ
+
 from epassportviewer.util.image import ImageFactory
 from epassportviewer.dialog import InfoBoxWindows
 from epassportviewer.const import *
@@ -201,19 +202,19 @@ class AttacksFrame(Frame):
         macDescription = "\
 DESCRIPTION:\n\
 \n\
-During the BAC process, the IFD send a encrypted message that contains a random number \n\
-formely send by the ICC. The Message is concatenated with its MAC. Upon reception, the ICC \n\
-first check the MAC it is the proper one for the ciphertext. If it does not, the ICC sent \n\
-and error, else it decrypt the message and check if the random number is the same than the \n\
-one it sent previously. If it does not, it send en error.\n\
-The attack concist of capturing a correct pair ciphertext||MAC from a legitimate (using the \n\
-correct MRZ) communication between an IFD and ICC. The decryption and nonce verification \n\
-lasting couple of milisecond, the difference of reponse time between a wrong MAC and a wrong \n\
-nonce is big enough to be measured and deduce if the MAC is correct (meaning the passport is \n\
-the same than the one that was in the communication that produce the pair).\n\
-An attack must send a random pair and store the reponse time (RT1), then send the pair \n\
-captured previously and store the response time (RT2). If RT1 > RT2 and RT1 - RT2 > cut off \n\
-(usually 1.7ms), this means the MAC of the pair captured is correct."
+During the BAC process, the IFD send an encrypted message that contains a random number formely \n\
+send by the ICC. The Message is concatenated with its MAC. Upon reception, the ICC first check the \n\
+MAC is the proper one regarding the ciphertext. If it does not, the ICC sent an error, else it \n\
+decrypt the message and check if the random number is the same than the one it sent previously. If \n\
+it does not, it send an error.\n\
+The attack concist of capturing a correct pair (ciphertext || MAC) from a legitimate communication \n\
+between an IFD and the passport (using the correct MRZ). The decryption and the nonce verification \n\
+lasting couple of miliseconds, the difference of reponse time between a wrong MAC and a wrong \n\
+nonce is big enough to be measured and deduce if the MAC is correct (meaning the passport is the \n\
+same than the one that was in the communication that generated the pair).\n\
+The attacker must send a random pair and store the reponse time (RT1), then send the pair captured \n\
+previously and store the response time (RT2). If (RT1 - RT2) > cut off (usually 1.7ms), this means \n\
+the MAC of the pair captured is correct.\n"
         
         self.writeToLogMAC(macDescription)
 
@@ -323,17 +324,6 @@ captured previously and store the response time (RT2). If RT1 > RT2 and RT1 - RT
         helpStats.image = image
         helpStats.pack(side=RIGHT, padx=5, pady=5)
         
-        # GENERATE NONCE/MAC
-        initFrame = Frame(self.bruteForceFrame, bg=bgcolor)
-        initFrame.pack(fill=BOTH, expand=1)
-        
-        initButton = Button(initFrame, text="Generate ANS/MAC", width=13, command=self.generate)
-        initButton.pack(side=LEFT, padx=5, pady=5)
-
-        helpInit = Button(initFrame, image=image, command=self.helpInitDialog)
-        helpInit.image = image
-        helpInit.pack(side=RIGHT, padx=5, pady=5)
-        
         # LIVE EXPLOIT
         liveFrame = Frame(self.bruteForceFrame, bg=bgcolor)
         liveFrame.pack(fill=BOTH, expand=1)
@@ -349,12 +339,23 @@ captured previously and store the response time (RT2). If RT1 > RT2 and RT1 - RT
         helpLive.image = image
         helpLive.pack(side=RIGHT, padx=5, pady=5)
         
+        # GENERATE NONCE/MAC
+        initFrame = Frame(self.bruteForceFrame, bg=bgcolor)
+        initFrame.pack(fill=BOTH, expand=1)
+        
+        initButton = Button(initFrame, text="Generate ANS/MAC", width=13, command=self.generate)
+        initButton.pack(side=LEFT, padx=5, pady=5)
+
+        helpInit = Button(initFrame, image=image, command=self.helpInitDialog)
+        helpInit.image = image
+        helpInit.pack(side=RIGHT, padx=5, pady=5)
+        
         # OFFLINE EXPLOIT
         offlineFrame = Frame(self.bruteForceFrame, bg=bgcolor)
         offlineFrame.pack(fill=BOTH, expand=1)
         
-        offlineButton = Button(offlineFrame, text="Offline brute force", width=13, command=self.offline)
-        offlineButton.pack(side=LEFT, padx=5, pady=5)
+        self.offlineButton = Button(offlineFrame, text="Offline brute force", width=13, command=self.offline, state=DISABLED)
+        self.offlineButton.pack(side=LEFT, padx=5, pady=5)
         
         helpOffline = Button(offlineFrame, image=image, command=self.helpOfflineDialog)
         helpOffline.image = image
@@ -381,11 +382,10 @@ captured previously and store the response time (RT2). If RT1 > RT2 and RT1 - RT
 DESCRIPTION:\n\
 \n\
 The derrivation of the keys used during the session keys establishment require one ID (8 \n\
-characteres) and two dates (6 digits). The - low - entropy could be reduced if the attacker \n\
-has personnal information about the bearer. Therefore a brute force on the MRZ might be \n\
-possible.\n\
-The attack concist of trying one by one each possibility of MRZ in the range set by the \n\
-attacker. Whenever a BAC succeed, this means the MRZ tried is correct one."
+characteres) and two dates (6 digits). The - low - entropy could be reduced if the attacker has \n\
+personnal information about the bearer. Therefore a brute force on the MRZ might be possible.\n\
+The attack concist of trying one by one each possible MRZ in the range set by the attacker. \n\
+Whenever a BAC succeed, this means the MRZ tried is correct one.\n"
         
         self.writeToLogBF(bfDescription)
         
@@ -416,7 +416,7 @@ attacker. Whenever a BAC succeed, this means the MRZ tried is correct one."
         getHighestButton = Button(getHighestFrame, text="Get highest sign", width=13, command=self.getHighestSign)
         getHighestButton.pack(side=LEFT, padx=5, pady=5)
         
-        maxHighestLabel = Label(getHighestFrame, text="Max:", justify=LEFT, bg=bgcolor)
+        maxHighestLabel = Label(getHighestFrame, text="Iteration:", justify=LEFT, bg=bgcolor)
         maxHighestLabel.pack(side=LEFT, padx=5, pady=5)
         
         self.maxHighestForm = Entry(getHighestFrame, width=3)
@@ -556,13 +556,12 @@ attacker. Whenever a BAC succeed, this means the MRZ tried is correct one."
         aaDescription = "\
 DESCRIPTION:\n\
 \n\
-In some case, it is possible to execute an active authentication before the BAC and \n\
-thus geting a signature. In RSA algorythm, the signature can't be higher than the modulo.\n\
-Therefore, after a couple of test, by keeping the highest signature, we know that we are \n\
-more and more close  to the modulo. Since the modulo is unique it is possible to identify \n\
-(with a little lack of accuracy) a passport. If the highest signature is higher than the \n\
-modulo of a passport (avaible in DG15), we know for sure that the passport scanned is NOT \n\
-the one to which belongs the modulo."
+In some case, it is possible to execute an active authentication before the BAC and thus geting a \n\
+signature. In RSA algorythm, the signature cannot be higher than the modulo. Therefore, after a \n\
+couple of test, by keeping the highest signature, we know that we are more and more close to the \n\
+modulo. Since the modulo is unique it is possible to identify (with a little lack of accuracy) a \n\
+passport. If the highest signature is higher than the modulo of a passport (avaible in DG15), we \n\
+know for sure that the passport scanned is NOT the one that generated the modulo.\n"
         
         self.writeToLogAA(aaDescription)
         
@@ -692,10 +691,10 @@ the one to which belongs the modulo."
         errDescription = "\
 DESCRIPTION:\n\
 \n\
-ICAO did not defined the message to send regarding the error triggered. Therefore, each \n\
-country decided which message to the send (among the SW1|SW2 list). Due to this non-\n\
-standardisation, it is possible to identify a country issuer when triggering on purpose \n\
-an error that the attacker knows the answer will be different regarding the country."
+ICAO did not defined the message to send regarding the error triggered. Therefore, each country \n\
+has to decide which message to send (among the SW1|SW2 list). Due to this non-standardization, it \n\
+is possible to identify the issuing country by triggering an error on purpose that has a different \n\
+message regarding the country.\n"
         
         self.writeToLogERR(errDescription)
         
@@ -821,7 +820,7 @@ an error that the attacker knows the answer will be different regarding the coun
         
         try:
             formats = [('Raw text','*.txt')]
-            fileName = asksaveasfilename(parent=self, title="Save as...")
+            fileName = asksaveasfilename(parent=self, filetypes=formats, title="Save as...")
             if len(fileName) > 0:
                 fileName = str(fileName)
                 s = fileName.split(os.sep)
@@ -835,7 +834,7 @@ an error that the attacker knows the answer will be different regarding the coun
                         attack.register(self.writeToLogMAC)
                     if attack.setMRZ(self.mrz.buildMRZ()):
                         attack.savePair(directory, fn)
-                        tkMessageBox.showinfo("Save successful", "The pair has bee saved as:\n{0}".format(fileName))
+                        tkMessageBox.showinfo("Save successful", "The pair has ben saved as:\n{0}".format(fileName))
                     else:
                         tkMessageBox.showerror("Error: Wrong MRZ", "The check digits are not correct")
                 else:
@@ -942,18 +941,18 @@ an error that the attacker knows the answer will be different regarding the coun
                 bf.register(self.writeToLogBF)
 
             if self.minDocForm.get() == '': minDoc = None
-            else: minDoc = non_decimal.sub('', self.minDocForm.get())
+            else: minDoc = self.minDocForm.get()
             if self.maxDocForm.get() == '': maxDoc = None
-            else: maxDoc = non_decimal.sub('', self.maxDocForm.get())
+            else: maxDoc = self.maxDocForm.get()
             
-            if self.minDOBForm.get() == 'YYMMDD': minDOB = None
+            if self.minDOBForm.get() == 'YYMMDD' or self.minDOBForm.get() == '': minDOB = None
             else: minDOB = non_decimal.sub('', self.minDOBForm.get())
-            if self.maxDOBForm.get() == 'YYMMDD': maxDOB = None
+            if self.maxDOBForm.get() == 'YYMMDD' or self.maxDOBForm.get() == '': maxDOB = None
             else: maxDOB = non_decimal.sub('', self.maxDOBForm.get())
 
-            if self.minDOEForm.get() == 'YYMMDD': minDOE = None
+            if self.minDOEForm.get() == 'YYMMDD' or self.minDOEForm.get() == '': minDOE = None
             else: minDOE = non_decimal.sub('', self.minDOEForm.get())
-            if self.maxDOEForm.get() == 'YYMMDD': maxDOE = None
+            if self.maxDOEForm.get() == 'YYMMDD' or self.maxDOEForm.get() == '': maxDOE = None
             else: maxDOE = non_decimal.sub('', self.maxDOEForm.get())
             
             bf.setID(minDoc, maxDoc)
@@ -1000,6 +999,7 @@ an error that the attacker knows the answer will be different regarding the coun
             if self.mrz.buildMRZ():
                 bf = self.initData()
                 self.response = bf.initOffline(self.mrz.buildMRZ())
+                self.offlineButton.config(state=NORMAL)
                 self.writeToLogBF("Nonce and response/MAC from {0} loaded".format(self.mrz.buildMRZ()[0:9]))
             else:
                 tkMessageBox.showerror("Error: MRZ", "You have to set the proper MRZ")
@@ -1028,7 +1028,7 @@ an error that the attacker knows the answer will be different regarding the coun
         try:
             bf = self.initData()
             chk, err = bf.check()
-            if chk:
+            if chk and self.response:
                 found = bf.exploitOffline(self.response)
                 if found:
                     self.writeToLogBF("MRZ found: {0}".format(found))
@@ -1129,13 +1129,13 @@ an error that the attacker knows the answer will be different regarding the coun
                     if self.typeSign.get()==1:
                         sign = attack.getHighestSign(100)
                         attack.save(sign, directory, "sign")
-                        tkMessageBox.showinfo("Save successful", "The signature has bee saved in:\n{0}".format(directory))
+                        tkMessageBox.showinfo("Save successful", "The signature has been saved in:\n{0}".format(directory))
                     
                     if self.typeSign.get()==2:
                         if self.mrz.buildMRZ()!='': 
                             modulo = attack.getModulo(self.mrz.buildMRZ())
                             attack.save(modulo, directory, "modulo")
-                            tkMessageBox.showinfo("Save successful", "The modulo has bee saved in:\n{0}".format(directory))
+                            tkMessageBox.showinfo("Save successful", "The modulo has been saved in:\n{0}".format(directory))
                         else:
                             tkMessageBox.showerror("Error: Wrong MRZ", "You have to set the proper MRZ")
                 else:
@@ -1278,70 +1278,72 @@ an error that the attacker knows the answer will be different regarding the coun
     
     def helpVulnDialog(self):
         title = "is vulnerable?"
-        text = "Check whether a passport is vulnerable:\n\
+        text = "\
+Check whether a passport is vulnerable:\n\
     - Initiate a legitimate BAC and store a pair of message/MAC\n\
-    - Reset a BAC with a random number for mutual authentication and store the answer together with the response time\n\
-    - Reset a BAC and use the pair of message/MAC from step 1 and store the answer together with the response time\n\
+    - Reset a BAC with a random number for mutual authentication and store the answer together \n\
+      with the response time\n\
+    - Reset a BAC and use the pair of message/MAC from step 1 and store the answer together with \n\
+      the response time\n\
 \n\
-If answers are different, this means the the passport is vulnerable.\n\
-If not, the response time is compared. If the gap is wide enough, the passport might be vulnerable.\n\
+If answers are different, this means the passport is vulnerable.\n\
+If not, the response time is compared. If the gap is wide enough, the passport MIGHT be vulnerable.\n\
 \n\
-Note: The French passport (and maybe others) implemented a security against brute forcing:\n\
-anytime the BAC fail, an incremented delay occur before responsding.\n\
-That's the reson why we need to establish a proper BAC to reset the delay to 0\n\
+Cut-off: The cut-off is used to determine whether the response time is long enough to \n\
+considerate the passport as vulnerable. The value must be an float that represent \n\
+the cut off in milliseconds\n\
+\n\
+Output: A boolean where True means that the passport seems to be vulnerable and False means \n\
+it doesn't \n\
+\n\
+\n\
+Note: Passports that implement security measure against brute forcing with delay trigger a false \n\
+positive result. Anytime the BAC fail, an incremented delay occur before responsding.\n\
+\n\
 Note 2: The default cut off set to 1.7ms is based on the paper from Tom Chotia and Vitaliy Smirnov:\n\
-A traceability Attack Against e-Pasport.\n\
-They figured out a 1.7 cut-off suit for every country they assessed without raising low rate of false-positive and false-negative\n\
-\n\
-@param CO: The cut off used to determine whether the response time is long enough to considerate the passport as vulnerable\n\
-@type CO: an integer that represent the cut off in milliseconds\n\
-\n\
-@return: A boolean where True means that the passport seems to be vulnerable and False means doesn't"
+A traceability Attack Against e-Pasport. They figured out a 1.7 cut-off suit for every country they \n\
+assessed without raising low rate of false-positive and false-negative"
+
+
         InfoBoxWindows(self, title, text)
     
     def helpSaveDialog(self):
-        title = "save pair"
-        text = "savePair stores a message with its valid MAC in a file.\n\
-The pair can be used later, in a futur attack, to define if the passport is the one that creates the pair (See checkFromFile()).\n\
-If the path doesn't exist, the folders and sub-folders will be create.\n\
-If the file exist, a number will be add automatically.\n\
+        title = "save pair..."
+        text = "\
+\"Save pair...\" stores a ciphertext with its valid MAC in a file. The pair can be used later, in a \n\
+futur attack to define if the passport is the one that creates the pair (See Check from file). \n\
+If the path doesn't exist, the folders and sub-folders will be create. If the file exist, a number will \n\
+be add automatically.\n\
 \n\
-@param path: The path where the file has to be create. It can be relative or absolute.\n\
-@type path: A string (e.g. '/home/doe/' or 'foo/bar')\n\
-@param filename: The name of the file where the pair will be saved\n\
-@type filename: A string (e.g. 'belgian-pair' or 'pair.data')\n\
-\n\
-@return: the path and the name of the file where the pair has been saved."
+Note: You need to set the correct MRZ."
+
         InfoBoxWindows(self, title, text)
     
     def helpCheckFromFileDialog(self):
-        title = "check from file"
-        text = "checkFromFile read a file that contains a pair and check if the pair has been capture from the passport .\n\
+        title = "check from file..."
+        text = "\
+\"Check from file...\" read a file that contains a pair (a ciphertext and its MAC) and check if the pair \n\
+has been capture from the passport on the reader.\n\
 \n\
-@param path: The path of the file where the pair has been saved.\n\
-@type path: A string (e.g. '/home/doe/pair' or 'foo/bar/pair.data')\n\
-@param CO: The cut off used to determine whether the response time is long enough to considerate the passport as vulnerable\n\
-@type CO: an integer that represent the cut off in milliseconds\n\
+Cut-off: The cut-off is used to determine whether the response time is long enough to considerate the \n\
+passport as vulnerable. The value must be a float that represent the cut off in milliseconds (e.g. 1.5)\n\
 \n\
-@return: A boolean where True means that the passport is the one who create the pair in the file."
+Output: A boolean where True means that the passport is the one that generated the pair."
+
         InfoBoxWindows(self, title, text)
     
     def helpTestDialog(self):
-        title = "test"
-        text = "test is a method developped for analysing the response time of password whenever a wrong command is sent\n\
-French passport has an anti MRZ brute forcing. This method help to highlight the behaviour\n\
+        title = "perform test"
+        text = "\
+Perform test is a method developped for analysing the response time of password whenever a wrong BAC\n\
+is performed. Passports that have an anti MRZ brute-force measure may implement increment a delay \n\
+that occurs before every response. This method help to highlight the behaviour\n\
+\n\
 Note: It might take a while before getting the results\n\
 \n\
-@param until: Number of wrong message to send before comparing the time delay\n\
-@type until: An integer\n\
-@param per_delay: how result per delay you want to output\n\
-@type per_delay: An integer"
-        InfoBoxWindows(self, title, text)
-    
-    def helpMaxDialog(self):
-        title = "reach max"
-        text = "Send a 13 (or more) wrong pair in order to reach the longest delay\n\
-Note: Useful only for passport with anti MRZ brute forcing security."
+Until: Number of wrong message to send before comparing the time delay. Must be an integer.\n\
+Accuracy: How many result per delay you want to output. Must be an integer"
+
         InfoBoxWindows(self, title, text)
     
     def helpRstDialog(self):
@@ -1351,27 +1353,24 @@ Note: Useful only for passport with anti MRZ brute forcing security."
     
     def helpDemoDialog(self):
         title = "demo"
-        text = "Here is a little demo to show how accurate is the traceability attack.\n\
-Please note that the French passport will most likely output a false positive because of the anti brute forcing delay.\n\
+        text = "\
+Demo shows how effective is the MAC traceability attack. The user has to drop the passport on the reader,\n\
+write the MRZ, then start the demo. The application will capture a pair (a ciphertext and its MAC), wait 5s \n\
+then exploit the vulnerability with passport on the reader until the correct passport has been found. \n\
 \n\
-@param CO: The cut off used to determine whether the response time is long enough to considerate the passport as vulnerable\n\
-@type CO: an integer that represent the cut off in milliseconds\n\
-@param valisate: check 3 time before validate the passport as identified\n\
-@type validate: An integer that represent the number of validation\n\
-\n\
-@return: A boolean True whenever the initial passport is on the reader"
+Note: The popup window will actually stuck until it find the correct passport."
+
         InfoBoxWindows(self, title, text)
         
     def helpReachMaxDialog(self):
         title = "configuration"
-        text = "Reader #: (optional) The number of the reader.\n\
-For instance, the Omnikey 5321 use the reader number 1 for the RFID communication\n\
-\n\
-Reach max: French passport implement an anti brute-force\n\
+        text = "\
+Reach max: passports may implement an anti brute-force measure with delay.\n\
 This means anytime a BAC fail, a delay increment before the passport responce.\n\
 The MAC traceability is based on the reponse time. Therefore it is impotrant to\n\
 reach the maximum delay. By selecting 'Reach max', the application will run\n\
-14 wrong BAC.\n\
+14 wrong BAC unless you set \"Nb of failed BAC\" with another value.\n\
+\n\
 Note: If 'Reach max' is selected, you will reach a delay of about 15s per\n\
 BAC query"
         InfoBoxWindows(self, title, text)
@@ -1434,38 +1433,45 @@ MAX:\n\
 
     def helpStatsDialog(self):
         title = "Get stats"
-        text = "Set the data and compute the maximum number of possiblities"
+        text = "Set the data and compute the key space"
         InfoBoxWindows(self, title, text)
 
     def helpInitDialog(self):
         title = "Generate ANS/MAC"
-        text = "Live brute forcing attakcs takes time because the attack is limited to\n\
-the passport and its communication but it is possible for an attacker to perform an offline attack.\n\
+        text = "\
+Live brute forcing attacks take time because the attack is limited to the passport and its \n\
+communication rate. However, it is possible for an attacker to perform an offline attack.\n\
 During a VALID external authentication (BAC), the passport send a message together with its MAC.\n\
 If an attacker capture the message (from a valid authentication), it is possible to perform an\n\
 offline brute forcing attack by guessing the KSmac that will match the MAC.\n\
-This function generate the message + MAC of a legitmate external authentication an attacker could\n\
-capture."
+This function generate the message + MAC of a legitmate external authentication that an attacker \n\
+could capture."
+
         InfoBoxWindows(self, title, text)
 
     def helpLiveDialog(self):
         title = "Live brute force"
-        text = "Live brute force uses the range set for the document #, the DOB and the DOE\n\
+        text = "\
+Live brute force uses the range set for the document #, the DOB and the DOE\n\
 and attemp a BAC with every possibilities until the process succeed.\n\
 Couple of passport (such as the belgian one) 'block' the passport after a wrong external\n\
 external authentication (i.e. any external authentication even correct will raise an error).\n\
 This means with those passports, a reset is needed after each attempt.\n\
 \n\
 With reset: 9.7 attempts/s (with omnikey 5321)\n\
-Without reset: 44.6 attempts/s (with omnikey 5321)"
+Without reset: 44.6 attempts/s (with omnikey 5321)\n\
+\n\
+Note: Nothing is printed until an MRZ is found or the all key space has been tested."
         InfoBoxWindows(self, title, text)
 
     def helpOfflineDialog(self):
         title = "Offline brute force"
-        text = "Offline brute force uses the ANS/MAC generated in order to guess the KSmac\n\
-that will match the MAC. Offline brute forcing attack is way more faster than the live attack.\n\
+        text = "\
+Offline brute force uses the ANS/MAC generated in order to guess the KSmac that will \n\
+match the MAC. Offline brute forcing attack is way more faster than the live attack. \n\
 \n\
-About 2404 attempts/s (with omnikey 5321)"
+About 2400 attempts/s (with omnikey 5321)"
+
         InfoBoxWindows(self, title, text)
     
     
@@ -1474,60 +1480,73 @@ About 2404 attempts/s (with omnikey 5321)"
 
     def helpVulnAADialog(self):
         title = "Is vulnerable?"
-        text = "The active authentication vulnerabilities are exploitable only if AA can\n\
-occurs before the BAC. This method perfom an internal authentication without performing\n\
-a BAC. If the passport raised no error, it means the passport might be vulnerable."
+        text = "\
+The active authentication vulnerabilities are relevant only if AA can occurs before the \n\
+BAC. This function perfom an internal authentication without performinga BAC. If the \n\
+passport does not raise any error, it means the passport might be vulnerable."
         InfoBoxWindows(self, title, text)
 
     def helpGetHighestDialog(self):
         title = "Get highest signature"
-        text = "The method ask 100 times (default) for the signature of a 8 byte number\n\
-and it keeps the highest signature."
+        text = "\
+The method ask 100 times (default) for the signature of a 8 byte number\n\
+and it keeps the highest signature.\n\
+\n\
+Iteration: The number of iteration. High number means more accurate \n\
+but more time as well. Must be an integer."
         InfoBoxWindows(self, title, text)
 
     def helpGetModuloDialog(self):
         title = "Get modulo"
-        text = "Once authenticate (with a BAC), the method ask for the DG15 (public key).\n\
-The modulo is extracted from the key."
+        text = "Get modulo retrive the public key (DG15) and extract\n\
+the modulo from it."
         InfoBoxWindows(self, title, text)
 
     def helpCompareDialog(self):
         title = "Compare"
-        text = "In an authentication with RSA algorythm the message is sign with the\n\
-private key (private exposant, common modulo). The signature can't be higher than the\n\
-modulo. The compare method takes two 'highest signature' or one 'highest signature' and a\n\
-modulo compare the difference in pourcent. Low difference means a close/same modulo.\n\
+        text = "\
+In an authentication with RSA algorythm the message is sign with the private key \n\
+(private exposant, common modulo). The signature can't be higher than the modulo. \n\
+The \"Compare\" method takes two 'high signature' or one 'high signature' and a\n\
+modulo, and compare the difference in pourcent. \n\
 \n\
-Accuracy an integer that tells how many digit to compare (6 by default)"
+Accuracy: Tells how many digit to compare (6 msb by default). Must be an integer."
         InfoBoxWindows(self, title, text)
 
     def helpMatchDialog(self): 
         title = "Match?"
-        text = "In an authentication with RSA algorythm the message is sign with the\n\
-private key (private exposant, common modulo). The signature can't be higher than the\n\
-modulo. Therefore if the signature is higher than the modulo, the passport that generated\n\
-the signature is DEFINITLY not the same than the one that generate the modulo.\n\
-This method compare a signature and a modulo and check that if the signature MIGHT belong\n\
-to the same passport that generated the modulo."
+        text = "\
+In an authentication with RSA algorythm the message is sign with the private key \n\
+(private exposant, common modulo). The signature cannot be higher than the modulo. \n\
+Therefore if the signature (field) is higher than the modulo (selected with the app), \n\
+the passport that generated the signature is DEFINITLY not the same than the one that \n\
+generated the modulo. \n\
+\"Check from file...\" compares a signature and a modulo and check that if the signature \n\
+MIGHT belong to the same passport that generated the modulo."
         InfoBoxWindows(self, title, text)
 
     def helpSaveSignDialog(self):
         title = "Save signature/modulo"
-        text = "This methods help to save signatures and modulos for futur tests."
+        text = "\"Save sign/mod...\" save signatures and modulos for futur tests."
         InfoBoxWindows(self, title, text)
 
     def helpCheckSignDialog(self):
         title = "Check from file"
-        text = "Compare a signature with a modulo or a signature store in a file with the\n\
-method save.\n\
+        text = "\
+Compare a signature with a modulo or a signature stored in a file with the method save.\n\
 If accuracy is set, the method works like 'Compare' if accuracy is empty, it works like the\n\
 method 'Match?'"
         InfoBoxWindows(self, title, text)
 
     def helpSignEverythingDialog(self):
-        title = "Sign everything"
-        text = "The method send a message to the passport and ask to sign it.\n\
-Each passport tested so far require a 8 bytes to sign"
+        title = "Sign..."
+        text = "\
+\"Sign...\" send a message to the passport and ask to sign it.\n\
+Each passport tested so far requires a 8-byte message. It is up \n\
+to try other length.\n\
+\n\
+Note: If the MRZ is set, the application will verify the signature \n\
+is correct."
         InfoBoxWindows(self, title, text)
     
     
@@ -1541,18 +1560,21 @@ Each passport tested so far require a 8 bytes to sign"
 
     def helpAddErrorDialog(self):
         title = "Add error"
-        text = "Errors are structured and store in a dictionnaire in order to identify a\n\
+        text = "\
+Errors are structured and store in a dictionnaire in order to identify a\n\
 passport based on the errors it raises.\n\
-To be the most accurate, the method expect a country (e.g. BEL, FRA, GER) and the date\n\
-of issue. "
+To be the most accurate, the method expect a country (e.g. BEL, \n\
+USA, GER) and the date of issue. "
         InfoBoxWindows(self, title, text)
 
     def helpIdentifyDialog(self):
         title = "Identify"
-        text = "Since the ICAO didn't standardize the error message regarding APDU, it\n\
-possible to identify group of passport. Based on the dictionnaire created with the\n\
-method 'Add error' and the response of the APDU set, this method will list all \n\
-possibilities the passport MIGHT belong to."
+        text = "\
+Since the ICAO didn't standardize the error message regarding APDU, it is possible \n\
+to identify group of passport. Based on the dictionnaire created with the method \n\
+\"Add error\" and the response of the APDU set in the above form, this method will \n\
+list all possibilities the passport MIGHT belong to."
+
         InfoBoxWindows(self, title, text)
 
 

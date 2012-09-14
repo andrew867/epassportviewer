@@ -26,6 +26,7 @@ from pypassport.doc9303.converter import *
 from pypassport.apdu import CommandAPDU
 from pypassport.attacks import macTraceability
 from pypassport.epassport import EPassportException
+from pypassport.derobjectidentifier import *
 
 from smartcard.CardType import AnyCardType
 from smartcard.CardRequest import CardRequest
@@ -79,6 +80,7 @@ class FingerPrint(object):
         res["DGs"] = "Cannot calculate the DG size"
         res["ReadingTime"] = "N/A"
         res["SOD"] = "N/A"
+        res["Algo"] = "N/A"
         res["Integrity"] = "N/A"
         res["Hashes"] = "N/A"
         res["failedToRead"] = list()
@@ -201,7 +203,7 @@ class FingerPrint(object):
         lengths.sort()
         res["DGs"] = lengths
         
-        # Get hashed
+        # Get hashes
         if self.callback: 
             self.callback.put((None, 'slfp', "Get hashes of DG files"))
             self.callback.put((None, 'fp', 65))
@@ -212,6 +214,11 @@ class FingerPrint(object):
         
         res["Integrity"] = self._pa.executePA(sod, dgs)
         res["Hashes"] = self._pa._calculateHashes(dgs)
+        
+        try:
+            res["Algo"] = OID[self._pa._content['hashAlgorithm']]
+        except KeyError:
+                res[converter.toDG(dg)] = "Not defined in hash algorithm list"
             
         #Check if there is a certificate
         if self.callback: 
