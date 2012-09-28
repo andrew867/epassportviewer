@@ -505,7 +505,7 @@ class Log(Toplevel):
                 if line[:len(category)] == category:
                     textlog += line
         
-        self.logFrame.update(textlog)
+        self.logFrame.updateText(textlog)
     
     
     def save(self):
@@ -882,7 +882,7 @@ class ScrollFrame(Frame):
         self.text.pack(side=TOP, fill=BOTH, expand=True)
         scrollbar.config(command=self.text.yview)
        
-    def update(self, txt, disable=True):
+    def updateText(self, txt, disable=True):
         self.text.config(state=NORMAL)
         self.text.delete("1.0", END)
         self.text.insert(END, txt)
@@ -1199,13 +1199,13 @@ class FingerPrintDialog(Toplevel):
         if self.buttonText.get() == "Anonymize report":
             self.buildText(anonymize=True)
             self.buttonText.set("Reset")
-            self.log.update(self.txt, False)
+            self.log.updateText(self.txt, False)
             
             
         elif self.buttonText.get() == "Reset":
             self.buildText()
             self.buttonText.set("Anonymize report")
-            self.log.update(self.txt)
+            self.log.updateText(self.txt)
     
     def buildText(self, anonymize=False):
         data = self.analyse
@@ -1340,14 +1340,15 @@ class FingerPrintDialog(Toplevel):
         (vuln, ans) = data["activeAuthWithoutBac"]
         self.txt += "Active Authentication before BAC: " + str(vuln) + "\n"
         if vuln: self.txt += "  * Vulnerable to AA Traceability\n"
-        self.txt += "Diffirent repsonse time for wrong message or MAC: " + str(data["macTraceability"]) + "\n"
-        if data["macTraceability"]: 
-            self.txt += "  * Vulnerable to MAC traceability\n"
-            self.txt += "    Note: If delay security measure implemented, this might be a false positive\n"
+        (vuln, comment) = data["macTraceability"]
+        self.txt += "Vulnerable to MAC traceability: " + str(vuln) + "\n"
+        self.txt += "  " + comment + "\n"
         (vuln, error) = data["getChallengeNull"]
         self.txt += "Passport answer to a GET CHALLENGE with the Le set to '01': " + str(vuln) + "\n"
         if vuln:
             self.txt += "  * Vulnerable to lookup brute force\n"
+        self.txt += "\n"
+        self.txt += "Select 00 response: " + data["selectNull"] + "\n"
         self.txt += "\n"
         self.txt += "Error Fingerprinting\n"
         self.txt += "====================\n"

@@ -594,7 +594,7 @@ class View(Frame):
         
         check = True
         
-        pattern_id = '^[0-9A-Z<]{8,9}$'
+        pattern_id = '^[0-9A-Z<]{7,9}$'
         pattern_date = "^\d\d(0[1-9]|1[012])(0[1-9]|[12][0-9]|3[01])$"
         
         reg=re.compile(pattern_id)

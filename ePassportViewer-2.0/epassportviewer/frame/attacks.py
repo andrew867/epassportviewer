@@ -395,11 +395,14 @@ Whenever a BAC succeed, this means the MRZ tried is correct one.\n"
         ###########################
         ## ACTIVE AUTHENTICATION ##
 
-        self.activeAuthenticationFrame = Frame(self, borderwidth=1, relief=GROOVE, bg=bgcolor)
+        self.activeAuthenticationFrame = Frame(self, borderwidth=1, relief=FLAT, bg=bgcolor)
 
         
+        #frame1 = Frame(self.activeAuthenticationFrame, borderwidth=1, relief=GROOVE, bg=bgcolor)
+        #frame1.pack(fill=BOTH, expand=1)
+        
         # IS VULNERABLE?
-        vulnAAFrame = Frame(self.activeAuthenticationFrame, bg=bgcolor)
+        vulnAAFrame = Frame(self.activeAuthenticationFrame, border=1, bg=bgcolor, relief=GROOVE)
         vulnAAFrame.pack(fill=BOTH, expand=1)
         
         vulnerableAAButton = Button(vulnAAFrame, text="Is vulnerable?", width=13, command=self.isVulnerableAA)
@@ -410,7 +413,10 @@ Whenever a BAC succeed, this means the MRZ tried is correct one.\n"
         helpVulnAA.pack(side=RIGHT, padx=5, pady=5)
         
         # GET HIGHEST SIGNATURE
-        getHighestFrame = Frame(self.activeAuthenticationFrame, bg=bgcolor)
+        modulusAttack = Frame(self.activeAuthenticationFrame, border=1, bg=bgcolor, relief=GROOVE)
+        modulusAttack.pack(fill=BOTH, expand=1)
+        
+        getHighestFrame = Frame(modulusAttack, bg=bgcolor)
         getHighestFrame.pack(fill=BOTH, expand=1)
         
         getHighestButton = Button(getHighestFrame, text="Get highest sign", width=13, command=self.getHighestSign)
@@ -427,7 +433,7 @@ Whenever a BAC succeed, this means the MRZ tried is correct one.\n"
         helpGetHighest.pack(side=RIGHT, padx=5, pady=5)
         
         # GET MODULO
-        getModuloFrame = Frame(self.activeAuthenticationFrame, bg=bgcolor)
+        getModuloFrame = Frame(modulusAttack, bg=bgcolor)
         getModuloFrame.pack(fill=BOTH, expand=1)
         
         getModuloButton = Button(getModuloFrame, text="Get modulo", width=13, command=self.getModulo)
@@ -438,7 +444,7 @@ Whenever a BAC succeed, this means the MRZ tried is correct one.\n"
         helpGetModulo.pack(side=RIGHT, padx=5, pady=5)
         
         # COMPARE
-        compareFrame = Frame(self.activeAuthenticationFrame, bg=bgcolor)
+        compareFrame = Frame(modulusAttack, bg=bgcolor)
         compareFrame.pack(fill=BOTH, expand=1)
         
         compareButton = Button(compareFrame, text="Compare", width=13, command=self.compare)
@@ -463,7 +469,7 @@ Whenever a BAC succeed, this means the MRZ tried is correct one.\n"
         helpCompare.pack(side=RIGHT, padx=5, pady=5)
         
         # MATCH?
-        matchFrame = Frame(self.activeAuthenticationFrame, bg=bgcolor)
+        matchFrame = Frame(modulusAttack, bg=bgcolor)
         matchFrame.pack(fill=BOTH, expand=1)
         
         matchButton = Button(matchFrame, text="Match?", width=13, command=self.mayBelongsTo)
@@ -482,7 +488,7 @@ Whenever a BAC succeed, this means the MRZ tried is correct one.\n"
         helpMatch.pack(side=RIGHT, padx=5, pady=5)
         
         # SAVE
-        saveSignFrame = Frame(self.activeAuthenticationFrame, bg=bgcolor)
+        saveSignFrame = Frame(modulusAttack, bg=bgcolor)
         saveSignFrame.pack(fill=BOTH, expand=1)
         
         saveSignButton = Button(saveSignFrame, text="Save sign/mod...", width=13, command=self.saveSign)
@@ -501,7 +507,7 @@ Whenever a BAC succeed, this means the MRZ tried is correct one.\n"
         helpSaveSign.pack(side=RIGHT, padx=5, pady=5)
         
         # CHECK FROM FILE
-        checkSignFrame = Frame(self.activeAuthenticationFrame, bg=bgcolor)
+        checkSignFrame = Frame(modulusAttack, bg=bgcolor)
         checkSignFrame.pack(fill=BOTH, expand=1)
         
         checkSignButton = Button(checkSignFrame, text="Check from file...", width=13, command=self.checkSignFromFile)
@@ -522,7 +528,7 @@ Whenever a BAC succeed, this means the MRZ tried is correct one.\n"
         helpCheckSign.pack(side=RIGHT, padx=5, pady=5)
         
         # SIGN EVERYTHING
-        signEverythingFrame = Frame(self.activeAuthenticationFrame, bg=bgcolor)
+        signEverythingFrame = Frame(self.activeAuthenticationFrame, bg=bgcolor, border=1, relief=GROOVE)
         signEverythingFrame.pack(fill=BOTH, expand=1)
         
         signEverythingButton = Button(signEverythingFrame, text="Sign...", width=13, command=self.signEverything)
@@ -804,7 +810,8 @@ message regarding the country.\n"
                     pleasewait.update()
                     pleasewait.deiconify()
                     if self.frenchVar.get(): self.reachMaxDelay(attack)
-                    self.writeToLogMAC("Is vulnerable? : {0}".format(attack.isVulnerable(int(co))))
+                    (vuln, comment) = attack.isVulnerable(float(co))
+                    self.writeToLogMAC("Is vulnerable?: {}\nComment: {}".format(str(vuln), comment))
                 else:
                     tkMessageBox.showerror("Error: Wrong MRZ", "The check digits are not correct")
             else:
@@ -919,7 +926,7 @@ message regarding the country.\n"
             if attack.setMRZ(self.mrz.buildMRZ()):
                 tkMessageBox.showinfo("Passport scanned", "Press ok then remove your passport from the reader.\nWait 5s before testing if a passport match.")
                 if attack.demo():
-                    self.writeToLogMAC("This passport match the one scanned")
+                    self.writeToLogMAC("This passport matches the one scanned")
             else:
                 tkMessageBox.showerror("Error: Wrong MRZ", "The check digits are not correct")
         except Exception, msg:
@@ -1168,10 +1175,10 @@ message regarding the country.\n"
     # SIGN EVERYTHING
     def signEverything(self):
         try:
-            pattern_id = '^[0-9A-F]{15,16}$'
+            pattern_id = '^[0-9A-F]{16}$'
             reg=re.compile(pattern_id)
             if not reg.match(self.nonceToSignForm.get()): 
-                raise Exception("The message to sign must be 15 or 16 HEX [0-9A-F]")
+                raise Exception("The message to sign must be 16 HEX [0-9A-F]")
 
             r = reader.ReaderManager().waitForCard()
             attack = signEverything.SignEverything(Iso7816(r))

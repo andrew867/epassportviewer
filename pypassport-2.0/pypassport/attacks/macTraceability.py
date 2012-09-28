@@ -81,21 +81,20 @@ class MacTraceability(Logger):
         (ans2, res_time2) = self._sendPair(cmd_data)
         
         vulnerable = False
+        comment = "Cut-off: {} Wrong MAC: SW1:{} SW2:{} - Wrong cipher: SW1:{} SW2:{}".format((res_time2-res_time1)*1000, ans1[1], ans1[2], ans2[1], ans2[2])
         
-        if ans1[0] != ans2[0]:
-            self.log("Error message different")
+        if ans1[0] != ans2[0] or (res_time2 - res_time1) > (CO/1000):
+            self.log("Vulnerable")
             vulnerable = True
+            
 
-        elif (res_time2 - res_time1) > (CO/1000):
-            self.log("Response time over the cut off ("+str(CO)+"ms): " + str(res_time2 - res_time1))
-            vulnerable = True
         
         self.log("Error message with wrong MAC: [{0}][{1}]".format(ans1[1], ans1[2]))
         self.log("Error message with correct MAC: [{0}][{1}]".format(ans2[1], ans2[2]))
         self.log("Response time with wrong MAC: {0} s".format(res_time1))
         self.log("Response time with correct MAC: {0} s".format(res_time2))
         
-        return vulnerable
+        return (vulnerable, comment)
     
     def demo(self, CO=1.7, validate=3):
         """Here is a little demo to show how accurate is the traceability attack.

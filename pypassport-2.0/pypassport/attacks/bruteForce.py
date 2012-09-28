@@ -582,7 +582,7 @@ class BruteForce(Logger):
                     self.log("\tTry: {0}".format(mrz))
                     kmrz = cur_id + (9-len(cur_id))*'<' + self._calculCheckDigit(cur_id) + cur_dob.strftime("%y%m%d") + self._calculCheckDigit(cur_dob.strftime("%y%m%d")) + cur_exp.strftime("%y%m%d") + self._calculCheckDigit(cur_exp.strftime("%y%m%d"))
                     kseed = self._genKseed(kmrz)
-                    kenc = self._keyDerivation(kseed, BruteForce.KENC)
+                    #kenc = self._keyDerivation(kseed, BruteForce.KENC)
                     kmac = self._keyDerivation(kseed, BruteForce.KMAC)
                     
                     if  mac_bin == mac(kmac, pad(message_bin)):

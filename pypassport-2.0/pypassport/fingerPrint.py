@@ -66,6 +66,7 @@ class FingerPrint(object):
         res["macTraceability"] = False
         res["blockAfterFail"] = False
         res["delaySecurity"] = False
+        res["selectNull"] = "N/A"
         res["getChallengeNull"] = "N/A"
         res["bac"] = "Failed"
         res["verifySOD"] = "No certificate imported"
@@ -113,33 +114,47 @@ class FingerPrint(object):
             self.callback.put((None, 'slfp', "Check if block after BAC failed"))
             self.callback.put((None, 'fp', 15))
         
-        res["blockAfterFail"] = self.blockAfterFail()
+        try:
+            res["blockAfterFail"] = self.blockAfterFail()
+        except Exception, msg:
+            print msg
         
         # Check if AA is possible before BAC
         if self.callback: 
             self.callback.put((None, 'slfp', "Check AA before BAC"))
             self.callback.put((None, 'fp', 20))
         
-        res["activeAuthWithoutBac"] = self.checkInternalAuth()
+        try:
+            res["activeAuthWithoutBac"] = self.checkInternalAuth()
+        except Exception, msg:
+            print msg
         
         # Check if passport is vulnerable to MAC traceability
         if self.callback: 
             self.callback.put((None, 'slfp', "Check MAC traceability"))
             self.callback.put((None, 'fp', 25))
         
-        res["macTraceability"] = self.checkMACTraceability()
+        try:
+            res["macTraceability"] = self.checkMACTraceability()
+        except Exception, msg:
+            print msg
         
         # Send a SELECT FILE null and check the answer
         if self.callback: 
             self.callback.put((None, 'slfp', "Check select application null"))
             self.callback.put((None, 'fp', 30))
         
+        res["selectNull"] = self.selectNull()
+
         # Send a GET CHALLENGE with Le set to 00
         if self.callback: 
             self.callback.put((None, 'slfp', "Check Get Challenge length 00"))
             self.callback.put((None, 'fp', 35))
         
-        res["getChallengeNull"] = self.sendGetChallengeNull()
+        try:
+            res["getChallengeNull"] = self.sendGetChallengeNull()
+        except Exception, msg:
+            print msg
         
         #Check if the secure-messaging is set (BAC)
         #(Get SOD)
@@ -147,9 +162,9 @@ class FingerPrint(object):
             self.callback.put((None, 'slfp', "Check BAC"))
             self.callback.put((None, 'fp', 40))
         
-        self._comm.rstConnection()
-        sod = None
-        try:        
+        try:
+            self._comm.rstConnection()
+            sod = None      
             sod = self._doc["SecurityData"]
             if self._comm._ciphering:
                 res["bac"] = "Done"
@@ -316,33 +331,39 @@ class FingerPrint(object):
             
     def checkMACTraceability(self):
         self._comm.rstConnection()
-        attack = macTraceability.MacTraceability(self._comm)
-        attack.setMRZ(str(self.curMRZ))
-        return attack.isVulnerable()
+        try:
+            attack = macTraceability.MacTraceability(self._comm)
+            attack.setMRZ(str(self.curMRZ))
+            return attack.isVulnerable()
+        except Exception, msg:
+            return "N/A"
     
     def checkDelaySecurity(self):
         self._comm.rstConnection()
-        self._doc.doBasicAccessControl()
-        self._comm.rstConnection()
-        start = time.time()
-        self._doc.doBasicAccessControl()
-        first = time.time() - start
-        rndMRZ = "AB12345671ETH0101011M1212318<<<<<<<<<<<<<<04"
-        self.curMRZ = self._doc.switchMRZ(rndMRZ)
-        for x in range(4):
-            try:
-                self._comm.rstConnection()
-                self._doc.doBasicAccessControl()
-            except Exception:
-                pass
-        self._doc.switchMRZ(self.curMRZ)
-        self._comm.rstConnection()
-        start = time.time()
-        self._doc.doBasicAccessControl()
-        second = time.time() - start
-        if second - first > 0.01:
-            return True
-        else: return False
+        try:
+            self._doc.doBasicAccessControl()
+            self._comm.rstConnection()
+            start = time.time()
+            self._doc.doBasicAccessControl()
+            first = time.time() - start
+            rndMRZ = "AB12345671ETH0101011M1212318<<<<<<<<<<<<<<04"
+            self.curMRZ = self._doc.switchMRZ(rndMRZ)
+            for x in range(4):
+                try:
+                    self._comm.rstConnection()
+                    self._doc.doBasicAccessControl()
+                except Exception:
+                    pass
+            self._doc.switchMRZ(self.curMRZ)
+            self._comm.rstConnection()
+            start = time.time()
+            self._doc.doBasicAccessControl()
+            second = time.time() - start
+            if second - first > 0.01:
+                return True
+            else: return False
+        except Exception, msg:
+            return "N/A"
         
     
     def blockAfterFail(self):
@@ -360,11 +381,19 @@ class FingerPrint(object):
             return True
         return False
     
+    def selectNull(self):
+        self._comm.rstConnectionRaw()
+        try:
+            toSend = apdu.CommandAPDU("00", "A4", "00", "00", "", "", "FF")   
+            return binToHexRep(self._comm.transmit(toSend, "Select File"))
+        except Iso7816Exception, msg:
+            return "SW1:{} SW2:{}".format(msg[1], msg[2])
+
     def sendGetChallengeNull(self):
         self._comm.rstConnection()
         try:
             toSend = apdu.CommandAPDU("00", "84", "00", "00", "", "", "01")   
-            return (True, binToHexRep(self._comm.transmit(toSend, "Select File")))
+            return (True, binToHexRep(self._comm.transmit(toSend, "Get Challenge")))
         except Iso7816Exception, msg:
             (data, sw1, sw2) =  msg
             return (False, "SW1:{} SW2:{}".format(sw1, sw2))
