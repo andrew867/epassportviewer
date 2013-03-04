@@ -63,7 +63,7 @@ class FingerPrint(object):
         res = {}
 
         res["activeAuthWithoutBac"] = False
-        res["macTraceability"] = False
+        res["macTraceability"] = (False, "N/A")
         res["blockAfterFail"] = False
         res["delaySecurity"] = False
         res["selectNull"] = "N/A"
@@ -336,7 +336,7 @@ class FingerPrint(object):
             attack.setMRZ(str(self.curMRZ))
             return attack.isVulnerable()
         except Exception, msg:
-            return "N/A"
+            return (False, "N/A")
 
     def checkDelaySecurity(self):
         self._comm.rstConnection()
