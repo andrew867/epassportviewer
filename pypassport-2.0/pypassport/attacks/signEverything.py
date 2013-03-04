@@ -21,7 +21,7 @@ from hashlib import *
 
 from pypassport.logger import Logger
 from pypassport.iso9797 import *
-from pypassport.iso7816 import Iso7816, Iso7816Exception 
+from pypassport.iso7816 import Iso7816, Iso7816Exception
 from pypassport.reader import PcscReader, ReaderException
 from pypassport.doc9303 import mrz, bac, converter, datagroup
 from pypassport.doc9303.securemessaging import SecureMessaging
@@ -40,7 +40,7 @@ class SignEverything(Logger):
     def __init__(self, iso7816):
         Logger.__init__(self, "SIGN EVERYTHING ATTACK")
         self._iso7816 = iso7816
-        
+
         if type(self._iso7816) != type(Iso7816(None)):
             raise SignEverythingException("The sublayer iso7816 is not available")
 
@@ -48,17 +48,17 @@ class SignEverything(Logger):
 
         self._bac = bac.BAC(iso7816)
         self._openssl = OpenSSL()
-        
+
     def sign(self, message_to_sign="1122334455667788", mrz_value=None):
         """
         Get the signature of a 64bits message from the reader.
         In order to prevent ICC cloning, the passport implement a Active Authentication (AA) security.
         The passport sign the 64bits message sent by the reader thanks to its Private key store in secured memory.
         This method let the user decide the 64bits and check (if MRZ set) with the public key if the message has been signed properly
-        
+
         @params message_to_sign: 64bits message to sign
         @type message_to_sign: String (16 HEX values)
-        
+
         @return: A set composed of (The signature, Boolean that state if the signature has been checked)
         """
         validated = False
@@ -72,7 +72,7 @@ class SignEverything(Logger):
 
         signature = self._iso7816.internalAuthentication(message_bin)
         self.log("Signature: {0}".format(binToHexRep(signature)))
-        
+
         if mrz_value:
             self.log("Check if the signature is correct regarding the public key:")
             data = self._openssl.retrieveSignedData(public_key, signature)
@@ -85,7 +85,7 @@ class SignEverything(Logger):
             self.log("\tHash: {0}".format(hash_M))
             trailer = data_hex[254:256]
             self.log("\tTrailer: {0}".format(trailer))
-            
+
             # If using SHA-1
             if header=='6A' and trailer=='BC':
                 M = hexRepToBin(M1 + message)
@@ -94,18 +94,18 @@ class SignEverything(Logger):
                 if new_hash==hash_M_bin:
                     self.log("hash(M|message to sign) == Hash")
                     validated = True
-        
+
         return (binToHexRep(signature), validated)
-        
+
     def getPubKey(self, bac_cp, mrz_value):
         """
         It uses method from pypassport.doc9303.bac in order to authenticate and establish the session keys
-        
+
         @param bac_cp: A BAC for the authentication and establishment of session keys
         @type bac_cp: A pypassport.doc9303.bac.BAC() object
         @param mrz_value: A MRZ
         @type mrz_value: String value ("PPPPPPPPPPcCCCYYMMDDcSYYMMDDc<<<<<<<<<<<<<<cd")
-        
+
         @return: The public key (DG15)
         """
         self.log("Reset conenction")
@@ -121,16 +121,16 @@ class SignEverything(Logger):
         self.log("Encryption key: {0}".format(binToHexRep(KSenc)))
         self.log("MAC key: {0}".format(binToHexRep(KSmac)))
         self.log("Send Sequence Counter: {0}".format(binToHexRep(ssc)))
-        sm = SecureMessaging(KSenc, KSmac, ssc) 
+        sm = SecureMessaging(KSenc, KSmac, ssc)
         self._iso7816.setCiphering(sm)
-            
+
         dgReader = datagroup.DataGroupReaderFactory().create(self._iso7816)
-            
+
         tag = converter.toTAG("DG15")
         dgFile = dgReader.readDG(tag)
         self.log("Get public key")
         dg15 = datagroup.DataGroupFactory().create(dgFile)
         self.log("Public key: {0}".format(binToHexRep(dg15.body)))
         return dg15.body
-                    
+
 

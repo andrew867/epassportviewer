@@ -24,10 +24,10 @@ class Callback:
         self.callback = callback
         self.args = args
         self.kwargs = kwargs
-    
+
     def __call__(self):
         return apply(self.callback, self.args, self.kwargs)
-    
+
 # USAGE
 #
 #from Tkinter import *
@@ -66,4 +66,4 @@ class Callback:
 #
 #toolbar.pack(side=TOP, fill=X)
 #
-#mainloop()    
+#mainloop()

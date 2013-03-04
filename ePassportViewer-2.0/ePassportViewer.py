@@ -34,16 +34,16 @@ except Exception, msg:
 
 class dummyStream(object):
     ''' dummyStream behaves like a stream but does nothing. '''
-    def __init__(self): 
+    def __init__(self):
         self.f = open('out.txt', 'w')
-    def write(self,data): 
+    def write(self,data):
         self.f.write(data)
     def read(self,data): pass
-    def flush(self): 
+    def flush(self):
         self.f.flush()
-    def close(self): 
+    def close(self):
         self.f.close()
-        
+
 sys.stdout = dummyStream()
 sys.stderr = dummyStream()
 sys.stdin = dummyStream()
@@ -52,19 +52,19 @@ sys.__stderr__ = dummyStream()
 sys.__stdin__ = dummyStream()
 
 def run():
-    
+
     root = Tk()
     root.resizable(width = False, height = False)
     #TODO: Linux get error, windows not (missing app.ico)
     try:
         root.iconbitmap(os.path.join(os.path.dirname(os.path.realpath(__file__)), "app.ico"))
     except Exception, msg:
-        pass 
+        pass
     # remove console on osx from http://mail.python.org/pipermail/python-list/2006-October/578318.html
     if (sys.platform != "win32") and hasattr(sys, 'frozen'):
         root.tk.call('console', 'hide')
-    app = Controller(parent=root)                    
-    root.title(TITLE) 
+    app = Controller(parent=root)
+    root.title(TITLE)
     root.mainloop()
 
 if __name__ == "__main__":

@@ -26,7 +26,7 @@ from epassportviewer.const import *
 from epassportviewer.util import singleton
 
 class configManager(singleton.Singleton, dict):
-    
+
     default = {'Options':{'reader'      : 'Auto',
                           'driver'      : 'PcscReader',
                           'path'        : '',
@@ -52,24 +52,24 @@ class configManager(singleton.Singleton, dict):
         self['Options']['certificate'] = StringVar()
         self['Options']['openssl'] = StringVar()
         self['Options']['disclamer'] = BooleanVar()
-        
+
         self['Security'] = {}
         self['Security']['aa'] = BooleanVar()
         self['Security']['pa'] = BooleanVar()
-        
+
         self['Logs'] = {}
         self['Logs']['api'] = BooleanVar()
         self['Logs']['sm'] = BooleanVar()
         self['Logs']['apdu'] = BooleanVar()
         self['Logs']['bac'] = BooleanVar()
 
-    def loadConfig(self, file=CONFIG, autoSaveChanges=True):            
+    def loadConfig(self, file=CONFIG, autoSaveChanges=True):
         self.parser = ConfigParser.ConfigParser()
         self.parser.read(file)
         parser = self.parser
         self.file = file
         self.autoSaveChanges = autoSaveChanges
-        
+
         self.defaultConfig(self.default)
         for section in parser.sections():
             for option in parser.options(section):
@@ -81,37 +81,37 @@ class configManager(singleton.Singleton, dict):
                 except KeyError, msg:
                     pass
         self.refresh()
-                    
+
     def defaultConfig(self, config):
         for section in self.default:
             for option in self.default[section]:
                 self[section][option].set(self.default[section][option])
-    
+
     def saveConfig(self, *args):
         parser = self.parser
-        
+
         for section in self:
             if not parser.has_section(section):
                 parser.add_section(section)
             for option in self[section]:
                 parser.set(section, option, self[section][option].get())
-        
+
         file = open(self.file, 'w')
         parser.write(file)
         file.close()
-        
+
     # Required to set boolean fields correclty.. don't know why
     def refresh(self):
         for section in self:
             for option in self[section]:
                 self[section][option].set(self[section][option].get())
-                
-    def getVariable(self, section, option):            
+
+    def getVariable(self, section, option):
         return self[section][option]
-    
+
     def getOption(self, section, option):
         return self[section][option].get()
-    
+
     def setOption(self, section, option, value):
         self[section][option].set(value)
         return True

@@ -29,13 +29,13 @@ def unpad(tounpad):
     i=-1
     while tounpad[i] == "\x00":
         i -= 1
-        
+
     if tounpad[i] == "\x80":
         return tounpad[0:i]
     else:
         #Pas de padding
         return tounpad
-        
+
 
 def mac(key, msg):
         #Source: PKI for machine readable travel document offering
@@ -43,26 +43,26 @@ def mac(key, msg):
         #Release:1.1
         #October 01,2004
         #p46 of 57
-        
+
 #        print 'MAC'
 #        print '---'
-        
+
         size = len(msg) / 8
         y = '\x00'*8
         tdesa = DES.new(key[0:8], DES.MODE_CBC, y)
 #        print 'IV: ' + binToHexRep(y)
-        
+
         for i in range(size):
 #            print 'x' + str(i) + ': ' + binToHexRep(msg[i*8:i*8+8])
             y = tdesa.encrypt(msg[i*8:i*8+8])
 #            print 'y' + str(i) + ': ' + binToHexRep(y)
-            
+
         tdesb = DES.new(key[8:16])
         tdesa = DES.new(key[0:8])
-        
+
         b = tdesb.decrypt(y)
 #        print 'b: ' + binToHexRep(b)
         a = tdesa.encrypt(b)
 #        print 'a: ' + binToHexRep(a)
-        
+
         return a

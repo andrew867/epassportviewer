@@ -25,8 +25,8 @@ from epassportviewer.util.singleton import Singleton
 from pypassport import jp2converter
 
 def convertImage(data):
-    """ Convert any Image into a compatible image byte stream 
-    
+    """ Convert any Image into a compatible image byte stream
+
         @param data: raw image
         @type data: binary representation
         @return: jpg or bmp image
@@ -43,18 +43,18 @@ def convertImage(data):
 
 def writeImageToDisk(data, filename):
     """ write image to disk
-        jpg as jpg and jp2 as bmp 
-        
+        jpg as jpg and jp2 as bmp
+
         @param data: raw image
-        @type data: binary representation        
+        @type data: binary representation
         @param filename: path to output file (without extension)
         @type filename: String
         @return: filename with corresponding extension
         @rtype: String
     """
-    
+
     img = jp2converter.ConvertJp2(data)
-    if img: 
+    if img:
         filename = filename + ".bmp"
         data = img
     else:
@@ -68,17 +68,17 @@ def writeImageToDisk(data, filename):
             f.close()
     except IOError:
         pass
-    
+
     return filename
 
 class ImageFactory(Singleton):
-    
+
     transparent = """\
     eJzrDPBz5+WS4mJgYOD19HAJAtIngJiRgw1Izt7/8BGIUxzk7sSw7pzMSyCHLcnb3YXhPwgu2Lt8
     MlCEs8AjspiBgVsYhBkZZs2RAAqyl3j6urLfZGYTYDPOa1q+GijEUeIaUeKcn5ubmlfC8O3MtP1A
     MQFPF8cQjfPJCRKsixNEHrAwMCsyMEqKzHwHlGPwdPVzWeeU0AQA8IoqnA==
     """
-    
+
     app = """\
     eJy1lvVTFP7zx3mLgICAhHQqSDdHSotHCEhIdx3dXUdISUoJSEp3txx9xOmRAkcedcDRSBz99ftH
     fF4zu4957u4POzuzO6+4jxpAIgJaAiwsLCIV5Xfa/+j///YM95+XsBGd/of/vLSBClh1cPq9f+Ip
@@ -197,7 +197,7 @@ class ImageFactory(Singleton):
     jg0H1UMN+mL5EjClSZ05zlqXYdC9FCn73TiGW/7b0SpYu7bz9bVV2JL7k1ws9j78/xH65lP6HrEx
     Gg2ncIHeEqx/T0VJ412dgkXE/wHmujqJ
     """
-    
+
     error = """\
     eJwBSwK0/YlQTkcNChoKAAAADUlIRFIAAAAQAAAAEAgGAAAAH/P/YQAAAARnQU1BAACvyDcFiukA
     AAAZdEVYdFNvZnR3YXJlAEFkb2JlIEltYWdlUmVhZHlxyWU8AAAB3UlEQVQ4y6WTa2saQRSG92tI
@@ -211,7 +211,7 @@ class ImageFactory(Singleton):
     q7z2zAz21BT2Uiys3Boyj62yWg7LvnUDt5rH2c3hmNkwryhmEIXUmHniY1LdtXSHI10O1Oyr+ffX
     +I/6BeeVuIP9nt2/AAAAAElFTkSuQmCCn+Ac/A==
     """
-    
+
     tick = """\
     eJwBDQPy/IlQTkcNChoKAAAADUlIRFIAAAAQAAAAEAgGAAAAH/P/YQAAAARnQU1BAACvyDcFiukA
     AAAZdEVYdFNvZnR3YXJlAEFkb2JlIEltYWdlUmVhZHlxyWU8AAACn0lEQVQ4y6WT60tTYRzH/Tt2
@@ -228,7 +228,7 @@ class ImageFactory(Singleton):
     ld2CnYX1ziLwS3kRFqZ3fMp7GkiaMhEhaYcE7X4zel9Y0TtvhcVrQlpLKgQKXohSEfSun4k6T4oo
     A6GnaghGoOWFBSpemK3IsNFTpYTor7/xX/MLZ9Cs5Xm61GMAAAAASUVORK5CYIL+GmIC
     """
-    
+
     help = """\
     eJwBEgPt/IlQTkcNChoKAAAADUlIRFIAAAAQAAAAEAgGAAAAH/P/YQAAAARnQU1BAACvyDcFiukA
     AAAZdEVYdFNvZnR3YXJlAEFkb2JlIEltYWdlUmVhZHlxyWU8AAACpElEQVQ4y6WT3U+SYRjG/Vvg
@@ -245,7 +245,7 @@ class ImageFactory(Singleton):
     afRCZfbjasXn1OUHQ5xTV/mOUMa5/Wwy1Ees46s7DIs3lmHRuYMumQ25PGnoYrmEc+Yx3Xg0yr5W
     NSK4UjFMXuIPUrlcKXWhbIA8X9ovOFfcx/7rNf4rPwHXrwWivU29xAAAAABJRU5ErkJggvhWYds=
     """
-    
+
     logo = """\
     eJwB0i8t0IlQTkcNChoKAAAADUlIRFIAAAB4AAAAeAgGAAAAOWQ20gAAAAFzUkdCAK7OHOkAAAAE
     Z0FNQQAAsY8L/GEFAAAAIGNIUk0AAHomAACAhAAA+gAAAIDoAAB1MAAA6mAAADqYAAAXcJy6UTwA
@@ -463,7 +463,7 @@ class ImageFactory(Singleton):
     3yFpaY9w0y6T9vBOZzNAv/e8ezV4DxfmvQTv6QTP2sM7+Hs3sYVt/x9u2Utw4p/f9kDsZCerguLN
     PbBzeyJh2fZpDATzOViR/A/DvWT/7rV5h3IIuX/+PwlQQVU+XkiZAAAAAElFTkSuQmCCn0hqrg==
     """
-    
+
     gsi = """\
     eJwBFRDq74lQTkcNChoKAAAADUlIRFIAAACDAAAAMwgGAAAAtFe7EwAAAAlwSFlzAAAOwwAADsMB
     x2+oZAAAAARzQklUCAgICHwIZIgAAAAZdEVYdFNvZnR3YXJlAHd3dy5pbmtzY2FwZS5vcmeb7jwa
@@ -539,7 +539,7 @@ class ImageFactory(Singleton):
     9QkGe+Um+U9khQRrisSbRwqbJbDaH1cW5l5BKSlyRZKVXC5fejVLdnOG+j8CocHQ/0dlWkj3Efg/
     1iI+uQmLAlgAAAAASUVORK5CYIJ17dCA
     """
-    
+
     newgsi = """\
     eJwsmwVQHM/TsA+HYAcE14Ogwd3dJbh7IBAgOME1HBbc3d3dNXiA4H64ux2uH7/3/3XV7kzNVm3v
     zFR3Pz1dG6byRQb9A9EHAACALicrqQYAwFy/982REd/vDkO9Pu8NioOsrjMAwEz13wXjXijiCgB8
@@ -958,7 +958,7 @@ class ImageFactory(Singleton):
     jUImUFgt/XEBftN/WhDrdIGHsRdNx5dCqmzm8z80GGBrCY9n+j+H7l0H0ShOCwAAAABJRU5ErkJg
     gsxBuqo=
     """
-    
+
     nopicture = """\
     eJyVlns01Fsbx8chl9xHaRKHqR9RLqlcYiTXmZ9rTW8XosFhyqWRY9yl0hy3yPgZpMLBMIcYC5HL
     mbE0h8kRv1AkhjKaSaWxIuPS4R3n/POu9+2fd+2112c/z17PXnuv/d3PszNPemGVt2ttRyAQyiDO
@@ -999,7 +999,7 @@ class ImageFactory(Singleton):
     1JXLAhRfR1gK7AvPly6J5G4WDhmCyEUufeS4S/Gl5Lj9pVzPuvwtEf9T3v+TeUart3tSK09wxWYB
     R8kP3M8WrEu+GgjQxcuZ6RiQ+m+63iVh
     """
-    
+
     log = """\
     eJwBYgmd9olQTkcNChoKAAAADUlIRFIAAAAyAAAAMggGAAAAHj+IsQAAABl0RVh0U29mdHdhcmUA
     QWRvYmUgSW1hZ2VSZWFkeXHJZTwAAAkESURBVHja3FrbbxxnFf/NZWev3ovtrC/r2onbBjmisUzZ
@@ -1045,7 +1045,7 @@ class ImageFactory(Singleton):
     cIfo4+YwYHZ7LnPd4uLi55R4mse+9yxz5ukwxEzAG1X/RRtrtEf7E5K94avI//L2TwEGAK1zlhOd
     y6/QAAAAAElFTkSuQmCCqXCT9g==
     """
-    
+
     read = """\
     eJwB9wYI+YlQTkcNChoKAAAADUlIRFIAAAAyAAAAMggGAAAAHj+IsQAAABl0RVh0U29mdHdhcmUA
     QWRvYmUgSW1hZ2VSZWFkeXHJZTwAAAaZSURBVHja3FpraBxVFP7mPbvZvNNttm0qSYOpsabVPtAm
@@ -1080,7 +1080,7 @@ class ImageFactory(Singleton):
     +2oVbr7699memUyJEM/zh7PWEfqnNnprc6KMwTFIgsK1/fHTMbo1vGph4LDBUqSYBRTy4ubKD8/+
     F2AAfX+YT4wOan8AAAAASUVORK5CYILcyVNr
     """
-    
+
     additional = """\
     eJwBQwW8+olQTkcNChoKAAAADUlIRFIAAAAyAAAAMggGAAAAHj+IsQAAABl0RVh0U29mdHdhcmUA
     QWRvYmUgSW1hZ2VSZWFkeXHJZTwAAATlSURBVHja7Fnfa1xFFP7m3rs/sk0MafqiBgtK8U1LkkLF
@@ -1110,8 +1110,8 @@ class ImageFactory(Singleton):
 
     HELP, APP, TICK, ERROR, TRANSPARENT, LOGO, NEWGSI, GPLV3, NOPICTURE, LOG, READ, ADDITIONAL = ('help','app','tick','error','transparent', 'logo', 'newgsi', 'gplv3', 'nopicture', 'log', 'read', 'additional')
     TYPES = [HELP, APP, TICK, ERROR, TRANSPARENT, LOGO, NEWGSI, GPLV3, NOPICTURE, LOG, READ, ADDITIONAL]
-    
-    
+
+
     def initialize(self):
         self.index = {'help'        : self.help,
                       'app'         : self.app,
@@ -1126,11 +1126,11 @@ class ImageFactory(Singleton):
                       'read'        : self.read,
                       'additional'  : self.additional
                       }
-    
+
     def create(self, type):
         if type not in self.TYPES:
             raise Exception("Unknown Image")
-        
+
         return cStringIO.StringIO(zlib.decompress(base64.b64decode(self.index[type])))
 
 def make(path):
@@ -1142,8 +1142,8 @@ def make(path):
     bytes_string = open(path, 'rb').read()
     jpg_text = '"""' + base64.encodestring(zlib.compress(bytes_string)) + '"""'
     print jpg_text
-    
-    
+
+
 def view(name):
     img = Image.open(ImageFactory().create(name))
 #    holder = cStringIO.StringIO()

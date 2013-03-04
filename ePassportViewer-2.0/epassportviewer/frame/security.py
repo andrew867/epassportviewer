@@ -29,25 +29,25 @@ class securityFrame(Frame):
 
     def __init__(self, master):
         Frame.__init__(self, master)
-        
+
         bacFrame = Frame(self)
         bacFrame.pack(side=TOP, expand=True, fill=BOTH)
         self.BAC = Label(bacFrame, text="Basic Access Control")
         self.BAC.pack(side=LEFT)
         self.tipBAC = None
-        
+
         aaFrame = Frame(self)
         aaFrame.pack(side=TOP, expand=True, fill=BOTH)
         self.AA = Label(aaFrame, text="Active Auth.")
         self.AA.pack(side=LEFT)
         self.tipAA = None
-        
+
         paFrame = Frame(self)
         paFrame.pack(side=TOP, expand=True, fill=BOTH)
         self.PA = Label(paFrame, text="Passive Auth.")
         self.PA.pack(side=LEFT)
         self.tipPA = None
-        
+
         dgFrame = Frame(paFrame)
         dgFrame.pack(side=LEFT, expand=True, fill=BOTH)
         self.dg = {}
@@ -59,21 +59,21 @@ class securityFrame(Frame):
         self.dg['SOD'] = Label(dgFrame, text=str('SOD'))
         self.dg['SOD'].pack(side=LEFT, expand=True, fill=BOTH)
         self.tips['SOD'] = None
-        
+
     def setSecurity(self, BAC=None, AA=None, PA=None, EAC=None):
         green = "#00B738"
         orange = "#E28000"
         hashfail = False
-        
+
         # Basic Access Control label
         if BAC != None:
             if BAC == False:
                 self.BAC.configure(fg='red')
                 self.tipBAC = Tooltip(parent=self.BAC, tip="The BAC failed. Check you wrote the correct MRZ.")
-            else: 
+            else:
                 self.BAC.configure(fg=green)
                 self.tipBAC = Tooltip(parent=self.BAC, tip="The BAC succeed")
-        
+
         # Active Authentication label
         if AA != None:
             self.AA.configure(fg='black')
@@ -88,11 +88,11 @@ class securityFrame(Frame):
                 self.AA.configure(fg=orange)
             elif AA == False:
                 self.AA.configure(fg='red')
-                    
+
         if PA != None:
             CA, PA = PA
             set = False
-            
+
             # DGs labels
             for dg in range(1,17):
                 if not self.tips['DG'+str(dg)]:
@@ -117,7 +117,7 @@ class securityFrame(Frame):
                         self.tips[str(dg)] = Tooltip(parent=self.dg[str(dg)], tip="Cannot use OpenSSL.")
                 except KeyError:
                     pass
-            
+
             # Passive Authentication label
             if not hashfail:
                 if CA == "OPENSSL_ERROR":
@@ -135,7 +135,7 @@ class securityFrame(Frame):
             else:
                 self.PA.configure(fg='red')
                 self.tipPA = Tooltip(parent=self.PA, tip="One or more hash does not match with the SOD")
-                
+
             if CA == "OPENSSL_ERROR":
                 self.dg['SOD'].configure(fg=orange)
                 self.tips['SOD'] = Tooltip(parent=self.dg['SOD'], tip="SOD not verify with CSCA.\nCheck you load the correct certificate")
@@ -148,14 +148,14 @@ class securityFrame(Frame):
             else:
                 self.dg['SOD'].configure(fg='red')
                 self.tips['SOD'] = Tooltip(parent=self.dg['SOD'], tip="SOD not verify with CSCA")
-                
-                    
+
+
         if EAC != None:
             self.dg[toDG(EAC)].configure(fg='red')
             self.tips[toDG(EAC)] = Tooltip(parent=self.dg[toDG(EAC)], tip="EAC is not yet implemented.\nThus it is not possible to read this DG.")
-        
+
         self.update()
-                
+
     def clear(self):
         self.BAC.configure(fg='black')
         self.AA.configure(fg='black')
@@ -170,7 +170,7 @@ class securityFrame(Frame):
         if self.tips['SOD']:
                 self.tips['SOD'].destroy()
                 self.tips['SOD'] = None
-        
+
         if self.tipBAC:
             self.tipBAC.destroy()
             self.tipBAC = None

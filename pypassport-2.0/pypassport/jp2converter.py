@@ -23,25 +23,25 @@ class jp2ConverterException(Exception):
         Exception.__init__(self, *params)
 
 def ConvertJp2(input):
-    """ 
+    """
     If the input is a jp2 picture, the image is transformed into bmp,
     else the image is returned without any modifications.
-    
+
     @param input: A binary string representing the picture to convert
     @type input: A string
-    @return: A binary string representing the picture in bmp, or the original input if the input is not a jp2 stream. 
+    @return: A binary string representing the picture in bmp, or the original input if the input is not a jp2 stream.
     """
-    
+
     jp2 = open("tmp.jp2", "wb")
     jp2.write(input)
     jp2.close()
-    
+
     geojasper = "geojasper"
     if (sys.platform != "win32") and os.path.isfile(os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'geojasper', geojasper)):
         geojasper = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'geojasper', geojasper)
     a=os.popen(geojasper + " -f tmp.jp2 -F tmp.jpg")
     a.close()
-    
+
     try:
         f = open("tmp.jpg", "rb")
         input = f.read()
@@ -54,5 +54,5 @@ def ConvertJp2(input):
             os.remove("tmp.jpg")
         except:
             pass
-        
+
     return input

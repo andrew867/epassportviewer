@@ -17,7 +17,7 @@
 # If not, see <http://www.gnu.org/licenses/>.
 import tkMessageBox
 
-    
+
 Errors = {  # APDU PROBLEMS
              "('Security status not satisfied', 105, 130)": 'Error #101: An error occur during the BAC.',
              "('SM data objects incorrect', 105, 136)": 'Error #102: An error occur during the BAC.',
@@ -28,8 +28,8 @@ Errors = {  # APDU PROBLEMS
              "sodObj must be a sod object": "Error #301: Internal error.",
              "'NoneType' object has no attribute '__getitem__'": "Error #302: Internal error."
 }
-    
-    
+
+
 def  getID(message):
     try:
         return Errors[str(message)]

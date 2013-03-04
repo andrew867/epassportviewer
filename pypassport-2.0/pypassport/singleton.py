@@ -17,9 +17,9 @@
 # If not, see <http://www.gnu.org/licenses/>.
 
 class Singleton(object):
-    
+
     _instance = None
-    
+
     def __new__(self, *args, **kwargs):
         if not self._instance:
             self._instance = super(Singleton, self).__new__(self, *args, **kwargs)

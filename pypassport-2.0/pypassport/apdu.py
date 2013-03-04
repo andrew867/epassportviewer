@@ -17,14 +17,14 @@
 # If not, see <http://www.gnu.org/licenses/>.
 
 from pypassport.hexfunctions import *
-        
+
 class CommandAPDU(object):
     def __init__(self, cla, ins, p1, p2, lc="", data="", le=""):
         self.cla = cla
         self.ins = ins
         self.p1 = p1
         self.p2 = p2
-        
+
         self.lc = lc
         self.data = data
         self.le = le
@@ -114,16 +114,16 @@ class CommandAPDU(object):
 
     def getBinAPDU(self):
         return hexRepToBin(self.getHexRepAPDU())
-        
+
     def getHexRepAPDU(self):
         return self.cla + self.ins + self.p1 + self.p2 + self.lc + self.data + self.le
-    
+
     def getHexListAPDU(self):
         return hexRepToList(self.getHexRepAPDU())
-    
+
     def __str__(self):
         return "> " + self.cla + " " + self.ins + " " + self.p1 + " " + self.p2 + " " + self.lc + " [" + self.data + "] " + self.le
-    
+
     cla = property(getCla, setCla, delCla, "Cla's Docstring")
 
     ins = property(getIns, setIns, delIns, "Ins's Docstring")
@@ -137,7 +137,7 @@ class CommandAPDU(object):
     data = property(getData, setData, delData, "Data's Docstring")
 
     le = property(getLe, setLe, delLe, "Le's Docstring")
-    
+
 class ResponseAPDU(object):
     def __init__(self, res, sw1, sw2):
         self.__res = res
@@ -164,13 +164,13 @@ class ResponseAPDU(object):
 
     def getHexListAPDU(self):
         return self.res + [self.sw1] + [self.sw2]
-    
+
     def getBinAPDU(self):
         return self.res + hexListToBin([self.sw1] + [self.sw2])
-    
+
     def getHexRepAPDU(self):
         return binToHexRep(self.res) + hexToHexRep(self.sw1) + hexToHexRep(self.sw2)
-    
+
     def __str__(self):
         return "< [" + binToHexRep(self.res) + "] " + hexToHexRep(self.sw1) + " " + hexToHexRep(self.sw2)
 

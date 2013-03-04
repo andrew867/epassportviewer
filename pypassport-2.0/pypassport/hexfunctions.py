@@ -82,7 +82,7 @@ def listToHexRep(list):
         out.append('%02X' % (item))
     return out.upper()
 
-#hexList to something    
+#hexList to something
 
 def hexListToBin(data):
     """[0xAA, 0xBB] -> '\xaa\xbb'"""

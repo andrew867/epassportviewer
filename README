@@ -35,7 +35,7 @@ Install driver
  * Unplug readers
  * Install libusb-dev:          "sudo apt-get install libusb-dev"
  * Install pcscd:               "sudo apt-get install pcscd"
- 
+
  - Omnikey 5321:                "cd ressources"
                                 "tar xzf ifdokrfid_lnx_i686-2.10.0.1.tar.gz"
                                 "cd ifdokrfid_lnx_i686-2.10.0.1"
@@ -45,8 +45,8 @@ Install driver
                                 "unzip ACR122_PKG_Lnx_102_P.zip"
                                 "cd acsccid_linux_bin-1.0.2/ubuntu10.10"
                                 "sudo dpkg -i libacsccid_1.0.2-1_i386.deb"
-   
-   
+
+
  * Test the reader              Plug the reader
                                 "sudo pcscd -f -d"
 

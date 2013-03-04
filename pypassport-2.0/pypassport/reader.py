@@ -37,42 +37,42 @@ class ReaderException(Exception):
         Exception.__init__(self, *params)
 
 class Reader(Logger):
-    
+
     readerName = None
     readerNum = None
-    
+
     def __init__(self):
         Logger.__init__(self, "READER")
-    
+
     def connect(self, readerNum=None):
-        """ 
+        """
         If there is some reader connected to the computer, we have to specify to which one we want to connect.
-        
+
         @param readerNum: The reader number.
         @type readerNum: An integer.
         """
         raise Exception, "Should be implemented"
-    
+
     def transmit(self, APDU):
-        """ 
+        """
         The method send the apdu to the reader and return the ICC answer
-        
+
         @param APDU: The apdu to transmit to the reader
         @type APDU: A commandAPDU object
         @return: A resultAPDU object with the ICC answer.
         """
         raise Exception, "Should be implemented"
-        
+
     def disconnect(self):
-        """ 
+        """
         To release the reader.
         """
         raise Exception, "Should be implemented"
-        
+
     def getReaderList(self):
         raise Exception, "Should be implemented"
-    
-    
+
+
 class DumpReader(Reader):
     """
     The class adds two properties:
@@ -83,13 +83,13 @@ class DumpReader(Reader):
         self._file = None
         self.format = "GRT"
         self.ext = ".bin"
-    
+
     def connect(self, path):
         if os.path.isdir(str(path)):
             self.readerNum = path + os.sep
             return True
-        return False 
-    
+        return False
+
     def transmit(self, apdu):
         if apdu.ins == "A4":
             if apdu.data == "A0000002471001":
@@ -104,7 +104,7 @@ class DumpReader(Reader):
                 except Exception, msg:
                     return ResponseAPDU(str(msg), 0x6A, 0x82)
             return ResponseAPDU("", 0x90, 0x00)
-        
+
         elif apdu.ins == "B0":
             #ReadBinary
             try:
@@ -114,14 +114,14 @@ class DumpReader(Reader):
                 return ResponseAPDU(res, 0x90, 0x00)
             except Exception, msg:
                 return ResponseAPDU(str(msg), 0x6A, 0x88)
-            
+
         #Function not supported
         return ResponseAPDU("", 0x6A, 0x81)
-            
+
     def disconnect(self):
         if self._file:
             self._file.close()
-            
+
     def getReaderList(self):
         return ["Simulator"]
 
@@ -130,7 +130,7 @@ class PcscReader(Reader):
         Reader.__init__(self)
         self.importSC()
         self._pcsc_connection = None
-        
+
     def importSC(self):
         try:
             import smartcard
@@ -138,17 +138,17 @@ class PcscReader(Reader):
         except:
             if sys.platform == 'darwin':
                 msg =  "The smart card service/daemon is not started.\n"
-                msg += "Please insert a reader and restart the application." 
+                msg += "Please insert a reader and restart the application."
             elif sys.platform == 'win32':
                 msg =  "The smart card service is not started.\n"
                 msg += "Please execute the following command in your os shell: \n"
                 msg += "Windows: net start scardsvr"
-            else: 
+            else:
                 msg =  "The smart card daemon is not started.\n"
                 msg += "Please execute the following command in your os shell: \n"
                 msg += "Linux: sudo /etc/init.d/pcscd start"
-            raise ReaderException(msg)        
-        
+            raise ReaderException(msg)
+
     def connect(self, rn):
         if rn in range(len(self.getReaderList())):
             self.readerNum = rn
@@ -160,10 +160,10 @@ class PcscReader(Reader):
             except self.sc.Exceptions.NoCardException, msg:
                 return False
         raise ReaderException("The reader number is invalid")
-    
+
     def disconnect(self):
         self._pcsc_connection.disconnect()
-    
+
     def transmit(self, APDU):
         try:
             self.log(APDU)
@@ -173,44 +173,44 @@ class PcscReader(Reader):
             return rep
         except self.sc.Exceptions.CardConnectionException, msg:
             raise ReaderException(msg)
-        
+
     def getReaderList(self):
         return self.sc.System.readers()
-    
+
 class apduWrapper(object):
     def __init__(self, data):
         self._apdu = data
-        
+
     def getHexListAPDU(self):
         return self._apdu
 
 class Acr122(PcscReader):
 
-    Control = {     "AntennaPowerOff" :  [0x01, 0x00], 
+    Control = {     "AntennaPowerOff" :  [0x01, 0x00],
                     "AntennaPowerOn" :   [0x01, 0x01],
                     "ResetTimer" :       [0x05, 0x00, 0x00, 0x00]
               }
-    
+
     Polling = {     "ISO14443A": [0x01, 0x00]
               }
-    
+
     Speed = {       "212 kbps" : [0x01, 0x01, 0x01],
                     "424 kbps" : [0x01, 0x02, 0x02]
             }
-    
+
     Pseudo_APDU = { "DirectTransmit" :  [0xFF, 0x00, 0x00, 0x00],
                     "GetResponse" :     [0xFF, 0xC0, 0x00, 0x00]
                    }
-    
+
     PN532_Cmd = {   "InListPassiveTarget" : [0xD4, 0x4A, 0x01, 0x01],
                     "InDataExchange" :      [0xD4, 0x40, 0x01],
                     "Control" :             [0xD4, 0x32],
                     "Polling" :             [0xD4, 0x4A],
                     # Change to Baud Rate 424 kbps
                     "Speed" :               [0xD4, 0x4E]
-                    
+
                 }
-    
+
     Errors = {0x61: 'SW2 Bytes left to read',
               0x63:{0x00:'The operation is failed.',
                     0x01:'The PN532 does not response.',
@@ -219,10 +219,10 @@ class Acr122(PcscReader):
                     0x7F:'The PNNAME = "GENERIC PC/SC"532_Contactless Command is wrong.'},
               0x90: 'Success'
               }
-    
+
     def __init__(self):
         PcscReader.__init__(self)
-    
+
     def connect(self, rn=None):
         if super(Acr122, self).connect(rn):
             res = self.transmit(apduWrapper(Acr122.Control["AntennaPowerOff"]),"Control")
@@ -231,14 +231,14 @@ class Acr122(PcscReader):
             res = self.transmit(apduWrapper(Acr122.Polling["ISO14443A"]),"Polling")
             res = self.transmit(apduWrapper(Acr122.Speed["424 kbps"]),"Speed")
             return True
-        
+
     def transmit(self, APDU, PN532_Cmd="InDataExchange"):
         # Send Command
         hexListAPDU = APDU.getHexListAPDU()
         wrappedApdu = Acr122.Pseudo_APDU["DirectTransmit"] + [len(Acr122.PN532_Cmd[PN532_Cmd]) + len(hexListAPDU)] + Acr122.PN532_Cmd[PN532_Cmd] + hexListAPDU
-        
+
         res = self._pcsc_connection.transmit(wrappedApdu)
-        # Check if there is data to read 
+        # Check if there is data to read
         try:
             # Error Handling
             if res[1] == 0x61:
@@ -251,13 +251,13 @@ class Acr122(PcscReader):
                     return ResponseAPDU(hexListToBin(data), sw1, sw2)
                 else:
                     raise ReaderException, Acr122.Errors[res[1]][res[2]]
-                
+
             else:
                 try:
                     err = Acr122.Errors[res[1]][res[2]]
                 except Exception:
                     err = "Unknown error"
-                    
+
                 raise ReaderException, err
 
         except KeyError:
@@ -272,11 +272,11 @@ class Acr122(PcscReader):
             return data[3:-2], data[-2], data [-1]
         # otherwise 2 byte of header
         return data[2:-2], data[-2], data [-1]
-    
+
 class TimeOutException(Exception):
     def __init__(self, *params):
         Exception.__init__(self, *params)
-    
+
 class ReaderManager(Singleton):
     """
     Manage the readers.
@@ -288,10 +288,10 @@ class ReaderManager(Singleton):
             Acr122.__name__: Acr122,
             DumpReader.__name__ : DumpReader
         }
-    
+
     def __init__(self):
         self._blackList = [Acr122.__name__, DumpReader.__name__]
-    
+
     def create(self, reader="PcscReader"):
         """
         Create a new instance of the specified driver
@@ -300,30 +300,30 @@ class ReaderManager(Singleton):
             return ReaderManager.readers[reader]()
         except KeyError:
             raise ReaderException("Unsupported reader: " + str(reader))
-    
+
     def getReaderList(self):
         res = []
         for rt in self.readers:
             if not self._filter(rt):
                 res += self.create(rt).getReaderList()
         return res
-    
+
     def _filter(self, reader):
         try:
             self._blackList.index(reader)
             return True
         except ValueError:
             return False
-    
+
     def _autoDetect(self):
-        """   
+        """
         Pool every connected reader with every driver available by the factory.
         When a couple (driver, num reader) can select the AID, we have a good reader!
         Return a couple (reader object, reader number, reader name)
         """
         for driver in ReaderManager.readers:
             r = self.create(driver)
-            
+
             for numR in range(len(self.getReaderList())):
                 try:
                     if r.connect(numR):
@@ -332,31 +332,31 @@ class ReaderManager(Singleton):
                             return r
                 except Exception, msg:
                     r.disconnect()
-        
-        return None  
-    
+
+        return None
+
     def waitForCard(self, timeout=5, driver=None, readerNum=None):
-        
-        """  
-        Wait until a card is put on a reader. 
+
+        """
+        Wait until a card is put on a reader.
         After I{timeout} seconds, the loop is break and an TimeOutException is raised
         If I{driver} and I{readerNum} are let to none, the wait for loop will pool on every reader with every driver until a match is found.
         If I{driver} and I{readerNum} are both set, the loop  will pool on the specified reader with the specified driver.
         By default, the time-out is set to 15 seconds.
-        
+
         @param timeout: The timeout in second the loop wait for a card before being interrupted.
         @type timeout: Integer
         @param driver: The driver to use during the pooling
-        @type driver: A class inheriting from Reader 
+        @type driver: A class inheriting from Reader
         @param readerNum: The reader to pool on
         @type readerNum: Integer
-        
+
         @raise TimeOutException: Is the time-out expires, the exception is raised.
-        
+
         """
         cpt = 0
         wait = 0.5
-        
+
         if driver == None and readerNum == None:
             r = self._autoDetect()
             while not r and cpt < timeout:
@@ -366,7 +366,7 @@ class ReaderManager(Singleton):
             if cpt == timeout:
                 raise TimeOutException("Time-out")
             return r
-    
+
         else:
             reader = self.create(driver)
             while not reader.connect(readerNum) and cpt < timeout:

@@ -2,14 +2,14 @@ pypassport
 
 by
 
-Jean-Francois Houzard (jhouzard@gmail.com) 
-Olivier Roger (olivier.roger@gmail.com) 
+Jean-Francois Houzard (jhouzard@gmail.com)
+Olivier Roger (olivier.roger@gmail.com)
 
 http://sites.uclouvain.be/security/epassport.html
 
 DISCLAIMER
-	Before using pypassport, you must be sure that you are allowed to read 
-	the contactless chip of your passport, according to the laws and 
+	Before using pypassport, you must be sure that you are allowed to read
+	the contactless chip of your passport, according to the laws and
 	regulations of the country that issued it.
 
 PURPOSE
@@ -17,7 +17,7 @@ PURPOSE
     to retrieve information from the biometric passport.
     It implements the main features as described in the doc9303
     specification.
-        
+
 FEATURES
 0.1 (2009-04-29):
 	* Access and reads the passport data groups
@@ -49,18 +49,18 @@ FEATURES
 	* The pyasn1 LDS Security Object description is moved to asn1.py
 	* DataGroup inherits from DataGroupFile. Use df.file instead of dg.file.file to access the binary content of the data group.
 	* openssl.py generate is work environment to generates the certificates and CRL.
-	* Use the connect method with the directory path when using DumpReader. 
+	* Use the connect method with the directory path when using DumpReader.
 	* ReaderManager to handle readers. The waitForCard method, tries to guess the reader and the corresponding Reader implementation.
 	* Modification of the genpassport.py script.
 	* Add of the dump method in EPassport class to dump the content of the read ePassport. (datagroups, face/signature image, DS certificate, DG15 public key).
 	* The MRZ is now tested inside the EPassport class.
 	* The simulator can be parameterized to read any kind of notation for dumps (FID, SFI, Golden Reader Tool, ...).
-	* New logging system. 
+	* New logging system.
 	* DataGroupFactory to instantiate the corresponding DataGroup for a DataGroupFile object.
 	* Creation of modules pki, jcop and datagroupcreation to handle the ePassport forgery.
 	* Add functionalities to send the dexlab applet to a JCOP card and send it the forged datagroups.
 	* Add test data in the testData directory with dumps and certificate to test the API.
-    
+
 INSTALLATION
 
 The pypassport package uses distutils for installation:
@@ -69,7 +69,7 @@ $ unzip pypassport-x.y.z.zip
 $ cd pypassport-x.y.z
 $ python setup.py install
 
-All depencies do not provide installation script for every platform. 
+All depencies do not provide installation script for every platform.
 In that case, the following error will occur:
 " Error: Could not find suitable distribution for Requirement... "
 
@@ -86,8 +86,8 @@ REQUIREMENTS
 	pyscard, pyCrypto, pyasn1, openssl, PIL
 
 	* What smartcard reader are supported by pyPassport ?
-	At the moment pyPassport handle generic PCSC readers. 
-	Passport reading have been successfully performed with the following 
+	At the moment pyPassport handle generic PCSC readers.
+	Passport reading have been successfully performed with the following
 	smartcard readers:
 		* Omnikey 5321;
 		* ACS ACR 122.

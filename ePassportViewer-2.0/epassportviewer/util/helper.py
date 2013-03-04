@@ -21,7 +21,7 @@ from epassportviewer.util.date import getDate
 
 def getItem(value):
     """ remove the < character from data and improve date visualisation
-    
+
         @param value: Value to clean
         @type value: String
         @return: cleaned value
@@ -34,32 +34,32 @@ def getItem(value):
         value = getDate(value)
         return str(value)
     except Exception, msg:
-        return ""  
-    
+        return ""
+
 def getItemByTag(dic, *tags):
     value = dic
     for tag in tags:
         if value.has_key(tag):
             value = value[tag]
         else: return None
-        
+
     return getItem(value)
 
-    
+
 def getItemRaw(dic, *tags):
     value = dic
     for tag in tags:
         if value.has_key(tag):
             value = value[tag]
         else: return None
-        
+
     try:
         if len(value) > 50:
             value = split_len(value, 44)
         value = replace(value,"<","&lt;")
     except Exception, msg:
         return ""
-        
+
     return str(value)
 
 
@@ -68,5 +68,5 @@ def split_len(seq, length):
     for i in range(0, len(seq), length):
         list_str.append(seq[i:i+length])
     return ' '.join(list_str)
-        
+
 

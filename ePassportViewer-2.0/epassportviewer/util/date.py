@@ -19,8 +19,8 @@
 import datetime
 
 def getDate(data=None):
-    """ Convert the data into a date in the appropriate form 
-        
+    """ Convert the data into a date in the appropriate form
+
         @note: Return input date if no match is found
         @param data: Date of unknown size
         @type data: String
@@ -53,11 +53,11 @@ def getDateYYYYMMDD(data):
         return str(d)
     except Exception, msg:
         return data
-        
+
 def getDateYYYYMMDDhhmmss(data):
     """ Convert 19840618165502 --> 1984-06-18 16:55:02"""
     try:
         d = datetime.datetime(int(data[:4]),int(data[4:6]),int(data[6:8]), int(data[8:10]), int(data[10:12]), int(data[12:14]))
-        return str(d.date()) + " " + str(d.time()) 
+        return str(d.date()) + " " + str(d.time())
     except Exception, msg:
         return data

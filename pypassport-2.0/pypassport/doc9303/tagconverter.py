@@ -42,17 +42,17 @@ tagToName = {
 #tagLDSToName = {
              "02" : "Integer",
              "5C" : "Tag list",
-             
+
              "5F01" : "LDS Version Number",
              "5F08" : "Date of birth (truncated)",
-             
+
              "5F09" : "Compressed image (ANSI/NIST-ITL 1-2000)",
              "5F0A" : "Security features - Encoded Data",
              "5F0B" : "Security features - Structure",
              "5F0C" : "Security features",
              "5F0E" : "Full name, in national characters",
              "5F0F" : "Other names",
-             
+
              "5F10" : "Personal Number",
              "5F11" : "Place of birth",
              "5F12" : "Telephone",
@@ -69,25 +69,25 @@ tagToName = {
              "5F1D" : "Image of document front",
              "5F1E" : "Image of document rear",
              "5F1F" : "MRZ data elements",
-             
+
              "5F26" : "Date of Issue",
              "5F2B" : "Date of birth (8 digit)",
              "5F2E" : "Biometric data block",
-             
+
              "5F36" : "Unicode Version Level",
-             
+
              "5F40" : "Compressed image template",
              "5F42" : "Address",
              "5F43" : "Compressed image template",
-             
+
              "5F50" : "Date data recorded",
              "5F51" : "Name of person",
              "5F52" : "Telephone",
              "5F53" : "Address",
-             
+
              "5F55" : "Date and time document personalized",
              "5F56" : "Serial number of personalization system",
-             
+
              "60" : "Common data elements",
              "61" : "Template for MRZ data group",
              "63" : "Template for Finger biometric data group",
@@ -107,7 +107,7 @@ tagToName = {
              "7F2E" : "Biometric data block (enciphered)",
              "7F60" : "Biometric Information Template",
              "7F61" : "Biometric Information Group Template",
-             
+
              "80" : "ICAO header version",
              "81" : "Biometric Type",
              "82" : "Biometric subtype",
@@ -124,11 +124,11 @@ tagToName = {
              "8D" : "Context specific tags",
              "8E" : "Context specific tags",
              "8F" : "Context specific tags",
-             
+
              "90" : "Enciphered hash code",
-             
+
              "A0" : "Context specific constructed data objects",
-             
+
              "A1" : "Repeating template, 1 occurrence Biometric header",
              "A2" : "Repeating template, 2 occurrence Biometric header",
              "A3" : "Repeating template, 3 occurrence Biometric header",
@@ -144,7 +144,7 @@ tagToName = {
              "AD" : "Repeating template, 13 occurrence Biometric header",
              "AE" : "Repeating template, 14 occurrence Biometric header",
              "AF" : "Repeating template, 15 occurrence Biometric header",
-             
+
              "B0" : "Repeating template, 0 occurrence Biometric header",
              "B1" : "Repeating template, 1 occurrence Biometric header",
              "B2" : "Repeating template, 2 occurrence Biometric header",
@@ -168,28 +168,28 @@ tagToName = {
              "53" : "Optional Data",
              "59" : "Date of Expiry or valid Until Date",
              "02" : "Document Number",
-             
+
              "5F02" : "Check digit - Optional data (ID-3 only)",
              "5F03" : "Document Type",
              "5F04" : "Check digit - Doc Number",
              "5F05" : "Check digit - DOB",
              "5F06" : "Expiry date",
              "5F07" : "Composite",
-             
+
              "5F20" : "Issuing State or Organization",
              "5F2B" : "Date of birth",
              "5F2C" : "Nationality",
-             
+
              "5F35" : "Sex",
              "5F57" : "Date of birth (6 digit)",
-             
+
 # From DG1 (information tags)
              "5F28" : "Issuing State or Organization",
              "5F5B" : "Name of Holder", # version 2006
              "5B" : "Name of Holder",   # version 2008
              "5A" : "Document Number",
-                          
-#            }        
+
+#            }
 
 # DOC9303-2 pg III-40
 #tagRFUtoName = {
@@ -198,14 +198,14 @@ tagToName = {
              "5F46" : "Port of entry/exit",
              "5F47" : "Entry/Exit indicator",
              "5F48" : "Length of stay",
-             "5F49" : "Category (classification)",                          
+             "5F49" : "Category (classification)",
              "5F4A" : "Inspector reference",
              "5F4B" : "Entry/Exit indicator",
-             "71" : "Template for Electronic Visas", 
+             "71" : "Template for Electronic Visas",
              "72" : "Template for Border Crossing Schemes",
              "73" : "Template for Travel Record Data Group",
 
-# DataGroup             
+# DataGroup
              "60" : "Index",
              "61" : "MRZ",
              "75" : "Face",
@@ -223,5 +223,5 @@ tagToName = {
              "6E" : "Reserved for Future Use",
              "6F" : "Active Authentication Public Key Info",
              "70" : "Person to Notify",
-             "77" : "Security Object"             
-            }     
+             "77" : "Security Object"
+            }

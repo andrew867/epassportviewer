@@ -62,32 +62,32 @@ from epassportviewer.util.helper import getItem, getItemByTag, getItemRaw
 #                return ""
 #        if isList: return list
 #        return dict
-#                        
+#
 #    data = {} #doc9303(None,None)
 #    doc = parse(filename)
 #    files = doc.getElementsByTagName("Files")
 #    for file in files[0].childNodes:
-#        data[str(file.getAttribute("Value"))] = rec(file)     
+#        data[str(file.getAttribute("Value"))] = rec(file)
 #    return data
 
 #TODO: Return True on success and test it ?
 
 def toXML(doc,filename):
     """ Write doc9303 instance data in XML file
-    
+
         @param doc: doc9303
         @type doc: doc9303 instance (pyPassport)
         @param filename: output file
         @type filename: String
-        @return: None        
+        @return: None
     """
     xml = Document()
     root = xml.createElement("Files")
     xml.appendChild(root)
-    
+
     def recursiveFill(node, root):
         """ Write node recursively
-        
+
             @param node: data
             @type node: dictionary
             @param root: xml root node for data
@@ -123,16 +123,16 @@ def toXML(doc,filename):
                 root.setAttribute("Format", "HexRep")
                 data = xml.createTextNode(node) #xml.createCDATASection
                 root.appendChild(data)
-                
-    recursiveFill(doc, root)    
-    
+
+    recursiveFill(doc, root)
+
     file = open(filename,"w")
     xml.writexml(file)
     file.close()
-    
+
 def isPrintable(txt):
     """ Test if each character of txt is printable
-    
+
         @param txt: text to test
         @type txt: String
         @rtype: Boolean
@@ -145,31 +145,31 @@ def isPrintable(txt):
 
 def toPDF(data, filename):
     """ Export doc9303 instance to PDF
-    
+
         @param doc: doc9303
         @type doc: doc9303 instance (pyPassport)
         @param filename: output file
         @type filename: String
-        @return: None 
+        @return: None
     """
-    
-    
-    
+
+
+
     doc = SimpleDocTemplate(filename, pagesize=letter,
                             rightMargin=72, leftMargin=72,
                             topMargin=72, bottomMargin=18)
     Story=[]
     styles=getSampleStyleSheet()
-    
+
     # NAME
     name = (data["EP"]["DG1"]["5F5B"]).split("<<")
     Story.append(Paragraph(getItem(name[1].upper())+" "+getItem(name[0].upper()), styles["Heading1"]))
-    
+
     # PICTURE
     tag = None
     if data["EP"]["DG2"]["A1"].has_key("5F2E"): tag = "5F2E"
     elif data["EP"]["DG2"]["A1"].has_key("7F2E"): tag = "7F2E"
-    if tag != None: 
+    if tag != None:
         path = None
         raw = data["EP"]["DG2"]["A1"][tag]
         profile = writeImageToDisk(raw, "~picture")
@@ -179,7 +179,7 @@ def toPDF(data, filename):
         h_img = float(height)/ratio
         im = Image(profile, 2*inch, h_img)
         Story.append(im)
-    
+
     try:
         if data["EP"].has_key("DG7") and data["EP"]["DG7"].has_key("5F43"):
             raw = data["EP"]["DG7"]["5F43"][0]
@@ -192,7 +192,7 @@ def toPDF(data, filename):
             Story.append(sign)
     except Exception:
         pass
-     
+
     # OVERVIEW
     Story.append(Paragraph("Overview", styles["Heading2"]))
     Story.append(Paragraph("<font size=12>Type: " + getItemByTag(data["EP"], 'DG1','5F03') + "</font>", styles["Normal"]))
@@ -234,10 +234,10 @@ def toPDF(data, filename):
             tag_name = tagToName[item]
         except Exception:
             tag_name = item
-        Story.append(Paragraph("<font size=12>&nbsp;&nbsp;&nbsp;&nbsp;"+tag_name+": "+getItemRaw(data["EP"], 'DG1', item)+"</font>", 
+        Story.append(Paragraph("<font size=12>&nbsp;&nbsp;&nbsp;&nbsp;"+tag_name+": "+getItemRaw(data["EP"], 'DG1', item)+"</font>",
                                 styles["Normal"]))
     Story.append(Spacer(1, 12))
-    
+
     if data["EP"].has_key("DG11"):
         Story.append(Paragraph("Additional document holder details", styles["Heading3"]))
         for item in data["EP"]["DG11"]["5C"]:
@@ -245,10 +245,10 @@ def toPDF(data, filename):
                 tag_name = tagToName[item]
             except Exception:
                 tag_name = item
-            Story.append(Paragraph("<font size=12>&nbsp;&nbsp;&nbsp;&nbsp;"+tag_name+": "+getItemRaw(data["EP"], 'DG11', item)+"</font>", 
+            Story.append(Paragraph("<font size=12>&nbsp;&nbsp;&nbsp;&nbsp;"+tag_name+": "+getItemRaw(data["EP"], 'DG11', item)+"</font>",
                                     styles["Normal"]))
         Story.append(Spacer(1, 12))
-    
+
     if data["EP"].has_key("DG12"):
         Story.append(Paragraph("Additional document information", styles["Heading3"]))
         for item in data["EP"]["DG12"]["5C"]:
@@ -256,10 +256,10 @@ def toPDF(data, filename):
                 tag_name = tagToName[item]
             except Exception:
                 tag_name = item
-            Story.append(Paragraph("<font size=12>    "+tag_name+": "+getItemRaw(data["EP"], 'DG12', item)+"</font>", 
+            Story.append(Paragraph("<font size=12>    "+tag_name+": "+getItemRaw(data["EP"], 'DG12', item)+"</font>",
                                     styles["Normal"]))
         Story.append(Spacer(1, 12))
-    
+
     if data["EP"].has_key("DG13"):
         Story.append(Paragraph("Reserved for national specific data", styles["Heading3"]))
         for item in data["EP"]["DG13"]["5C"]:
@@ -267,11 +267,11 @@ def toPDF(data, filename):
                 tag_name = tagToName[item]
             except Exception:
                 tag_name = item
-            Story.append(Paragraph("<font size=12>&nbsp;&nbsp;&nbsp;&nbsp;"+tag_name+": "+getItemRaw(data["EP"], 'DG13', item)+"</font>", 
+            Story.append(Paragraph("<font size=12>&nbsp;&nbsp;&nbsp;&nbsp;"+tag_name+": "+getItemRaw(data["EP"], 'DG13', item)+"</font>",
                                     styles["Normal"]))
         Story.append(Spacer(1, 12))
     Story.append(Spacer(1, 12))
-    
+
     Story.append(Paragraph("Passive Authentication", styles["Heading2"]))
     Story.append(Paragraph("DG integrity:", styles["Heading3"]))
     for dgi in data["Integrity"]:
@@ -287,27 +287,27 @@ def toPDF(data, filename):
     Story.append(Paragraph("DG hashes:", styles["Heading3"]))
     for dgi in data["Hashes"]:
         Story.append(Paragraph("<font size=12>  "+dgi + ": " + binToHexRep(data["Hashes"][dgi])+"</font>", styles["Normal"]))
-    
+
     Story.append(Paragraph("SOD", styles["Heading3"]))
     Story.append(Paragraph("<font size=10>"+data["SOD"].replace("\n", "<br/>")+"</font>", styles["Normal"]))
-    
+
     Story.append(Paragraph("Certificate", styles["Heading3"]))
     Story.append(Paragraph("<font size=12>Certificate Serial Number:"+data["certSerialNumber"]+"</font>", styles["Normal"]))
     Story.append(Paragraph("<font size=12>Certificate Fingerprint:"+data["certFingerPrint"]+"</font>", styles["Normal"]))
-    
+
     Story.append(Paragraph("Document Signer", styles["Heading3"]))
     data["DSCertificate"] = data["DSCertificate"].replace("\n", "<br/>")
     data["DSCertificate"] = data["DSCertificate"].replace(" ", "&nbsp;")
     Story.append(Paragraph("<font size=10>"+data["DSCertificate"]+"</font>", styles["Normal"]))
     Story.append(Spacer(1, 12))
-    
+
     Story.append(Paragraph("Active Authentication", styles["Heading2"]))
     Story.append(Paragraph("<font size=12>Active Authentication executed:"+data["activeAuth"]+"</font>", styles["Normal"]))
     Story.append(Paragraph("Public Key", styles["Heading3"]))
     data["pubKey"] = data["pubKey"].replace("\n", "<br/>")
     data["pubKey"] = data["pubKey"].replace(" ", "&nbsp;")
     Story.append(Paragraph("<font size=10>"+data["pubKey"]+"</font>", styles["Normal"]))
-    
+
     Story.append(Paragraph("Extended Access Control", styles["Heading2"]))
     Story.append(Paragraph("<font size=12>EAC has not been implemented yet.</font>", styles["Normal"]))
     Story.append(Paragraph("<font size=12>Here is of DG that the reader cannot access:</font>", styles["Normal"]))
@@ -316,40 +316,40 @@ def toPDF(data, filename):
     if not data["failedToRead"]:
         Story.append(Paragraph("<font size=12>&nbsp;&nbsp; List empty: No EAC implemented in passport</font>", styles["Normal"]))
     Story.append(Spacer(1, 12))
-    
+
     Story.append(Paragraph("Security investigation", styles["Heading2"]))
     Story.append(Paragraph("Security measures", styles["Heading3"]))
     Story.append(Paragraph("<font size=12>Delay security measure after a wrong BAC: " + str(data["delaySecurity"]) + "</font>", styles["Normal"]))
     Story.append(Paragraph("<font size=12>Block the communication after a wrong BAC: " + str(data["blockAfterFail"]) + "</font>", styles["Normal"]))
-    
+
     Story.append(Paragraph("Potential vulnerabilities", styles["Heading3"]))
     (vuln, ans) = data["activeAuthWithoutBac"]
     Story.append(Paragraph("<font size=12>Active Authentication before BAC: " + str(vuln) + "</font>", styles["Normal"]))
     if vuln: Story.append(Paragraph("<font size=12>&nbsp;&nbsp;* Vulnerable to AA Traceability</font>", styles["Normal"]))
     Story.append(Spacer(1, 12))
     Story.append(Paragraph("<font size=12>Different response time for wrong message or MAC: " + str(data["macTraceability"]) + "</font>", styles["Normal"]))
-    if data["macTraceability"]: 
+    if data["macTraceability"]:
         Story.append(Paragraph("<font size=12>&nbsp;&nbsp;* Vulnerable to MAC traceability</font>", styles["Normal"]))
         Story.append(Paragraph("<font size=12>&nbsp;&nbsp;&nbsp;&nbsp;Note: If delay security measure implemented, this might be a false positive</font>", styles["Normal"]))
     Story.append(Spacer(1, 12))
     (vuln, error) = data["getChallengeNull"]
     Story.append(Paragraph("<font size=12>Passport answers to a GET CHALLENGE with the Le set to '01': " + str(vuln) + "</font>", styles["Normal"]))
     if vuln: Story.append(Paragraph("<font size=12>&nbsp;&nbsp;* Vulnerable to lookup brute force</font>", styles["Normal"]))
-    
+
     Story.append(Paragraph("Error Fingerprinting", styles["Heading3"]))
     for ins in data["Errors"]:
         Story.append(Paragraph('<font size=12>APDU "00" "' + ins + '" "00" "00" "" "" "00": ' + data["Errors"][ins] + "</font>", styles["Normal"]))
 
-    
+
     doc.build(Story)
-    
+
     if tag != None:
         os.remove(profile)
         try:
             os.remove(signature)
         except NameError:
             pass
-    
+
 
 def browseDGs(data, level=0):
     dgtypes = [DataGroup1, DataGroup2, DataGroup3, DataGroup4, DataGroup5,
@@ -364,7 +364,7 @@ def browseDGs(data, level=0):
                 self.browseDGs(data[x], i+1)
             else:
                 Story.append(Paragraph("<font size=12>  "+truncate(data[x], (i+1)*"  "), styles["Normal"]))
-                
+
     elif type(data) == type(list()):
         for x in data:
             if type(x) == type(dict()) or type(x) == type(list()) or type(x) in dgtypes:

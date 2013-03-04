@@ -26,19 +26,19 @@ from pypassport.logger import Logger
 class Ciphering(Logger):
     def __init__(self):
         Logger.__init__(self, "SM")
-        
+
     def protect(self, apdu):
         raise Exception("Should be implemented")
-    
-    def unprotect(self, apdu): 
+
+    def unprotect(self, apdu):
         raise Exception("Should be implemented")
-    
+
 class SecureMessagingException(Exception):
     def __init__(self, *params):
         Exception.__init__(self, *params)
 
 class SecureMessaging(Ciphering):
-    """ 
+    """
     This class implement the secure messaging protocol.
     The class is a new layer that comes between the reader and the iso7816.
     It gives a new transmit method that takes an APDU object formed by the iso7816 layer,
@@ -46,19 +46,19 @@ class SecureMessaging(Ciphering):
     """
     def __init__(self, ksenc, ksmac, ssc):
         Ciphering.__init__(self)
-        self._ksenc = ksenc 
+        self._ksenc = ksenc
         self._ksmac = ksmac
         self._ssc = ssc
-        
+
     def protect(self, apdu):
         """
         Protect the apdu following the doc9303 specification
         """
-        
+
         cmdHeader = self._maskClassAndPad(apdu)
         do87 = ""
         do97 = ""
-        
+
         tmp = "Concatenate CmdHeader"
         if(apdu.getData()):
             tmp += " and DO87"
@@ -70,38 +70,38 @@ class SecureMessaging(Ciphering):
         M = cmdHeader + do87 + do97
         self.log(tmp)
         self.log("\tM: " + binToHexRep(M))
-        
+
         self._ssc = self._incSSC()
         self.log("Compute MAC of M")
         self.log("\tIncrement SSC with 1")
         self.log("\t\tSSC: " + binToHexRep(self._ssc))
-        
-        
+
+
         N = pad(self._ssc + M)
         self.log("\tConcateate SSC and M and add padding")
         self.log("\t\tN: " + binToHexRep(N))
 
-        
+
         CC = mac(self._ksmac, N)
         self.log("\tCompute MAC over N with KSmac")
         self.log("\t\tCC: " + binToHexRep(CC))
-        
-        do8e = self._buildD08E(CC) 
-        size = str(len(do87) + len(do97) + len(do8e)) 
+
+        do8e = self._buildD08E(CC)
+        size = str(len(do87) + len(do97) + len(do8e))
         protectedAPDU = cmdHeader[:4] + intToBin(size) + do87 + do97 + do8e + hexToBin(0x00)
-        
+
         self.log("Construct and send protected APDU")
         self.log("\tProtectedAPDU: " + binToHexRep(protectedAPDU))
-        
-        return CommandAPDU(binToHexRep(protectedAPDU[0]), 
-                    binToHexRep(protectedAPDU[1]), 
-                    binToHexRep(protectedAPDU[2]), 
-                    binToHexRep(protectedAPDU[3]), 
-                    binToHexRep(protectedAPDU[4]), 
-                    binToHexRep(protectedAPDU[5:-1]), 
+
+        return CommandAPDU(binToHexRep(protectedAPDU[0]),
+                    binToHexRep(protectedAPDU[1]),
+                    binToHexRep(protectedAPDU[2]),
+                    binToHexRep(protectedAPDU[3]),
+                    binToHexRep(protectedAPDU[4]),
+                    binToHexRep(protectedAPDU[5:-1]),
                     binToHexRep(protectedAPDU[-1]))
-        
-    
+
+
     def unprotect(self, rapdu):
         """
         Unprotect the APDU following the iso7816 specification
@@ -112,30 +112,30 @@ class SecureMessaging(Ciphering):
         do99 = ""
         do8e = ""
         offset = 0
-        
+
         #Check for a SM error
         if(rapdu.sw1 != 0x90 or rapdu.sw2 != 0x00):
             return rapdu
-        
+
         rapdu = rapdu.getBinAPDU()
-        
+
         self.log("Receive response APDU of MRTD's chip")
         self.log("\tRAPDU: " + binToHexRep(rapdu))
-        
+
         #DO'87'
         #Mandatory if data is returned, otherwise absent
         if rapdu[0] == hexRepToBin("87"):
             (encDataLength, o) = asn1Length(rapdu[1:])
             offset = 1 + o
-                        
+
             if rapdu[offset] != hexRepToBin("01"):
                 raise SecureMessagingException, "DO87 malformed, must be 87 L 01 <encdata> : " + binToHexRep(rapdu)
-            
+
             do87 = rapdu[0:offset+encDataLength]
             do87Data = rapdu[offset+1:offset+encDataLength]
             offset += encDataLength
             needCC = True
-            
+
         #DO'99'
         #Mandatory, only absent if SM error occurs
         do99 = rapdu[offset:offset+4]
@@ -143,11 +143,11 @@ class SecureMessaging(Ciphering):
         sw2 = rapdu[offset+3]
         offset += 4
         needCC = True
-        
+
         if do99[0:2] != hexRepToBin("9902"):
             #SM error, return the error code
             return ResponseAPDU([], sw1, sw2)
-        
+
         #DO'8E'
         #Mandatory id DO'87' and/or DO'99' is present
         if rapdu[offset] == hexRepToBin("8E"):
@@ -156,36 +156,36 @@ class SecureMessaging(Ciphering):
             do8e = rapdu[offset:offset+2+ccLength]
 
             #CheckCC
-            
+
             tmp = ""
             if do87:
                 tmp += " DO'87"
             if do99:
                 tmp += " DO'99"
             self.log("Verify RAPDU CC by computing MAC of" + tmp)
-            
+
             self._ssc = self._incSSC()
             self.log("\tIncrement SSC with 1")
             self.log("\t\tSSC: " + binToHexRep(self._ssc))
-            
+
             K = pad(self._ssc + do87 + do99)
             self.log("\tConcatenate SSC and" + tmp + " and add padding")
             self.log("\t\tK: " + binToHexRep(K))
-            
+
             self.log("\tCompute MAC with KSmac")
             CCb = mac(self._ksmac, K)
             self.log("\t\tCC: " + binToHexRep(CCb))
-            
+
             res = (CC == CCb)
             self.log("\tCompare CC with data of DO'8E of RAPDU")
             self.log("\t\t" + binToHexRep(CC) + " == " + binToHexRep(CCb) + " ? " + str(res))
-            
+
             if not res:
                 raise SecureMessagingException, "Invalid checksum for the rapdu : " + str(binToHex(rapdu))
-                       
+
         elif needCC:
             raise SecureMessagingException, "Mandatory id DO'87' and/or DO'99' is present"
-        
+
         data = []
         if(do87Data):
             #There is a payload
@@ -193,26 +193,26 @@ class SecureMessaging(Ciphering):
             data = unpad(tdes.decrypt(do87Data))
             self.log("Decrypt data of DO'87 with KSenc")
             self.log("\tDecryptedData: " + binToHexRep(data))
-            
+
         self.log("Unprotected APDU: [" + binToHexRep(data) + "] " + binToHexRep(sw1) + " " + binToHexRep(sw2))
         return ResponseAPDU(data, binToHex(sw1), binToHex(sw2))
-        
+
     def _maskClassAndPad(self, apdu):
         self.log("Mask class byte and pad command header")
         res = pad( hexRepToBin("0C" + apdu.getIns() + apdu.getP1() + apdu.getP2() ))
         self.log("\tCmdHeader: " + binToHexRep(res))
         return res
-    
+
     def _buildD087(self, apdu):
         cipher = "\x01" + self._padAndEncryptData(apdu)
         res = "\x87" + toAsn1Length(len(cipher)) + cipher
         self.log("Build DO'87")
         self.log("\tDO87: " + binToHexRep(res))
         return res
-    
+
     def _padAndEncryptData(self, apdu):
         """ Pad the data, encrypt data with KSenc and build DO'87"""
-        tdes= DES3.new(self._ksenc,DES.MODE_CBC, b'\x00\x00\x00\x00\x00\x00\x00\x00') 
+        tdes= DES3.new(self._ksenc,DES.MODE_CBC, b'\x00\x00\x00\x00\x00\x00\x00\x00')
         paddedData = pad( hexRepToBin(apdu.getData()))
         enc = tdes.encrypt( paddedData )
         self.log("Pad data")
@@ -220,25 +220,25 @@ class SecureMessaging(Ciphering):
         self.log("Encrypt data with KSenc")
         self.log("\tEncryptedData: " + binToHexRep(enc))
         return enc
-    
+
     def _incSSC(self):
         out = binToHex(self._ssc) + 1
         res = hexToBin(out)
-        return res 
-    
+        return res
+
     def _buildD08E(self, mac):
         res = hexListToBin([0x8E, len(mac)]) + mac
         self.log("Build DO'8E")
         self.log("\tDO8E: " + binToHexRep(res))
         return res
-        
+
     def _buildD097(self, apdu):
         tmp = "9701" + apdu.getLe()
         self.log("Build DO'97")
         self.log("\tDO97: " + tmp)
         return hexRepToBin(tmp)
-    
+
     def __str__(self):
         return "KSenc: " + binToHexRep(self._ksenc) + "\n" + "KSmac: " + binToHexRep(self._ksmac) + "\n" + "SSC: " + binToHexRep(self._ssc)
 
-        
+

@@ -40,19 +40,19 @@ setup(
       "Intended Audience :: Developers",
       "Topic :: RFID"
     ],
-    
+
     packages=find_packages(),
     package_data = {
       '': ['*.py'],
       'pypassport': ['README', 'LICENSE']
     },
-    
-    
+
+
     install_requires=[
-        'setuptools', 
+        'setuptools',
         'pyCrypto',
         'pyasn1',
-        'pyscard', 
+        'pyscard',
         'PIL'
     ],
 

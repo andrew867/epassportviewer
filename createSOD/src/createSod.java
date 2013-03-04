@@ -56,7 +56,7 @@ public class createSod {
 
 	/**
 	 * @param args
-	 * @throws CMSException 
+	 * @throws CMSException
 	 */
 	public static void main(String[] args) throws Exception {
 		
@@ -190,7 +190,7 @@ public class createSod {
 		try {
 			CommandLine line = parser.parse( getOptions(), args );
 		    // parse the command line arguments
-		    
+		
 		    if (line.hasOption("v") || line.hasOption("version")){
 		    	System.out.println(NAME+" "+VERSION);
 				System.out.println("");
@@ -200,7 +200,7 @@ public class createSod {
 				System.out.println("Please see LICENSE files for more informations");		    	
 		    	System.exit(0);
 		    }
-		    
+		
 		    List<String> mandatory = new ArrayList<String>();
 		    mandatory.add("privatekey");
 		    mandatory.add("keypass");

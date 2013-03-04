@@ -61,7 +61,7 @@ class DistinguishedName(object):
     def setSerialNumber(self, value):
         self.__serialNumber = value
 
-    
+
     def getSubject(self):
         subj = ""
         if self.C: subj += "/C="+self.C
@@ -82,51 +82,51 @@ class DistinguishedName(object):
     CN = property(getCN, setCN, None, None)
     emailAddress = property(getEmailAddress, setEmailAddress, None, None)
     serialNumber = property(getSerialNumber, setSerialNumber, None, None)
-    
+
 class CA(Logger):
     def __init__(self, caLoc=os.path.expanduser('~'), csca=None, cscaKey=None, opensslLocation=""):
-        """ 
+        """
         Initiate the CA infrastructure.
-        @caLoc: The location where the openssl config files will be stored 
+        @caLoc: The location where the openssl config files will be stored
         @param csca: An existing CSCA Certificate in PEM
         @param cscaKey: The private key of the CSCA in PEM
-        @param opensslLocation: The openssl executable location 
+        @param opensslLocation: The openssl executable location
         """
         Logger.__init__(self, "CA")
-        
+
         self._csca = csca
         self._cscaKey = cscaKey
         self._loc = os.path.normpath(caLoc)
         self._loc = os.path.join(self._loc, 'ca')
         self._configFile = os.path.join(self._loc, 'openssl.cfg')
-        
+
         try:
             os.mkdir(self._loc)
         except:
             pass
-        
+
         self._openssl = OpenSSL('"' + self._configFile + '"')
         self._openssl.register(self._traceOpenSSl)
-        
+
     def createCSCA(self, size=1024, days=720, dn=DistinguishedName(C="BE", O="Gouv", CN="CSCA-BELGIUM")):
-        """ 
+        """
         Create a Country Signing Certificate Authority.
         Return a couple with the x509 as first item and the private key as second item
-        
+
         The default distinguished name for the CSCA is:
         C=BE
         O=Gouv
         CN=CSCA-BELGIUM
-        
+
         @param size: The RSA key size in bits
         @param days: The validity period of the certificate
         @param dn: The distinguised name of the certificate
         @return: (x509, privateKey) both in PEM
         """
         self._cscaKey = self._openssl.genRSAprKey(size)
-        self._csca = self._genRootHelper(self.cscaKey, days, dn) 
+        self._csca = self._genRootHelper(self.cscaKey, days, dn)
         return (self.csca, self.cscaKey)
-    
+
     def _genRootHelper(self, cscaKey, days, dn):
         try:
             return self._openssl.genRootX509(cscaKey, days, dn)
@@ -134,18 +134,18 @@ class CA(Logger):
             msg = str(msg)
             self._errorHandler(msg)
             return self._openssl.genRootX509(cscaKey, days, dn)
-             
-        
+
+
     def createDS(self, size=1024, days=365, dn=DistinguishedName(C="BE", O="Gouv", CN="Document-Signer-BELGIUM")):
-        """ 
+        """
         Create a Document Signer Certificate.
         Return a couple with the x509 as first item and the private key as second item
-        
+
         The default distinguished name for the DS is:
         C=BE
         O=Gouv
         CN=Document Signer BELGIUM
-        
+
         @param size: The RSA key size in bits
         @param days: The validity period of the certificate
         @param dn: The distinguised name of the certificate
@@ -154,10 +154,10 @@ class CA(Logger):
         self._testinit()
         dsKey = self._openssl.genRSAprKey(size)
         dsReq = self._openssl.genX509Req(dsKey, dn)
-        ds = self._signX509Helper(dsReq, days)    
-            
+        ds = self._signX509Helper(dsReq, days)
+
         return (ds, dsKey)
-    
+
     def _signX509Helper(self, dsReq, days):
         try:
             return self._openssl.signX509Req(dsReq, self.csca, self.cscaKey, days)
@@ -165,22 +165,22 @@ class CA(Logger):
             msg = str(msg)
             self._errorHandler(msg)
             return self._signX509Helper(dsReq, days)
-    
+
     def revoke(self, x509):
-        """   
+        """
         Revoke the certificate.
         Return the CRL in PEM.
-        
+
         @param x509: A x509 certificate
         @return: The CRL in PEM
         @rtype: A string
         """
         self._testinit()
         self._openssl.revokeX509(x509, self.csca, self.cscaKey)
-        
+
     def _traceOpenSSl(self, name, msg):
         self.log(msg, name)
-    
+
     def getCrl(self):
         if not os.path.isfile(os.path.join(self._loc, 'crlnumber')):
             self._openssl._toDisk(os.path.join(self._loc, 'crlnumber'), "01")
@@ -192,7 +192,7 @@ class CA(Logger):
             self._errorHandler(msg)
             self.getCrl()
         return self._openssl.crlToDER(crl)
-    
+
     def _errorHandler(self, msg):
         if msg.find('newcerts')> 0:
             os.makedirs(os.path.join(self._loc, 'newcerts'))
@@ -211,7 +211,7 @@ class CA(Logger):
         else:
             raise OpenSSLException(msg)
         self.log(msg)
-        
+
     def resetConfig(self):
         try:
             shutil.rmtree(self._loc)
@@ -223,11 +223,11 @@ class CA(Logger):
         self._openssl._toDisk(os.path.join(self._loc, 'serial'), "01")
         self._openssl._toDisk(os.path.join(self._loc, 'crlnumber'), "01")
         self._openssl._toDisk(self._configFile, self._getConfigFile(self._loc))
-        
+
     def _testinit(self):
         if not ((self.csca != None) and (self.cscaKey != None)):
             raise OpenSSLException("The root CSCA Certificate is not set.")
-            
+
     def printCrl(self, crl):
         return self._openssl.printCrl(crl)
 
@@ -242,12 +242,12 @@ class CA(Logger):
 
     def setCscaKey(self, value):
         self._cscaKey = value
-        
+
     csca = property(getCsca, setCsca, None, None)
     cscaKey = property(getCscaKey, setCscaKey, None, None)
-    
+
     def _getConfigFile(self, path):
-        
+
         altsep = os.altsep
         if not altsep:
             altsep = os.path.sep
@@ -303,8 +303,8 @@ keyUsage                = critical, keyCertSign
 basicConstraints       = critical, CA:true, pathlen:0
 subjectKeyIdentifier   = hash
 keyUsage               = critical, keyCertSign, cRLSign"""
-        
-        
+
+
 #from pypassport.openssl import DistinguishedName, CA
 #ca = CA()
 #ca.resetConfig()

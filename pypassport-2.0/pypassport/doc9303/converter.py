@@ -45,95 +45,95 @@ _Table = {
          }
 
 def toDISP(data):
-    """ 
+    """
     Transform the data value to its value to display
-    If the data value does not come from the Table A1 from the doc9303, 
+    If the data value does not come from the Table A1 from the doc9303,
     an exception is raised
     """
     return to(types.DISP, data)
 
 def toDG(data):
-    """ 
+    """
     Transform the data value to its DG representation
-    If the data value does not come from the Table A1 from the doc9303, 
+    If the data value does not come from the Table A1 from the doc9303,
     an exception is raised
     """
     return to(types.DG, data)
 
 def toEF(data):
-    """ 
+    """
     Transform the data value to its EF representation
-    If the data value does not come from the Table A1 from the doc9303, 
+    If the data value does not come from the Table A1 from the doc9303,
     an exception is raised
     """
     return to(types.EF, data)
 
 def toSEF(data):
-    """ 
+    """
     Transform the data value to its SEF representation
-    If the data value does not come from the Table A1 from the doc9303, 
+    If the data value does not come from the Table A1 from the doc9303,
     an exception is raised
     """
     return to(types.SEF, data)
 
 def toFID(data):
-    """ 
+    """
     Transform the data value to its FID representation
-    If the data value does not come from the Table A1 from the doc9303, 
+    If the data value does not come from the Table A1 from the doc9303,
     an exception is raised
     """
     return to(types.FID, data)
 
 def toTAG(data):
-    """ 
+    """
     Transform the data value to its TAG representation
-    If the data value does not come from the Table A1 from the doc9303, 
+    If the data value does not come from the Table A1 from the doc9303,
     an exception is raised
     """
     return to(types.TAG, data)
 
 def toClass(data):
-    """ 
+    """
     Return the class linked to the parameter value
-    If the data value does not come from the Table A1 from the doc9303, 
+    If the data value does not come from the Table A1 from the doc9303,
     an exception is raised
     """
     return to(types.CLASS, data)
 
 def toOther(data):
-    """ 
+    """
     Transform the data value to its OTHER representation
-    If the data value does not come from the Table A1 from the doc9303, 
+    If the data value does not come from the Table A1 from the doc9303,
     an exception is raised
     """
     return to(types.OTHER, data)
 
 def toOrder(data):
-    """ 
+    """
     Transform the data value to its ORDER representation (0 to 17)
-    If the data value does not come from the Table A1 from the doc9303, 
+    If the data value does not come from the Table A1 from the doc9303,
     an exception is raised
     """
     return to(types.ORDER, data)
 
 def toGRT(data):
-    """ 
+    """
     Transform the data value to its GoldenReaderTool representation
     """
     return to(types.GRT, data)
 
 def to(table, data):
-    """ 
+    """
     Return the element value from the specified list at the found possition
     """
     return _Table[table][_getPosition(data)]
 
 def _getPosition(data):
-    """ 
+    """
     Look for the corresponding data value in every list of the _Table dictionnary.
     If The data value is found, it's position is returned.
     """
-    
+
     for l in _Table:
         try:
             return _Table[l].index(str(data))

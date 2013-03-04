@@ -20,20 +20,19 @@ class Logger(object):
     def __init__(self, name):
         self._listeners = []
         self._name = name
-        
+
     def register(self, fct):
         """the listener gives the method he want as callback"""
         self._listeners.append(fct)
-        
+
     def unregister(self, listener):
         self._listeners.remove(listener)
-        
+
     def log(self, msg, name=None):
         if name != None:
             n = name
         else: n = self._name
-        
+
         for listenerFct in self._listeners:
             listenerFct(n, msg)
-            
-    
+

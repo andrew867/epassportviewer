@@ -51,23 +51,23 @@ from pypassport.doc9303.tagconverter import *
 from pypassport.doc9303.bac import BACException
 
 class create(Toplevel):
-    
+
     def __init__(self, master):
         Toplevel.__init__(self, master)
         self.title("Create a passport (JCOP)")
         self.resizable(False,False)
         self.transient(master)
         self.master = master
-        
+
         ##########
         #  VIEW  #
         ##########
-        
+
         title = tkFont.Font(size=12)
-        
+
         createFrame = Frame(self, borderwidth=1, relief=GROOVE)
         createFrame.pack(fill=BOTH, expand=1)
-        
+
         # HOLDER'S INFORTMATION
         holderLabel = Label(createFrame, text="Holder's information:", justify=LEFT, font=title)
         holderLabel.grid(row=0, column=0, columnspan=2, padx=5, pady=5, sticky=(N, W))
@@ -78,30 +78,30 @@ class create(Toplevel):
 
         self.firstnameForm = Entry(createFrame, width=30)
         self.firstnameForm.grid(row=1, column=1, padx=5, pady=5, sticky=(N, W))
-        
+
         # Surname
         surnameLabel = Label(createFrame, text="Surname:", justify=LEFT)
         surnameLabel.grid(row=2, column=0, padx=5, pady=5, sticky=(N, W))
 
         self.surnameForm = Entry(createFrame, width=30)
         self.surnameForm.grid(row=2, column=1, padx=5, pady=5, sticky=(N, W))
-        
+
         # Sex
         sexLabel = Label(createFrame, text="Sex:", justify=LEFT)
         sexLabel.grid(row=3, column=0, padx=5, pady=5, sticky=(N, W))
-        
+
         sexFrame = Frame(createFrame)
         sexFrame.grid(row=3, column=1, sticky=(N, W))
-        
+
         self.sex = StringVar()
         self.sex.set("M")
-        
+
         maleRadio = Radiobutton(sexFrame, text="M", variable=self.sex, value="M")
         maleRadio.pack(side=LEFT, padx=5, pady=5, anchor=W)
 
         femaleRadio = Radiobutton(sexFrame, text="F", variable=self.sex, value="F")
         femaleRadio.pack(side=LEFT, padx=5, pady=5, anchor=W)
-        
+
         # Date of birth
         dobLabel = Label(createFrame, text="Date of birth:", justify=LEFT)
         dobLabel.grid(row=4, column=0, padx=5, pady=5, sticky=(N, W))
@@ -109,24 +109,24 @@ class create(Toplevel):
         self.dobForm = Entry(createFrame, width=10, justify=LEFT)
         self.dobForm.grid(row=4, column=1, padx=5, pady=5, sticky=(N, W))
         self.dobForm.insert(0, "YYYY/MM/DD")
-        
+
         # Nationality
         nationalityLabel = Label(createFrame, text="Nationality:", justify=LEFT)
         nationalityLabel.grid(row=5, column=0, padx=5, pady=5, sticky=(N, W))
 
         self.nationalityForm = Entry(createFrame, width=3, justify=LEFT)
         self.nationalityForm.grid(row=5, column=1, padx=5, pady=5, sticky=(N, W))
-        
+
         documentLabel = Label(createFrame, text="Document's information:", justify=LEFT, font=title)
         documentLabel.grid(row=6, column=0, columnspan=2, padx=5, pady=5, sticky=(N, W))
-        
+
         # Id
         idLabel = Label(createFrame, text="ID:", justify=LEFT)
         idLabel.grid(row=7, column=0, padx=5, pady=5, sticky=(N, W))
 
         self.idForm = Entry(createFrame, width=9, justify=LEFT)
         self.idForm.grid(row=7, column=1, padx=5, pady=5, sticky=(N, W))
-        
+
         # Expiration data
         doeLabel = Label(createFrame, text="Expiration date:", justify=LEFT)
         doeLabel.grid(row=8, column=0, padx=5, pady=5, sticky=(N, W))
@@ -134,53 +134,53 @@ class create(Toplevel):
         self.doeForm = Entry(createFrame, width=10, justify=LEFT)
         self.doeForm.grid(row=8, column=1, padx=5, pady=5, sticky=(N, W))
         self.doeForm.insert(0, "YYYY/MM/DD")
-        
+
         # Issuer
         issuerLabel = Label(createFrame, text="Issuer:", justify=LEFT)
         issuerLabel.grid(row=9, column=0, padx=5, pady=5, sticky=(N, W))
 
         self.issuerForm = Entry(createFrame, width=3, justify=LEFT)
         self.issuerForm.grid(row=9, column=1, padx=5, pady=5, sticky=(N, W))
-        
+
         # Face
         issuerLabel = Label(createFrame, text="Face:", justify=LEFT, font=title)
         issuerLabel.grid(row=10, column=0, columnspan=2, padx=5, pady=5, sticky=(N, W))
-        
+
         faceFrame = Frame(createFrame)
         faceFrame.grid(row=11, column=0, columnspan=2, sticky=(N, W))
-        
+
         selectImageButton = Button(faceFrame, text="Select image...", width=10, command=self.selectImage)
         selectImageButton.pack(side=LEFT, padx=5, pady=5)
-        
+
         self.faceForm = Entry(faceFrame, width=30, justify=LEFT)
         self.faceForm.pack(side=LEFT, padx=5, pady=5)
-        
+
         # CERTIFICATE
         certificateLabel = Label(createFrame, text="Certificate:", justify=LEFT, font=title)
         certificateLabel.grid(row=12, column=0, columnspan=2, padx=5, pady=5, sticky=(N, W))
-        
+
         countryLabel = Label(createFrame, text="Country:", justify=LEFT)
         countryLabel.grid(row=13, column=0, padx=5, pady=5, sticky=(N, E))
 
         self.countryForm = Entry(createFrame, width=2, justify=LEFT)
         self.countryForm.grid(row=13, column=1, padx=5, pady=5, sticky=(N, W))
-        
+
         organisationLabel = Label(createFrame, text="Organisation:", justify=LEFT)
         organisationLabel.grid(row=14, column=0, padx=5, pady=5, sticky=(N, E))
 
         self.organisationForm = Entry(createFrame, width=3, justify=LEFT)
         self.organisationForm.grid(row=14, column=1, padx=5, pady=5, sticky=(N, W))
-        
+
         # GENERATE
         #buttonsFrame = Frame(createFrame)
         #buttonsFrame.grid(row=15, column=0, columnspan=2)
-        
+
         generateButton = Button(createFrame, text="Generate...", width=43, command=self.actionGenerate)
         generateButton.grid(row=15, column=0, columnspan=2, padx=5, pady=5)
-        
+
         updateButton = Button(createFrame, text="Update", width=43, command=self.actionUpdate)
         updateButton.grid(row=15, column=2, columnspan=2, padx=5, pady=5)
-        
+
         # OPTIONAL
         holderLabel = Label(createFrame, text="Optional:", justify=LEFT, font=title)
         holderLabel.grid(row=0, column=2, columnspan=2, padx=5, pady=5, sticky=(N, W))
@@ -191,21 +191,21 @@ class create(Toplevel):
 
         self.pobForm = Entry(createFrame, width=30)
         self.pobForm.grid(row=1, column=3, padx=5, pady=5, sticky=(N, W))
-        
+
         # Middle name
         middleLabel = Label(createFrame, text="Middle name:", justify=LEFT)
         middleLabel.grid(row=2, column=2, padx=5, pady=5, sticky=(N, W))
 
         self.middleForm = Entry(createFrame, width=30)
         self.middleForm.grid(row=2, column=3, padx=5, pady=5, sticky=(N, W))
-        
+
         # Issuing authority
         issuingAuthLabel = Label(createFrame, text="Issuing authority:", justify=LEFT)
         issuingAuthLabel.grid(row=3, column=2, padx=5, pady=5, sticky=(N, W))
 
         self.issuingAuthForm = Entry(createFrame, width=30)
         self.issuingAuthForm.grid(row=3, column=3, padx=5, pady=5, sticky=(N, W))
-        
+
         # Date of issue
         doiLabel = Label(createFrame, text="Date of issue:", justify=LEFT)
         doiLabel.grid(row=4, column=2, padx=5, pady=5, sticky=(N, W))
@@ -213,35 +213,35 @@ class create(Toplevel):
         self.doiForm = Entry(createFrame, width=10, justify=LEFT)
         self.doiForm.grid(row=4, column=3, padx=5, pady=5, sticky=(N, W))
         self.doiForm.insert(0, "YYYY/MM/DD")
-        
+
         # Height
         heightLabel = Label(createFrame, text="Height:", justify=LEFT)
         heightLabel.grid(row=5, column=2, padx=5, pady=5, sticky=(N, W))
 
         self.heightForm = Entry(createFrame, width=30)
         self.heightForm.grid(row=5, column=3, padx=5, pady=5, sticky=(N, W))
-        
+
         # Eyes
         eyesLabel = Label(createFrame, text="Eyes:", justify=LEFT)
         eyesLabel.grid(row=6, column=2, padx=5, pady=5, sticky=(N, W))
 
         self.eyesForm = Entry(createFrame, width=30)
         self.eyesForm.grid(row=6, column=3, padx=5, pady=5, sticky=(N, W))
-        
-        
+
+
         # Address
         addressLabel = Label(createFrame, text="Address:", justify=LEFT)
         addressLabel.grid(row=8, column=2, padx=5, pady=5, sticky=(N, W))
 
         self.addressForm = Entry(createFrame, width=30)
         self.addressForm.grid(row=8, column=3, padx=5, pady=5, sticky=(N, W))
-        
-        
-        
+
+
+
     ################
     #  CONTROLLER  #
     ################
-    
+
     def selectImage(self):
         try:
             filename = askopenfilename(title="Select image")
@@ -253,19 +253,19 @@ class create(Toplevel):
                     tkMessageBox.showerror("Error: save", "The path you selected is not a file")
         except Exception, msg:
             tkMessageBox.showerror("Error: save", str(msg))
-        
-    def actionUpdate(self):          
-        
-        forge.generate( firstname = self.firstnameForm.get(), 
+
+    def actionUpdate(self):
+
+        forge.generate( firstname = self.firstnameForm.get(),
                         surname = self.surnameForm.get(),
-                        sex = self.sex.get(), 
-                        dob = self.dobForm.get(), 
-                        nationality = self.nationalityForm.get(), 
+                        sex = self.sex.get(),
+                        dob = self.dobForm.get(),
+                        nationality = self.nationalityForm.get(),
                         id_doc= self.idForm.get(),
                         doe = self.doeForm.get(),
                         issuer = self.issuerForm.get(),
                         face_path = self.faceForm.get(),
-                        country = self.countryForm.get(), 
+                        country = self.countryForm.get(),
                         organisation = self.organisationForm.get(),
                         pob = self.pobForm.get(),
                         middle_name = self.middleForm.get(),
@@ -277,24 +277,24 @@ class create(Toplevel):
                       )
 
         tkMessageBox.showinfo("Update done", "The update has been done")
-            
+
     def actionGenerate(self):
         try:
             filename = askopenfilename(title="Select epassport.cap")
             if filename:
                 filename = str(filename)
                 if os.path.isfile(filename):
-                    
-                    forge.generate( firstname = self.firstnameForm.get(), 
+
+                    forge.generate( firstname = self.firstnameForm.get(),
                                     surname = self.surnameForm.get(),
-                                    sex = self.sex.get(), 
-                                    dob = self.dobForm.get(), 
-                                    nationality = self.nationalityForm.get(), 
+                                    sex = self.sex.get(),
+                                    dob = self.dobForm.get(),
+                                    nationality = self.nationalityForm.get(),
                                     id_doc= self.idForm.get(),
                                     doe = self.doeForm.get(),
                                     issuer = self.issuerForm.get(),
-                                    face_path = self.faceForm.get(), 
-                                    country = self.countryForm.get(), 
+                                    face_path = self.faceForm.get(),
+                                    country = self.countryForm.get(),
                                     organisation = self.organisationForm.get(),
                                     pob = self.pobForm.get(),
                                     middle_name = self.middleForm.get(),
@@ -306,128 +306,128 @@ class create(Toplevel):
                                     update = False,
                                     cap_path = filename
                                   )
-                                  
-                    tkMessageBox.showinfo("Generation done", "The ePassport has been generated")                
-                                    
+
+                    tkMessageBox.showinfo("Generation done", "The ePassport has been generated")
+
                 else:
                     tkMessageBox.showerror("Error: save", "The path you selected is not a file")
         except Exception, msg:
             tkMessageBox.showerror("Error: generate", str(msg))
-            
+
 
 
 
 
 class WaitDialog(Toplevel):
-    
+
     def __init__(self, master):
         Toplevel.__init__(self, master)
         self.title("Please wait")
         self.resizable(False,False)
         self.transient(master)
         self.grab_set()
-        
+
         self.waitFrame = Frame(self)
         self.waitFrame.pack(fill=BOTH, expand=1)
-        
+
         self.txt = StringVar()
         self.txt.set("Please wait...")
         self.waitLabel = Label(self.waitFrame, textvariable=self.txt, justify=LEFT)
         self.waitLabel.pack(padx=20, pady=20)
-        
+
     def closeDialog(self):
         self.destroy()
-    
+
     def setMessage(self, message):
         self.txt.set(message)
         self.update()
         self.deiconify()
-            
-            
-            
-            
+
+
+
+
 
 class About(Toplevel):
-    
+
     VERSIONTEXT = "Version " + VERSION
-    
+
     DESCRIPTION = """ePassport Viewer is a biometric passport viewer.\n\
 This application is based on the pyPassport Project\n\
 and illustrate how to use it.\n\
 Features include viewing data, fingerprinting and\n\
-performing e-Passport security mechanisms."""    
+performing e-Passport security mechanisms."""
 
     PLACE = "Universite Catholique de Louvain (UCL) @ 2009"
     GROUP = "http://sites.uclouvain.be/security/"
-    
+
     def __init__(self, master):
         Toplevel.__init__(self, master)
         self.title("About")
         self.resizable(False,False)
         self.transient(master)
         self.grab_set()
-        
+
         epvFrame = Frame(self, borderwidth=1)
         epvFrame.pack(fill=BOTH, expand=1)
-        
+
         Label(epvFrame, text="ePassport Viewer", font=(None, 16, 'bold')).grid(row=0, column=0, columnspan=2, padx=20, pady=5, sticky=W)
-        
+
         im = Image.open(ImageFactory().create(ImageFactory().LOGO))
         image = ImageTk.PhotoImage(im)
         img = Label(epvFrame, image=image, anchor=CENTER)
         img.image = image
         img.grid(row=1, column=0, padx=20, pady=5)
-        
+
         Label(epvFrame, text=self.DESCRIPTION, justify=LEFT).grid(row=1, column=1, padx=5, sticky=NW)
-        
+
         Label(epvFrame, text=self.VERSIONTEXT, anchor=CENTER).grid(row=2, column=0, padx=5)
-        
-        
+
+
         devFrame = Frame(self, borderwidth=1)
         devFrame.pack(fill=BOTH, expand=1, pady=20)
-        
+
         Label(devFrame, text="Developer", font=(None, 16, 'bold')).grid(row=0, column=0, columnspan=2, padx=20, pady=5, sticky=W)
-        
+
         im = Image.open(ImageFactory().create(ImageFactory().NEWGSI))
         image = ImageTk.PhotoImage(im)
         img = Label(devFrame, image=image, anchor=CENTER)
         img.image = image
         img.grid(row=1, column=0, columnspan=2, padx=20, pady=10)
-        
+
         Label(devFrame, text="Version 1.0", font=(None, 9, 'bold')).grid(row=2, column=0, columnspan=2, padx=20, sticky=W)
-        
+
         Label(devFrame, text="Jean Francois HOUZARD").grid(row=3, column=0, padx=20, sticky=W)
         Label(devFrame, text="email: jhouzard@gmail.com").grid(row=3, column=1, padx=5, sticky=W)
-        
+
         Label(devFrame, text="Olivier ROGER").grid(row=4, column=0, padx=20, sticky=W)
         Label(devFrame, text="email: olivier.roger@gmail.com").grid(row=4, column=1, padx=5, sticky=W)
-        
+
         Label(devFrame, text="Version 2.0", font=(None, 9, 'bold')).grid(row=5, column=0, columnspan=2, padx=20, sticky=W)
-        
+
         Label(devFrame, text="Antonin BEAUJEANT").grid(row=6, column=0, padx=20, sticky=W)
         Label(devFrame, text="email: antonin.beaujeant@gmail.com").grid(row=6, column=1, padx=5, sticky=W)
-        
-        
+
+
         licenseFrame = Frame(self, borderwidth=1)
         licenseFrame.pack(fill=BOTH, expand=1)
-        
+
         Label(licenseFrame, text="License", font=(None, 16, 'bold')).grid(row=0, column=0, columnspan=2, padx=20, pady=5, sticky=W)
-        
+
         im = Image.open(ImageFactory().create(ImageFactory().GPLV3))
         image = ImageTk.PhotoImage(im)
         img = Label(licenseFrame, image=image, anchor=CENTER)
         img.image = image
         img.grid(row=1, column=0, padx=20, pady=10)
-        
+
         Button(licenseFrame, text="GNU/LGPL v3", command=self.clickLicense).grid(row=1, column=1, padx=30, pady=5)
-        
-    
+
+
     def clickLicense(self):
         if os.path.isfile(LICENSE):
             License(self)
         else:
             tkMessageBox.showinfo("No License File", "There is no license file available")
-        
+
 
 class License(Toplevel):
     def __init__(self, master):
@@ -435,23 +435,23 @@ class License(Toplevel):
         self.title("License GNU/GPL v3")
         self.transient(master)
         self.grab_set()
-        
+
         file = open(LICENSE,'r')
         self.txt = file.read()
         file.close()
-         
+
         log = ScrollFrame(self, self.txt)
         log.pack(side=TOP, fill=BOTH, expand=True)
 
-        
-        
+
+
 class Log(Toplevel):
     def __init__(self, master):
         Toplevel.__init__(self, master)
         self.title("Log")
         self.transient(master)
         self.grab_set()
-        
+
         self.logFrame = ScrollFrame(self)
         self.logFrame.pack(side=TOP, fill=BOTH, expand=True)
 
@@ -459,58 +459,58 @@ class Log(Toplevel):
         self.epCheck.set(configManager().getOption('Logs','api'))
         ep = Checkbutton(self, text="EPassport", variable=self.epCheck, command=self.refresh)
         ep.pack(side=LEFT)
-        
+
         self.smCheck = BooleanVar()
         self.smCheck.set(configManager().getOption('Logs','sm'))
         sm = Checkbutton(self, text="Secure Messaging", variable=self.smCheck, command=self.refresh)
         sm.pack(side=LEFT, padx=10)
-        
+
         self.isoCheck = BooleanVar()
         self.isoCheck.set(configManager().getOption('Logs','apdu'))
         iso = Checkbutton(self, text="ISO7816", variable=self.isoCheck, command=self.refresh)
         iso.pack(side=LEFT)
-        
+
         self.bacCheck = IntVar()
         self.bacCheck.set(configManager().getOption('Logs','bac'))
         bac = Checkbutton(self, text="BAC", variable=self.bacCheck, command=self.refresh)
         bac.pack(side=LEFT, padx=10)
-        
+
         saveButton = Button(self, text="Save...", command=self.save)
         saveButton.pack(side=RIGHT, padx=5, pady=3)
-        
+
         self.createLog()
-        
+
     def refresh(self):
         configManager().setOption('Logs','api', self.epCheck.get())
         configManager().setOption('Logs','sm', self.smCheck.get())
         configManager().setOption('Logs','apdu', self.isoCheck.get())
         configManager().setOption('Logs','bac', self.bacCheck.get())
-        
+
         self.createLog()
-    
-    
+
+
     def createLog(self):
         l = list()
         if self.epCheck.get(): l.append("EPassport")
         if self.smCheck.get(): l.append("SM")
         if self.isoCheck.get(): l.append("ISO7816")
         if self.bacCheck.get(): l.append("BAC")
-        
+
         with open(LOG,'r') as f:
             lines = f.readlines()
-        
+
         textlog = ""
         for line in lines:
             for category in l:
                 if line[:len(category)] == category:
                     textlog += line
-        
+
         self.logFrame.updateText(textlog)
-    
-    
+
+
     def save(self):
         formats = [('Raw text','*.txt')]
-        
+
         fileName = asksaveasfilename(parent=self,filetypes=formats ,title="Save as...")
         if len(fileName) > 0:
             try:
@@ -521,7 +521,7 @@ class Log(Toplevel):
                 tkMessageBox.showerror("Save error", str(msg))
             finally:
                 file.close()
-                
+
 
 class ProgressBar(Frame):
     def __init__(self, master=None, orientation="horizontal",
@@ -556,7 +556,7 @@ class ProgressBar(Frame):
                                            font=self.labelFont)
         self.update()
         self.canvas.pack(side=TOP, expand=False)
-        
+
 #        self.frame.pack(side=TOP, fill=X, expand=False)
 
     def updateProgress(self, newValue, newMax=None):
@@ -596,61 +596,61 @@ class ProgressBar(Frame):
         else:
             self.canvas.itemconfig(self.label, text=self.labelFormat % self.labelText)
         self.canvas.update_idletasks()
-        
-        
+
+
 class WrongMRZ(Exception):
     def __init__(self, *params):
         Exception.__init__(self, *params)
-        
-class ReadingDialog(threading.Thread, Toplevel):       
-    
+
+class ReadingDialog(threading.Thread, Toplevel):
+
     def __init__(self, master, doc9303):
         threading.Thread.__init__(self)
         Toplevel.__init__(self, master)
         self.log = datagroup.Events()
         self.queue = Queue.Queue()
         self.master = master
-        
+
         self.doc = doc9303
         self.doc._dgReader.processed.register(self.DGcallBack)
         self.ep = None
-        
+
         self.__dgList = []
         self.withdraw()
         self.resizable(False, False)
-        
+
         self.title("Reading...")
         self.transient(master)
         self.grab_set()
         #self.transient = self.master
         self.protocol("WM_DELETE_WINDOW", self.stopReading)
-        
-        
+
+
         # GRAPHIC COMPONENTS
         self.lPassport=Label(self, text="Passport processing")
         self.lPassport.grid(column=1, columnspan=3, padx=5)
-        
+
         self.pbPassport = ProgressBar(self, value=1)
         self.pbPassport.grid(column=1, columnspan=3, padx=5, pady=5)
-        
+
         self.svDG = StringVar()
         self.lDG=Label(self,textvariable=self.svDG)
         self.lDG.grid(column=1, columnspan=3, padx=5)
-        
+
         self.pbDG = ProgressBar(self)
         self.pbDG.grid(column=1, columnspan=3, padx=5, pady=5)
-        
+
         self.bcancel=Button(self, text="Cancel", command=self.stopReading)
         self.bcancel.grid(column=2, padx=5, pady=5)
-        
+
         #CallBack
         self.e = threading.Event()
         self.read = datagroup.Events()
-        
+
         self.stop = False
         self.destoyed = False
         self.periodicCall()
-        
+
     def processIncoming(self):
         while self.queue.qsize() and not self.destoyed:
             try:
@@ -678,33 +678,33 @@ class ReadingDialog(threading.Thread, Toplevel):
             except Queue.Empty, msg:
                 if DEBUG: 'Queue Error:', msg
                 pass
-        
-    
+
+
     def show(self):
         self.deiconify()
 #        self.startReading()
         self.thread = threading.Thread(target=self.startReading)
         self.thread.start()
-        
+
     def showSafe(self):
         self.deiconify()
         self.startReading()
 #        self.thread = threading.Thread(target=self.startReading)
 #        self.thread.start()
-    
+
     def rstConnection(self):
         try:
             self.doc.getCommunicationLayer().rstConnection()
             self.doc.doBasicAccessControl()
         except Exception, msg:
             tkMessageBox.showerror("Error while reseting", "{}\nPlease try to read the passport again.".format(errorhandler.getID(msg)))
-        
+
     def startReading(self):
-        
+
         try:
             cpt=0
             start = time.time()
-            
+
             try:
                 self.dgList = self._reorder(self.doc["Common"]["5C"])
                 self.queue.put((("BAC", True), 'None', 0))
@@ -712,15 +712,15 @@ class ReadingDialog(threading.Thread, Toplevel):
                 raise WrongMRZ("Please check you wrote the correct MRZ.".format(type(msg), msg))
             except Exception, msg:
                 raise Exception(msg)
-            
+
             c = len(self.dgList)
             if configManager().getOption('Security','pa'):
                 c += 1
             if configManager().getOption('Security','aa'):
                 c += 1
-                
+
             self.pbPassport.updateProgress(0, c)
-            
+
 
             dgValidList = list()
             self.ep = dict()
@@ -728,7 +728,7 @@ class ReadingDialog(threading.Thread, Toplevel):
                 cpt+=1
                 msg = "Reading " + toDG(str(item))
                 self.queue.put((None, 'svdg', msg))
-                
+
                 try:
                     dg = self.doc[item]
                     dgValidList.append(item)
@@ -737,16 +737,16 @@ class ReadingDialog(threading.Thread, Toplevel):
                     self.queue.put((("EAC", item), 'None', 0))
                     self.rstConnection()
                     dg = ''
-                    
+
                 self.queue.put(((toTAG(item), dg), 'passport', cpt))
-            
+
             #AA
             #True: The AA is ok
             #Flase : The AA is not ok
             #None: The AA is not supported
             if configManager().getOption('Security','aa'):
                 if self.doc.has_key(toTAG("DG15")):
-                    
+
                     self.queue.put((None, 'svdg', "Active Authentication"))
                     self.queue.put((None, 'dg', 0))
                     try:
@@ -757,16 +757,16 @@ class ReadingDialog(threading.Thread, Toplevel):
                         res = "NO_DG_15"
                 else:
                     res = "NO_DG_15"
-                    
+
                 self.queue.put((("AA", res), 'dg', 100))
                 cpt += 1
                 self.queue.put((None, 'passport', cpt))
-                
+
             # PASSIVE AUTHENTICATION
             if configManager().getOption('Security','pa'):
                 self.queue.put((None, 'svdg', "Passive Authentication: Certificate Verification"))
                 self.queue.put((None, 'dg', 0))
-                
+
                 try:
                     if configManager().getOption('Options','certificate'):
                         self.doc.setCSCADirectory(configManager().getOption('Options','certificate'), True)
@@ -779,10 +779,10 @@ class ReadingDialog(threading.Thread, Toplevel):
                     certif = "PA_ERROR"
                 except Exception, msg:
                     tkMessageBox.showinfo("DEBUG", "{}.\n{}".format(str(msg), type(msg)))
-                
+
                 self.queue.put((None, 'svdg', "Passive Authentication: Data Group Integrity Verification"))
                 self.queue.put((None, 'dg', 50))
-                    
+
                 try:
                     dgs = []
                     for dg in dgValidList:
@@ -792,15 +792,15 @@ class ReadingDialog(threading.Thread, Toplevel):
                     dgsIntegrity = {}
                     for dg in self.dgList:
                         dgsIntegrity[toDG(dg)] = "NO_OPENSSL"
-                
+
                 self.queue.put((("PA", (certif, dgsIntegrity)), 'dg', 100))
-                
+
                 cpt += 1
                 self.queue.put((None, 'passport', cpt))
-                
+
             self.master.footer.set("Reading Time : " + str(time.time() - start)[:5] + " sec ")
             self.queue.put(('Quit', 'dg', 100))
-        
+
         except WrongMRZ, msg:
             self.queue.put(('Reset', None, 0))
             time.sleep(0.3)
@@ -813,28 +813,28 @@ class ReadingDialog(threading.Thread, Toplevel):
             self.queue.put(('Reset', None, 0))
             time.sleep(0.3)
             tkMessageBox.showinfo("Unknown error", "{}\nPlease try to read the passport again.".format(errorhandler.getID(msg)))
-            
-        
+
+
     def periodicCall(self):
         self.processIncoming()
         if not self.destoyed:
             self.after(100, self.periodicCall)
-        
+
     def stopReading(self):
         self.doc.stopReading()
         self.stop = True
-        
+
     def DGcallBack(self, value):
         self.queue.put((None, "dg", value))
-        
+
     def _getDGList(self):
         return self.__dgList
-    
+
     def _setDGList(self, value):
         self.__dgList = value
-    
+
     def _reorder(self, list):
-        """ Use to read bigger files at the end 
+        """ Use to read bigger files at the end
 
             @param list: Datagroup presence list
             @type list: list
@@ -847,17 +847,17 @@ class ReadingDialog(threading.Thread, Toplevel):
             except ValueError, msg:
                 pass
         return list
-    
+
     def logFingerprint(self, fingerprint):
         def recTraversal(dic, level):
             for key in dic:
-                if type(dic[key]) == type({}): 
+                if type(dic[key]) == type({}):
                     recTraversal(dic[key], level+1)
                 else:
                     self.log.log(" > "*level + key + ": " + str(dic[key]))
-    
-        recTraversal(fingerprint, 0) 
-    
+
+        recTraversal(fingerprint, 0)
+
     def log(self, data):
         try:
             log = open(LOG, 'a')
@@ -866,11 +866,11 @@ class ReadingDialog(threading.Thread, Toplevel):
             pass
         finally:
             log.close()
-       
-    dgList = property(_getDGList, _setDGList)   
-    
-      
-        
+
+    dgList = property(_getDGList, _setDGList)
+
+
+
 class ScrollFrame(Frame):
     def __init__(self, master, txt='', height=24):
         Frame.__init__(self, master)
@@ -881,7 +881,7 @@ class ScrollFrame(Frame):
         self.text.config(state=DISABLED)
         self.text.pack(side=TOP, fill=BOTH, expand=True)
         scrollbar.config(command=self.text.yview)
-       
+
     def updateText(self, txt, disable=True):
         self.text.config(state=NORMAL)
         self.text.delete("1.0", END)
@@ -889,8 +889,8 @@ class ScrollFrame(Frame):
         if disable:
             self.text.config(state=DISABLED)
         self.update()
-        
-        
+
+
 ######
 # HELP
 ######
@@ -901,16 +901,16 @@ class InfoBoxWindows(Toplevel):
         self.title("Help: {0}".format(title_dialog))
         self.transient(master)
         self.resizable(False,False)
-        
+
         helpFrame = Frame(self, relief=RAISED, borderwidth=0)
         helpFrame.pack(fill=BOTH, expand=1)
-        
+
         helpLabel = Label(helpFrame, text=text_dialog, justify=LEFT)
         helpLabel.pack(padx=5, pady=5)
-        
+
         closeButton = Button(helpFrame, text="Close", command=self.destroy)
         closeButton.pack(padx=5, pady=5)
-    
+
 
 class Tooltip(Toplevel):
 	def __init__(self, parent=None, tip='',time=500):
@@ -919,7 +919,7 @@ class Tooltip(Toplevel):
 		self.parent = parent
 		self.withdraw()
 		self.overrideredirect(1)
-		self.transient()     
+		self.transient()
 		l = Label(self, text=tip, bg="#FFFECD", justify='left')
 		l.update_idletasks()
 		l.pack()
@@ -947,51 +947,51 @@ class Tooltip(Toplevel):
 	def clear(self, event):
 		self.withdraw()
 		self.parent.after_cancel(self.action)
- 
+
 
 class AdditionalData(Toplevel):
     def __init__(self, master, doc):
         Toplevel.__init__(self, master)
         self.title("Additional Data")
         self.transient(master)
-        self.doc = doc    
-        
+        self.doc = doc
 
-        
+
+
         self.files = Listbox(self, width=12)
         self.files.pack(side=LEFT, fill=Y)
-        
+
         scrollbar = Scrollbar(self)
-        scrollbar.pack(side=LEFT, fill=BOTH)        
+        scrollbar.pack(side=LEFT, fill=BOTH)
         scrollbar.config(command=self.files.yview)
-        
+
         self.files['yscrollcommand'] = scrollbar.set
-        
+
         self.data = DataGroupGridList(self, None, ['Tag', 'Value'], 10, None, None)
-        
+
         for item in doc.keys():
             self.files.insert(END, toDG(item))
-            
+
         self.files.bind('<<ListboxSelect>>', self.onSelectDG)
-        
+
         self.data.load(self.doc[toTAG("DG1")])
-            
+
     def onSelectDG(self, event=None):
         self.data.load(self.doc[toTAG(self.files.get(event.widget.curselection()))])
-        
+
     def clickOk(self, event=None):
         self.destroy()
-        
-        
+
+
 class AdditionalDialog:
-    
+
     # close the window and quit
     def delete_event(self, widget, event, data=None):
         gtk.main_quit()
         return False
 
     def __init__(self, dgs):
-        
+
         # Create a new window
         self.window = gtk.Window(gtk.WINDOW_TOPLEVEL)
 
@@ -1000,12 +1000,12 @@ class AdditionalDialog:
         self.window.set_size_request(500, 400)
 
         self.window.connect("delete_event", self.delete_event)
-        
+
         self.doc = dgs
-        
+
         # create a TreeStore with one string column to use as the model
         self.treestore = gtk.TreeStore(str)
-        
+
         #for item in self.doc.keys():
         orderedlist = list()
         for val in self.doc.keys():
@@ -1023,7 +1023,7 @@ class AdditionalDialog:
                         self.treestore.append(leave, [data])
                 elif type(self.doc[item][value]) == type(datagroup.DataGroup()):
                     self.treestore.append(leave, [str(self.doc[item][value])])
-                
+
         # create the TreeView using treestore
         self.treeview = gtk.TreeView(self.treestore)
 
@@ -1051,7 +1051,7 @@ class AdditionalDialog:
 
         # Allow drag and drop reordering of rows
         self.treeview.set_reorderable(True)
-        
+
         self.scollwin = gtk.ScrolledWindow()
         self.scollwin.add_with_viewport(self.treeview)
 
@@ -1061,38 +1061,38 @@ class AdditionalDialog:
 
 
 
-class FingerprintProcess(threading.Thread, Toplevel):       
-    
+class FingerprintProcess(threading.Thread, Toplevel):
+
     def __init__(self, master, doc9303):
         threading.Thread.__init__(self)
         Toplevel.__init__(self, master)
         self.queue = Queue.Queue()
-        
+
         self.doc = doc9303
         self.master = master
-        
+
         self.resizable(False, False)
-        
+
         self.title("Generating the report...")
         self.transient(master)
         self.grab_set()
         self.protocol("WM_DELETE_WINDOW", self.stopReading)
-        
-        
+
+
         # GRAPHIC COMPONENTS
         self.svDG = StringVar()
         self.lfp = Label(self,textvariable=self.svDG)
         self.lfp.pack(side=TOP, fill=X, padx=5)
-        
+
         self.pbfp = ProgressBar(self)
         self.pbfp.pack(side=TOP, fill=X, padx=5, pady=5)
-        
+
         #self.txt = ""
-        
+
         self.stop = False
         self.destoyed = False
         self.periodicCall()
-        
+
     def processIncoming(self):
         while self.queue.qsize() and not self.destoyed:
             try:
@@ -1115,11 +1115,11 @@ class FingerprintProcess(threading.Thread, Toplevel):
             except Queue.Empty, msg:
                 if DEBUG: 'Queue Error:', msg
                 pass
-        
+
     def showSafe(self):
         self.thread = threading.Thread(target=self.startReading)
         self.thread.start()
-        
+
     def startReading(self):
         self.queue.put((None, 'slfp', "Initializing"))
         self.queue.put((None, 'fp', 0))
@@ -1137,49 +1137,49 @@ class FingerprintProcess(threading.Thread, Toplevel):
             self.queue.put(('Quit', 'fp', 100))
             time.sleep(0.3)
             tkMessageBox.showinfo("Report error", "{}\nPlease try to run the report again.".format(errorhandler.getID(msg)))
-            
-        
-        
+
+
+
     def periodicCall(self):
         self.processIncoming()
         if not self.destoyed:
             self.after(100, self.periodicCall)
-        
+
     def stopReading(self):
         self.doc.stopReading()
         self.stop = True
 
 
 class FingerPrintDialog(Toplevel):
-    
+
     def __init__(self, master, data):
         self.txt = ""
         self.analyse = data
         self.buildText()
-        
+
         self.buttonText = StringVar()
         self.buttonText.set("Anonymize report")
-        
+
         Toplevel.__init__(self, master)
         self.title("Report")
         self.transient(master)
-        
+
         self.log = ScrollFrame(self, self.txt)
         self.log.pack(side=TOP, fill=BOTH, expand=True)
-        
+
         saveButton = Button(self, width=10, text="Save...", command=self.save)
         saveButton.pack(side=LEFT, ipadx=10)
-        
+
         sendButton = Button(self, width=10, textvariable=self.buttonText, command=self.anonymize)
         sendButton.pack(side=LEFT, ipadx=10)
-        
+
         self.withdraw()
         self.deiconify()
         self.update()
 
     def save(self):
         formats = [('Raw text','*.txt'),('PDF','*.pdf')]
-        
+
         fileName = asksaveasfilename(parent=self,filetypes=formats ,title="Save current frame as...")
         if fileName[-4:] == ".txt":
             try:
@@ -1188,25 +1188,25 @@ class FingerPrintDialog(Toplevel):
                     tkMessageBox.showinfo("File saved", "File saved as "+fileName)
             except Exception, msg:
                 tkMessageBox.showerror("Save error", str(msg))
-                
+
         elif fileName[-4:] == ".pdf":
-            inOut.toPDF(self.analyse, fileName)   
+            inOut.toPDF(self.analyse, fileName)
             tkMessageBox.showinfo("File saved", "File saved as "+fileName)
-    
+
     def anonymize(self):
         self.txt = ""
-        
+
         if self.buttonText.get() == "Anonymize report":
             self.buildText(anonymize=True)
             self.buttonText.set("Reset")
             self.log.updateText(self.txt, False)
-            
-            
+
+
         elif self.buttonText.get() == "Reset":
             self.buildText()
             self.buttonText.set("Anonymize report")
             self.log.updateText(self.txt)
-    
+
     def buildText(self, anonymize=False):
         data = self.analyse
         if anonymize:
@@ -1355,10 +1355,10 @@ class FingerPrintDialog(Toplevel):
         self.txt += "\n"
         for ins in data["Errors"]:
             self.txt += 'APDU "00" "' + ins + '" "00" "00" "" "" "00": ' + data["Errors"][ins] + "\n"
-        
-        
-        
-    
+
+
+
+
     def browseDGs(self, data, level=0):
         dgtypes = [DataGroup1, DataGroup2, DataGroup3, DataGroup4, DataGroup5,
                    DataGroup6, DataGroup7, DataGroup8, DataGroup9, DataGroup10,
@@ -1372,7 +1372,7 @@ class FingerPrintDialog(Toplevel):
                     self.browseDGs(data[x], i+1)
                 else:
                     self.txt += self.truncate(data[x], (i+1)*"  ")
-                    
+
         elif type(data) == type(list()):
             for x in data:
                 if type(x) == type(dict()) or type(x) == type(list()) or type(x) in dgtypes:
@@ -1385,8 +1385,8 @@ class FingerPrintDialog(Toplevel):
             return sep + (str(data)[:length].encode("utf-8") + '..') if len(str(data).encode("utf-8")) > length else sep + str(data).encode("utf-8") + "\n"
         except Exception:
             return sep + "UNPRINTABLE BINARY VALUE\n"
-            
-            
-            
-        
+
+
+
+
 

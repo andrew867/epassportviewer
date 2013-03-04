@@ -9,31 +9,31 @@ From 2.0.4c to 2.0.6
 ePassportViewer > mvc:
 
  * New interface (menu + mrz entry)
- 
+
  * Clear function reset MRZ entry
    set black BAC in security frame
-   
+
  * Change color for security frame
- 
+
  * Move log menu
- 
+
  * Change configuration menu
- 
- 
+
+
 ePassportViewer > dialog:
- 
+
  * Fix ABOUT > LICENCE issue
- 
+
  * Delete "OK" buttons
- 
+
  * Clean the "About" interface
- 
- 
+
+
 ePassportViewer > attacks:
 
  * Add a scroll bar in log
- 
- 
+
+
 ePassportViewer > custom:
 
  * Add HEX
@@ -45,17 +45,17 @@ From 2.0.3 to 2.0.4c
 ePassportViewer > frame > custom:
 
  * Add the function 'Get ATR'
- 
- 
+
+
 ePassportViewer > frame > attacks:
- 
+
  * Implementation of the verbose output
 
 
 pyPassport > attacks > *:
 
  * Fixing clumsy output
- 
+
 
 pyPassport > Iso7816,
 ePassportViewer > frame > custom:
@@ -71,7 +71,7 @@ ePassportViewer > dialog:
 
 
 ePassportViewer > dialog:
- 
+
  * Add ePassport generator features
 
 From 2.0.2 to 2.0.3
@@ -89,7 +89,7 @@ ePassportViewer:
 
 
 pyPassport > jp2converter:
- 
+
  * Modification for geojasper location. Still clumsy and might
    raise error, but it maked things work with ePassportViewer.
 
@@ -98,10 +98,10 @@ ePassportViewer > dialog:
 
  * Modify startReading: Handle reading problem because of EAC
    security.
-   
+
  * Create an dictionnary that append all DG in order to optimize
    the read of the ePassport for export functions.
-   
+
 ePassportViewer > frame > security:
 
  * Set Active Authentication text in orange if DG15 can't be
@@ -112,12 +112,12 @@ pypassport > doc9303 > tagconverter:
 
  * Create a new dictionnary to provide more info whenever a DG
    cannot be read because of EAC for instance.
-   
+
 
 ePassportViewer > mvc:
 
  * Change menu File ("Save...", "Save as...").
- 
+
  * Improve exports methods (exprotToPDF and exportToXML) making
    more clear the path handling and optimizing the process.
 
@@ -129,7 +129,7 @@ ePassportViewer > util > inOut:
 ePassportViewer > util > helper:
 
  * Add new function to output raw dump of the passport
-   
+
 
 From 2.0.1 to 2.0.2
 ==================
@@ -138,19 +138,19 @@ pyPassport > setup.py
 
  * The install didn't browse the sub directory. Now setup.py
    uses find_packages().
-   
-   
+
+
 ePassportViewer > frame > attacks:
- 
+
  * Add the new methods addToHistory in order to keep the MRZ
    in history once used in attacks frame.
-   
+
 
 ePassportViewer > mvc:
 
  * Improve add/load/save history methods in order to update
    MRZ added from the attacks frame.
-   
+
 
 pyPassport > epassport,
 pyPassport > attacks > macTraceability,
@@ -187,7 +187,7 @@ ePassportViewer > ePassportViewer:
 
 ePassportViewer > frame > custom:
 
- * Binary function 'AND', 'OR' and 'NOT' removed since they are 
+ * Binary function 'AND', 'OR' and 'NOT' removed since they are
    not used.
 
 
@@ -197,5 +197,5 @@ ePassportViewer > frame > attacks:
 
  * The 'Reader #' is now in the menu. The 'French passport' check
    box is named 'Reach max'.
- 
+
  * Change the frame style of attacks in order to unify the style.

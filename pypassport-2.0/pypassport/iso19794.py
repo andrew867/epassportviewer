@@ -53,7 +53,7 @@ ISO19794_5_HAIRCOLOUR= {'00':'Unspecified',
                         '08':'Green',
                         '09':'Blue',
                         'ff':'Other'
-                       }    
+                       }
 
 ISO19794_5_FEATURE= {0x01:'Specified',
                      0x02:'Glasses',
@@ -65,7 +65,7 @@ ISO19794_5_FEATURE= {0x01:'Specified',
                      0x80:'Left Eyepatch',
                      0x100:'Right Eyepatch',
                      0x200:'Dark Glasses',
-                     0x400:'Distorted'                     
+                     0x400:'Distorted'
                     }
 
 ISO19794_5_EXPRESSION= {'0000':'Unspecified',
@@ -114,164 +114,164 @@ ISO19794_5_IMG_QUALITY= {'0000':'Unspecified'}
 
 class ISO19794_5:
     """ Implement the ISO19794-5 concerning biometric Facial Pictures """
-    
+
     @staticmethod
     def analyse(data):
         """ Analyze the content of the CBEFF header
-        
+
             @param data: Image Block with header
             @type data: binary data
-            
+
             @return: tuple composed of header size and decoded header
-            @rtype: tuple(int, dict)        
+            @rtype: tuple(int, dict)
         """
-         
+
         offset = 0
         result = {}
-        
+
         tag = data[offset:offset+8]
         offset += 8
         if tag != FAC:
             raise Exception("Missing FAC in CBEFF block:"+tag)
-        
+
         tag = data[offset:offset+6]
         offset += 8
         result['VersionNumber'] = hexRepToBin(tag)
-        
+
         tag = data[offset:offset+8]
         offset += 8
         result['LengthOfRecord'] = int(tag,16)
-        
+
         tag = data[offset:offset+4]
         offset += 4
         result['NumberOfFacialImages'] = int(tag,16)
-        
+
         tag = data[offset:offset+8]
         offset += 8
         result['FaceImageBlockLength'] = int(tag,16)
-        
-        
+
+
         tag = data[offset:offset+4]
         offset += 4
         result['NumberOfFeaturePoint'] = int(tag,16)
-       
+
         tag = data[offset:offset+2]
         offset += 2
         result['Gender'] = ISO19794_5_GENDER[tag]
-        
+
         tag = data[offset:offset+2]
         offset += 2
         try:
             result['EyeColour'] = ISO19794_5_EYECOLOUR[tag]
         except KeyError:
             result['EyeColour'] = int(tag,16)
-        
+
         tag = data[offset:offset+2]
         offset += 2
         try:
             result['HairColour'] = ISO19794_5_HAIRCOLOUR[tag]
         except KeyError:
-            result['HairColour'] = int(tag,16)        
-        
+            result['HairColour'] = int(tag,16)
+
         tag = data[offset:offset+6]
         offset += 6
         result['FeatureMask'] = tag
-        
+
         mask = int(tag,16)
         features = {}
         for key, value in ISO19794_5_FEATURE.items():
             if and_(mask, key):
                 features[key] = value
-        result['Features'] = features        
-                
+        result['Features'] = features
+
         tag = data[offset:offset+4]
         offset += 4
         try:
             result['Expression'] = ISO19794_5_EXPRESSION[tag]
         except KeyError:
             result['Expression'] = int(tag,16)
-        
+
         tag = data[offset:offset+6]
         offset += 6
         result['PoseAngle'] = tag
-        
+
         tag = data[offset:offset+6]
         offset += 6
         result['PoseAngleUncertainty'] = tag
-        
+
         features = {}
         for i in range(result['NumberOfFeaturePoint']):
             feature = {}
             tag = data[offset:offset+2]
             offset += 2
             feature['FeatureType'] = tag # 1 == 2D; other RFU
-            
+
             tag = data[offset:offset+2]
             offset += 2
             feature['FeaturePointCode'] = tag
-            
+
             tag = data[offset:offset+4]
             offset += 4
             feature['HorizontalPosition'] = int(tag,16)
-            
+
             tag = data[offset:offset+4]
             offset += 4
             feature['VerticalPosition'] = int(tag,16)
-            
+
             tag = data[offset:offset+4]
             offset += 4
             feature['Reserved'] = tag
 
             features[i] = feature
-            
+
         result['FeaturePoint'] = features
-        
+
         tag = data[offset:offset+2]
         offset += 2
         try:
             result['FaceImageType'] = ISO19794_5_IMG_TYPE[tag]
         except KeyError:
-            result['FaceImageType'] = int(tag,16)             
-        
+            result['FaceImageType'] = int(tag,16)
+
         tag = data[offset:offset+2]
         offset += 2
         try:
             result['ImageDataType'] = ISO19794_5_IMG_DTYPE[tag]
         except KeyError:
-            result['ImageDataType'] = int(tag,16)             
-        
+            result['ImageDataType'] = int(tag,16)
+
         tag = data[offset:offset+4]
         offset += 4
         result['ImageWidth'] = int(tag,16)
-        
+
         tag = data[offset:offset+4]
         offset += 4
         result['ImageHeight'] = int(tag,16)
-        
+
         tag = data[offset:offset+2]
         offset += 2
         try:
             result['ImageColourSpace'] = ISO19794_5_IMG_CSPACE[tag]
         except KeyError:
-            result['ImageColourSpace'] = int(tag,16)            
-        
+            result['ImageColourSpace'] = int(tag,16)
+
         tag = data[offset:offset+2]
         offset += 2
         try:
             result['ImageSourceType'] = ISO19794_5_IMG_SOURCE[tag]
         except KeyError:
-            result['ImageSourceType'] = int(tag,16)              
-        
+            result['ImageSourceType'] = int(tag,16)
+
         tag = data[offset:offset+4]
         offset += 4
         result['ImageDeviceType'] = int(tag,16)
-        
+
         tag = data[offset:offset+4]
         offset += 4
         result['ImageQuality'] = ISO19794_5_IMG_QUALITY[tag]
-        
+
         return (offset/2, result)
-    
+
     @staticmethod
     def createHeader(imageType, imageHeight, imageWidth, imageSize):
         """ create a simple CBEFF header based on image information
@@ -283,20 +283,20 @@ class ISO19794_5:
             @param imageWidth: Width of the image in pixels
             @type imageWidth: int
             @param imageSize: size of the image in bytes
-            @type imageSize: int        
+            @type imageSize: int
         """
-        
+
         IMAGETYPE = {'JPEG': "00",
                      'JPG': "00",
                      'JPEG2000': "01",
                      'JP2': "01"
                      }
-        
+
         header = "46414300"
         version = "30313000" # '101' 0x0
         recordLength = intToHexRep(imageSize + 46, 8)
         numberOfImage = "0001"
-        
+
         ImageBlockLength = intToHexRep(imageSize + 32, 8) # no feature point
         numberOfFeaturePoint= "0000"
         gender = "00"
@@ -314,7 +314,7 @@ class ISO19794_5:
         sourceType = "00"
         deviceType = "0000"
         quality = "0000"
-        
+
         return hexRepToBin(header+version+recordLength+numberOfImage+ImageBlockLength+numberOfFeaturePoint+gender\
                            +eyeColour+hairColour+featureMask+expression+poseAngle+poseAngleUncertainty\
                            +imageFaceType+imageDataType+width+height+colourSpace+sourceType+deviceType+quality)

@@ -25,7 +25,7 @@ r=None
 
 APPLET = False
 READER_NUM = 2
-APPLET_PATH = "D:\\download\\epassport_emulator_v1.02\\epassport.cap" 
+APPLET_PATH = "D:\\download\\epassport_emulator_v1.02\\epassport.cap"
 MRZ = "EG491433<0BEL8305099M1208157<<<<<<<<<<<<<<04"
 DUMP_DIR = "../testData"
 
@@ -37,7 +37,7 @@ else:
     r.format = converter.types.GRT
     r.ext = ".bin"
     r.connect(DUMP_DIR)
-    
+
 
 ep = epassport.EPassport(r, MRZ)
 ep.readPassport()
@@ -47,9 +47,9 @@ if APPLET:
     raw_input("Applet upload: Put the JCOP on the reader, and press a key")
     jc = jcop.GPlatform(READER_NUM)
     jc.install(APPLET_PATH)
-    
 
-raw_input("Dumps upload: Put the JCOP on the reader, and press a key") 
+
+raw_input("Dumps upload: Put the JCOP on the reader, and press a key")
 r = reader.ReaderManager().waitForCard()
 epc = epassportcreation.EPassportCreator(None, None, r)
 epc.setEPassport(ep)
