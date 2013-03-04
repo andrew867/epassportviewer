@@ -134,7 +134,7 @@ class OpenSSL(Logger):
             self._toDisk("ds.cer", dsDer)
             
             self._opensslLocation = "java -jar "
-            cmd = "createSod.jar --certificate ds.cer --content sodContent --keypass titus --privatekey p12 --out signed"
+            cmd = os.path.join(os.path.dirname(os.path.realpath(__file__)), "..", "createSod.jar") + " --certificate ds.cer --content sodContent --keypass titus --privatekey p12 --out signed"
             res = self._execute(cmd, True)
             f = open("signed", "rb")
             res = f.read()

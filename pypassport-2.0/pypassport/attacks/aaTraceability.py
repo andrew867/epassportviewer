@@ -189,21 +189,21 @@ class AATraceability(Logger):
         """
 
         if not os.path.exists(path): os.makedirs(path)
-        if os.path.exists(path+"/"+filename):
+        if if os.path.exists(os.path.join(path, filename)):
             i=0
-            while os.path.exists(path+"/"+filename+str(i)):
+            while os.path.exists(os.path.join(path, filename+str(i))):
                 i+=1
-            path = path+"/"+filename+str(i)
+            fullpath = os.path.join(path, filename+str(i))
         else:
-            path = path+"/"+filename
+            fullpath = os.path.join(path, filename)
         
-        with open(path, 'wb') as file_modulo:
+        with open(fullpath, 'wb') as file_modulo:
             file_modulo.write(modulo)
-        self.log("Modulo/Signature saved at: {0}".format(path))
+        self.log("Modulo/Signature saved at: {0}".format(fullpath))
 
-        return path
+        return fullpath
     
-    def checkFromFile(self, highest, path="./modulo", accuracy=None):
+    def checkFromFile(self, highest, path=os.path.join(".","modulo"), accuracy=None):
         """
         Read a signature stored in a file (by the method self.save()) and compare it with the signature (highest)
         If accuracy is set, the method works like the method compare()

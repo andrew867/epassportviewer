@@ -150,22 +150,22 @@ class MacTraceability(Logger):
         @return: the path and the name of the file where the pair has been saved.
         """
         if not os.path.exists(path): os.makedirs(path)
-        if os.path.exists(path+"/"+filename):
+        if os.path.exists(os.path.join(path, filename)):
             i=0
-            while os.path.exists(path+"/"+filename+str(i)):
+            while os.path.exists(os.path.join(path, filename+str(i))):
                 i+=1
-            path = path+"/"+filename+str(i)
+            fullpath = os.path.exists(os.path.join(path, filename+str(i)))
         else:
-            path = path+"/"+filename
+            fullpath = os.path.exists(os.path.join(path, filename))
         
         cmd_data = self._getPair()
         
-        with open(path, 'wb') as pair:
+        with open(fullpath, 'wb') as pair:
             pair.write(cmd_data)
 
-        return path
+        return fullpath
     
-    def checkFromFile(self, path="./pair", CO=1.7):
+    def checkFromFile(self, path=os.path.join(".", "pair"), CO=1.7):
         """checkFromFile read a file that contains a pair and check if the pair has been capture from the passport .
         
         @param path: The path of the file where the pair has been saved.

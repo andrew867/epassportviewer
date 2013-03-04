@@ -55,10 +55,9 @@ def run():
     
     root = Tk()
     root.resizable(width = False, height = False)
-    #TODO: Linux get error, windows not
+    #TODO: Linux get error, windows not (missing app.ico)
     try:
-        os.chdir(os.path.dirname(os.path.realpath(__file__)))
-        root.iconbitmap("app.ico")
+        root.iconbitmap(os.path.join(os.path.dirname(os.path.realpath(__file__)), "app.ico"))
     except Exception, msg:
         pass 
     # remove console on osx from http://mail.python.org/pipermail/python-list/2006-October/578318.html

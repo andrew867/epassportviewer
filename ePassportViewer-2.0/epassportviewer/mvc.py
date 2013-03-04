@@ -543,9 +543,9 @@ class View(Frame):
     
     def openManual(self):
         if os.name == "nt":
-            os.filestart("manual.pdf")
+            os.filestart(os.path.join(os.path.dirname(os.path.realpath(__file__)), "..", "manual.pdf"))
         elif os.name == "posix":
-            os.system("/usr/bin/xdg-open manual.pdf")  
+            os.system("xdg-open " + os.path.join(os.path.dirname(os.path.realpath(__file__)), "..", "manual.pdf"))
             
     def resetConfig(self):
         configManager.configManager().defaultConfig(CONFIG)

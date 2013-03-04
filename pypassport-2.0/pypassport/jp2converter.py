@@ -36,10 +36,10 @@ def ConvertJp2(input):
     jp2.write(input)
     jp2.close()
     
-    local = ""
-    if (sys.platform != "win32") and os.path.isfile('geojasper/geojasper'):
-        local = "./geojasper/"
-    a=os.popen(local+"geojasper -f tmp.jp2 -F tmp.jpg")
+    geojasper = "geojasper"
+    if (sys.platform != "win32") and os.path.isfile(os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'geojasper', geojasper)):
+        geojasper = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'geojasper', geojasper)
+    a=os.popen(geojasper + " -f tmp.jp2 -F tmp.jpg")
     a.close()
     
     try:

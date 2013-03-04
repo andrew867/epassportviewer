@@ -184,7 +184,7 @@ class CA(Logger):
     def getCrl(self):
         if not os.path.isfile(os.path.join(self._loc, 'crlnumber')):
             self._openssl._toDisk(os.path.join(self._loc, 'crlnumber'), "01")
-            self.log("echo '01' > ca/cerlnumber")
+            self.log("echo '01' > " + os.path.join(self._loc, 'crlnumber'))
         try:
             crl = self._openssl.genCRL(self.csca, self.cscaKey)
         except OpenSSLException, msg:
@@ -196,18 +196,18 @@ class CA(Logger):
     def _errorHandler(self, msg):
         if msg.find('newcerts')> 0:
             os.makedirs(os.path.join(self._loc, 'newcerts'))
-            self.log("mkdir ca/newcerts")
-        elif msg.find('ca/index.txt') > 0:
+            self.log("mkdir " + os.path.join(self._loc, 'newcerts'))
+        elif msg.find('index.txt') > 0:
             self._openssl._toDisk(os.path.join(self._loc, 'index.txt'))
-            self.log("touch ca/index.txt")
+            self.log("touch " + os.path.join(self._loc, 'index.txt'))
             self._openssl._toDisk(os.path.join(self._loc, 'index.txt.attr'), "unique_subject = no")
-            self.log("echo 'unique_subject = no' > ca/index.txt.attr")
-        elif msg.find('ca/serial') > 0:
+            self.log("echo 'unique_subject = no' > " + os.path.join(self._loc, 'index.txt.attr'))
+        elif msg.find('serial') > 0:
             self._openssl._toDisk(os.path.join(self._loc, 'serial'), "01")
-            self.log("echo '01' > ca/serial")
+            self.log("echo '01' > " + os.path.join(self._loc, 'serial'))
         elif msg.find('openssl.cfg') > 0:
             self._openssl._toDisk(self._configFile, self._getConfigFile(self._loc))
-            self.log("Creation of ppenssl.cfg")
+            self.log("Creation of openssl.cfg")
         else:
             raise OpenSSLException(msg)
         self.log(msg)
