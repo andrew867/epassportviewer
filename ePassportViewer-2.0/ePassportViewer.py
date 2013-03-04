@@ -35,7 +35,7 @@ except Exception, msg:
 class dummyStream(object):
     ''' dummyStream behaves like a stream but does nothing. '''
     def __init__(self):
-        self.f = open('out.txt', 'w')
+        self.f = open(OUTFILE, 'w')
     def write(self,data):
         self.f.write(data)
     def read(self,data): pass

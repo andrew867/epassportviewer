@@ -26,6 +26,7 @@ HISTORY = 'history'
 MAX_HISTORY = 10
 TITLE   = 'ePassport Viewer'
 LOG     = 'system.log'
+OUTFILE = 'out.txt'
 
 VERSION = '2.0'
 WEBSITE = "http://code.google.com/p/epassportviewer/"
