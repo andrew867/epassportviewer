@@ -189,7 +189,7 @@ class AATraceability(Logger):
         """
 
         if not os.path.exists(path): os.makedirs(path)
-        if if os.path.exists(os.path.join(path, filename)):
+        if os.path.exists(os.path.join(path, filename)):
             i=0
             while os.path.exists(os.path.join(path, filename+str(i))):
                 i+=1
