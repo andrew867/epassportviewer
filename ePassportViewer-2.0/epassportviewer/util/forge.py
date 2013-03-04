@@ -105,7 +105,7 @@ def generate(   firstname,
         # Full name
         if middle_name:
             middle_name = middle_name.replace(' ', '<')
-            full_name = surname.uppercase + "<<" + firstname.uppercase + middle_name.uppercase
+            full_name = surname.upper() + "<<" + firstname.upper() + middle_name.upper()
             dgc.addDataObject("5F02", full_name)
          
         # Place of birth
