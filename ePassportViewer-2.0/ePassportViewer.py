@@ -60,6 +60,8 @@ def run():
         root.iconbitmap(os.path.join(os.path.dirname(os.path.realpath(__file__)), "app.ico"))
     except Exception, msg:
         pass
+    # some files will be written temporarily in the current path:
+    os.chdir(TMPDIR)
     # remove console on osx from http://mail.python.org/pipermail/python-list/2006-October/578318.html
     if (sys.platform != "win32") and hasattr(sys, 'frozen'):
         root.tk.call('console', 'hide')

@@ -17,16 +17,24 @@
 # If not, see <http://www.gnu.org/licenses/>.
 
 import os.path
+import sys.platform
 
 # Options
 DEBUG   = True
-STDERR  = 'error.log'
-CONFIG  = 'config.ini'
-HISTORY = 'history'
 MAX_HISTORY = 10
 TITLE   = 'ePassport Viewer'
-LOG     = 'system.log'
-OUTFILE = 'out.txt'
+
+if (sys.platform.startswith('linux')  or sys.platform == 'cygwin'):
+    CONFIG  = os.path.expanduser('~/.ePV-config.ini')
+    HISTORY = os.path.expanduser('~/.ePV-history')
+    TMPDIR  = '/tmp'
+else:
+    CONFIG  = 'config.ini'
+    HISTORY = 'history'
+    TMPDIR  = '.'
+LOG     = os.path.join(TMPDIR, 'ePV-system.log')
+STDERR  = os.path.join(TMPDIR, 'ePV-error.log')
+OUTFILE = os.path.join(TMPDIR, 'ePV-out.txt')
 
 VERSION = '2.0'
 WEBSITE = "http://code.google.com/p/epassportviewer/"
