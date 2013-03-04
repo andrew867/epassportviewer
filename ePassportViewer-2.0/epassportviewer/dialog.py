@@ -769,7 +769,7 @@ class ReadingDialog(threading.Thread, Toplevel):
 
                 try:
                     if configManager().getOption('Options','certificate'):
-                        self.doc.setCSCADirectory(configManager().getOption('Options','certificate'), True)
+                        self.doc.setCSCADirectory(configManager().getOption('Options','certificate'), False)
                     certif = self.doc.doVerifySODCertificate()
                     if not configManager().getOption('Options','certificate'):
                         certif = "CA_NOT_SET"

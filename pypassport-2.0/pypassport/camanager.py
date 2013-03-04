@@ -40,6 +40,10 @@ class CAManager(object):
         For each certificate, create  a new certificate named with the hash value of the issuer followed with .0
         By this way, the corresponding CSCA certificate of the DS certificate can be found easily by openSSL.
         """
+        #TODO See c_rehash what it does and implement the same...
+        # ePV looks for .cer but getHash accepts both DER & PEM formats
+        # then hash copy is converted to PEM but what is required for openssl?
+        # If I delete *cer it fails, so why having to keep redundant data?
         existing = False
         for fileName in os.listdir(self.dir):
             file = self.dir + os.path.sep + fileName
