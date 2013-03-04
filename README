@@ -9,25 +9,17 @@ Linux (tested on Ubuntu 12.04LTS 32bit) with an Omnikey 5321 using python 2.7.
 pyPassport
 ==========
 
- * Update your aptitude list:   "sudo apt-get update"
  * Install python-dev:          "sudo apt-get install python-dev"
- * Install setuptools:          "cd ressources"
-                                "sudo sh setuptools-0.6c11-py2.7.egg"
- * Install pyCrypto 2.5:        "cd ressources"
-                                "tar xzf pycrypto-2.5.tar.gz"
-                                "cd pycrypto-2.5"
-                                "python setup.py build"
-                                "sudo python setup.py install"
+ * Install setuptools:          "sudo apt-get install python-setuptools"
+ * Install pyCrypto:            "sudo apt-get install python-crypto"
  * Install pyasn1:              "sudo apt-get install python-pyasn1"
  * Install pyscard:             "sudo apt-get install python-pyscard"
+ * Install openssl:             "sudo apt-get install openssl python-openssl"
+ * Install JRE (for createSOD): "sudo apt-get install openjdk-6-jre-headless"
  * Install pypassport-2.0:      "cd pypassport-2.0"
                                 "python setup.py bdist_egg"
                                 "cd dist"
                                 "sudo easy_install pypassport-2.0-py2.7.egg"
-
-NOTE: pyPassport is not compatible with pyCrypto 2.6 (released in may 2012)
-
-
 
 Install driver
 ==============
@@ -57,7 +49,8 @@ ePassportViewer
 
  * Install tkinter:             "sudo apt-get install python-tk"
                                 "sudo apt-get install python-imaging-tk"
- * Install libjpeg62            "sudo apt-get install libjpeg62"
+ * Install libjpeg62:           "sudo apt-get install libjpeg62"
+ * Install Reportlab:           "sudo apt-get install python-reportlab"
  * Run ePassportViewer:         "cd ePassportViewer-2.0"
                                 "python ePassportViewer.py"
                                 or 'click and run'
