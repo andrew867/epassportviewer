@@ -21,15 +21,15 @@ Error = False
 import traceback,sys
 import os
 import tkMessageBox
-from Tkinter import *
 try:
+    from Tkinter import *
     import Image, ImageTk
     from epassportviewer.const import *
     from epassportviewer.mvc import Controller
     from epassportviewer.util.image import ImageFactory
 except Exception, msg:
     print msg
-    tkMessageBox.showerror("PCSC Error", msg)
+    tkMessageBox.showerror("Error", msg)
     Error = True
 
 class dummyStream(object):

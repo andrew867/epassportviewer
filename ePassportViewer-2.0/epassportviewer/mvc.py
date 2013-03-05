@@ -25,6 +25,16 @@ from Tkinter import *
 from tkFileDialog import askdirectory, askopenfilename
 import tkMessageBox
 
+try:
+    # Try first if pypassport is installed on the system
+    import pypassport
+except:
+    # Otherwise use the local version
+    import sys
+    import os.path
+    sys.path.append(os.path.join('..', 'pypassport-2.0'))
+    import pypassport
+
 from epassportviewer.const import *
 from epassportviewer.frame import mrzInput, overview, security, toolbar, attacks, custom
 from epassportviewer.util import configManager, callback, image, inOut, helper
@@ -32,8 +42,6 @@ from epassportviewer import dialog
 from pypassport.doc9303 import converter
 from pypassport import epassport
 from epassportviewer import errorhandler
-
-import pypassport
 
 import time
 import thread
