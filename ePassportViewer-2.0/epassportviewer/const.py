@@ -17,7 +17,7 @@
 # If not, see <http://www.gnu.org/licenses/>.
 
 import os.path
-import sys.platform
+import sys
 
 # Options
 DEBUG   = True
