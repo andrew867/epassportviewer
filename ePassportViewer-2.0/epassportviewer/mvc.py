@@ -458,7 +458,7 @@ class View(Frame):
             reader = pypassport.reader.ReaderManager().waitForCard()
             return pypassport.epassport.EPassport(reader, mrz)
         except Exception, msg:
-            tkMessageBox.showerror("ePassport not found", "{0}.\nPlease check you passport is on the reader".format(str(msg)))
+            tkMessageBox.showerror("ePassport not found", "{0}.\nPlease check your passport is on the reader".format(str(msg)))
 
 
     def _readPassport(self):
@@ -475,7 +475,7 @@ class View(Frame):
     def _dgRead(self, data):
         (DG, DGdata) = data
         try:
-            if DG in ["61", "67", "6B", "6C", "75"]:
+            if DG in ["61", "67", "6B", "6C", "75", "6D"]:
                 self.overview.loadDG(DG, DGdata)
             if DG == '61':
                 name, mrz = self.extractOwnerInfo(DGdata)

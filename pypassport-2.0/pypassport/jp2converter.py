@@ -18,6 +18,12 @@
 
 import os, sys
 
+try:
+    from pgmagick import Image as MImage
+    isMagick = True
+except:
+    isMagick = False
+
 class jp2ConverterException(Exception):
     def __init__(self, *params):
         Exception.__init__(self, *params)
@@ -35,12 +41,16 @@ def ConvertJp2(input):
     jp2 = open("tmp.jp2", "wb")
     jp2.write(input)
     jp2.close()
-
-    geojasper = "geojasper"
-    if (sys.platform != "win32") and os.path.isfile(os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'geojasper', geojasper)):
-        geojasper = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'geojasper', geojasper)
-    a=os.popen(geojasper + " -f tmp.jp2 -F tmp.jpg")
-    a.close()
+    
+    if isMagick == False:
+        geojasper = "geojasper"
+        if (sys.platform != "win32") and os.path.isfile(os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'geojasper', geojasper)):
+            geojasper = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'geojasper', geojasper)
+        a = os.popen(geojasper + " -f tmp.jp2 -F tmp.jpg")
+        a.close()
+    else:
+        jpg = MImage("tmp.jp2")
+        jpg.write("tmp.jpg")
 
     try:
         f = open("tmp.jpg", "rb")

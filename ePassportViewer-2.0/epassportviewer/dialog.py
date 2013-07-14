@@ -518,6 +518,7 @@ class Log(Toplevel):
                 file.write(self.logFrame.text.get(1.0, END))
                 tkMessageBox.showinfo("Log saved", "Log saved as: {}".format(str(fileName)))
             except Exception, msg:
+		# BUG, allow user to save in .xXx or put only .txt in error message
                 tkMessageBox.showerror("Save error", str(msg))
             finally:
                 file.close()

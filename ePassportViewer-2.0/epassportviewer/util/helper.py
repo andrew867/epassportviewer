@@ -30,7 +30,7 @@ def getItem(value):
     try:
         if value == None:
             return
-        value = replace(value,"<"," ")
+        value = replace(value, "<", " ")
         value = getDate(value)
         return str(value)
     except Exception, msg:

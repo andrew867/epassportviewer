@@ -165,11 +165,14 @@ class PcscReader(Reader):
         self._pcsc_connection.disconnect()
 
     def transmit(self, APDU):
+        #print "transmit : ", APDU, " so: ", APDU.getHexListAPDU()
         try:
             self.log(APDU)
             res = self._pcsc_connection.transmit(APDU.getHexListAPDU())
+            #print "Res: ", res
             rep = ResponseAPDU(hexListToBin(res[0]), res[1], res[2])
             self.log(rep)
+            #print "Rep: ", rep
             return rep
         except self.sc.Exceptions.CardConnectionException, msg:
             raise ReaderException(msg)
@@ -327,8 +330,11 @@ class ReaderManager(Singleton):
             for numR in range(len(self.getReaderList())):
                 try:
                     if r.connect(numR):
-                        res = r.transmit(CommandAPDU("00", "A4", "04", "0C", "07", "A0000002471001"))
-                        if res.sw1 == 0x90 and res.sw2 == 0x00:
+                        # Select the LDS DF by AID. If this fails, the MRTD isn't equipped with an ICAO LDS compliant ICC.
+                        # Otherwise the correct response will be '90 00'.
+                        res = r.transmit(CommandAPDU("00", "A4", "04", "00", "07", "A0000002471001"))
+                        #                                              "0C" (original) or "00" ?
+                        if res.sw1 == 0x90 and res.sw2 == 0x00:# or 0x0 ?? :
                             return r
                 except Exception, msg:
                     r.disconnect()

@@ -47,12 +47,12 @@ setup(
       'pypassport': ['README', 'LICENSE']
     },
 
-
+    # pgmagick => check lin/win asap
     install_requires=[
         'setuptools',
         'pyCrypto',
         'pyasn1',
-        'pyscard',
+        #'pyscard', # Unless mac, check lin/win asap
         'PIL'
     ],
 

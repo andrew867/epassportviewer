@@ -92,8 +92,8 @@ class Overview(Frame):
         dataContainer = Frame(container)
         dataContainer.pack(side=LEFT, fill=Y, padx=5, pady=5)
 
-        titleFont = tkFont.Font(family="Helvetica", size=8)
-        font = tkFont.Font(family="Helvetica", weight='bold', size=9)
+        titleFont = tkFont.Font(family="Helvetica", size=10)
+        font = tkFont.Font(family="Helvetica", weight='bold', size=11)
         mrzFont = tkFont.Font(family='courier', size=14)
 
         self.fields = fields = {}
@@ -121,15 +121,21 @@ class Overview(Frame):
         fields['issueDate'].set("N/A")
         fields['expiryDate'] = StringVar()
         fields['expiryDate'].set("N/A")
+        fields['eyesColour'] = StringVar()
+        fields['eyesColour'].set("N/A")
+        fields['height'] = StringVar()
+        fields['height'].set("N/A")
+        fields['residence'] = StringVar()
+        fields['residence'].set("N/A")
 
         fields['mrz'] = StringVar()
 
 
         # ROW 0
         row = 0
-        Label(dataContainer, text="Type\t\t\t", font=titleFont).grid(row=row, column=0, columnspan=2, sticky=W)
-        Label(dataContainer, text="Issuing Country\t\t\t", font=titleFont).grid(row=row, column=2, columnspan=2, sticky=W)
-        Label(dataContainer, text="Passport number", font=titleFont).grid(row=row, column=4, columnspan=2, sticky=W)
+        Label(dataContainer, text="Type\t\t\t", font=titleFont, fg='blue').grid(row=row, column=0, columnspan=2, sticky=W)
+        Label(dataContainer, text="Issuing Country\t\t\t", font=titleFont, fg='blue').grid(row=row, column=2, columnspan=2, sticky=W)
+        Label(dataContainer, text="Passport number", font=titleFont, fg='blue').grid(row=row, column=4, columnspan=2, sticky=W)
         row += 1
         Label(dataContainer, textvariable=fields['type'], font=font).grid(row=row, column=0, columnspan=2, sticky=W)
         Label(dataContainer, textvariable=fields['issueCountry'], font=font).grid(row=row, column=2, columnspan=2, sticky=W)
@@ -137,42 +143,48 @@ class Overview(Frame):
 
         # ROW 2
         row += 1
-        Label(dataContainer, text="Name", font=titleFont).grid(row=row, column=0, columnspan=6, sticky=W)
+        Label(dataContainer, text="Name", font=titleFont, fg='blue').grid(row=row, column=0, columnspan=6, sticky=W)
         row += 1
         Label(dataContainer, textvariable=fields['name'], font=font).grid(row=row, column=0, columnspan=6, sticky=W)
 
         # ROW 4
         row += 1
-        Label(dataContainer, text="Surname", font=titleFont).grid(row=row, column=0, columnspan=6, sticky=W)
+        Label(dataContainer, text="Surname", font=titleFont, fg='blue').grid(row=row, column=0, columnspan=6, sticky=W)
         row += 1
         Label(dataContainer, textvariable=fields['surname'], font=font).grid(row=row, column=0, columnspan=6, sticky=W)
 
         # ROW 6
         row += 1
-        Label(dataContainer, text="Nationality", font=titleFont).grid(row=row, column=0, columnspan=6, sticky=W)
+        Label(dataContainer, text="Nationality", font=titleFont, fg='blue').grid(row=row, column=0, columnspan=6, sticky=W)
+        Label(dataContainer, text="Height", font=titleFont, fg='blue').grid(row=row, column=6, columnspan=6, sticky=W)
         row += 1
         Label(dataContainer, textvariable=fields['nationality'], font=font).grid(row=row, column=0, columnspan=6, sticky=W)
+        Label(dataContainer, textvariable=fields['height'], font=font).grid(row=row, column=6, columnspan=6, sticky=W)
 
         # ROW 8
         row += 1
-        Label(dataContainer, text="Date of birth", font=titleFont).grid(row=row, column=0, columnspan=3, sticky=W)
-        Label(dataContainer, text="Place of birth", font=titleFont).grid(row=row, column=3, columnspan=3, sticky=W)
+        Label(dataContainer, text="Date of birth", font=titleFont, fg='blue').grid(row=row, column=0, columnspan=6, sticky=W)
+        Label(dataContainer, text="Place of birth", font=titleFont, fg='blue').grid(row=row, column=3, columnspan=6, sticky=W)
+        Label(dataContainer, text="Colour of eyes", font=titleFont, fg='blue').grid(row=row, column=6, columnspan=6, sticky=W)
         row += 1
-        Label(dataContainer, textvariable=fields['birthDate'], font=font).grid(row=row, column=0, columnspan=3, sticky=W)
-        Label(dataContainer, textvariable=fields['birthPlace'], font=font).grid(row=row, column=3, columnspan=3, sticky=W)
+        Label(dataContainer, textvariable=fields['birthDate'], font=font).grid(row=row, column=0, columnspan=6, sticky=W)
+        Label(dataContainer, textvariable=fields['birthPlace'], font=font).grid(row=row, column=3, columnspan=6, sticky=W)
+        Label(dataContainer, textvariable=fields['eyesColour'], font=font).grid(row=row, column=6, columnspan=6, sticky=W)
 
         # ROW 10
         row += 1
-        Label(dataContainer, text="Sex", font=titleFont).grid(row=row, column=0, columnspan=3, sticky=W)
-        Label(dataContainer, text="Authority", font=titleFont).grid(row=row, column=3, columnspan=3, sticky=W)
+        Label(dataContainer, text="Sex", font=titleFont, fg='blue').grid(row=row, column=0, columnspan=6, sticky=W)
+        Label(dataContainer, text="Authority", font=titleFont, fg='blue').grid(row=row, column=3, columnspan=6, sticky=W)
+        Label(dataContainer, text="Residence", font=titleFont, fg='blue').grid(row=row, column=6, columnspan=6, sticky=W)
         row += 1
-        Label(dataContainer, textvariable=fields['sex'], font=font).grid(row=row, column=0, columnspan=3, sticky=W)
-        Label(dataContainer, textvariable=fields['authority'], font=font).grid(row=row, column=3, columnspan=3, sticky=W)
+        Label(dataContainer, textvariable=fields['sex'], font=font).grid(row=row, column=0, columnspan=6, sticky=W)
+        Label(dataContainer, textvariable=fields['authority'], font=font).grid(row=row, column=3, columnspan=6, sticky=W)
+        Label(dataContainer, textvariable=fields['residence'], font=font).grid(row=row, column=6, columnspan=6, sticky=W)
 
         # ROW 12
         row += 1
-        Label(dataContainer, text="Date of issue", font=titleFont).grid(row=row, column=0, columnspan=3, sticky=W)
-        Label(dataContainer, text="Signature", font=titleFont).grid(row=row, column=3, columnspan=3, sticky=W)
+        Label(dataContainer, text="Date of issue", font=titleFont, fg='blue').grid(row=row, column=0, columnspan=3, sticky=W)
+        Label(dataContainer, text="Signature", font=titleFont, fg='blue').grid(row=row, column=3, columnspan=3, sticky=W)
         row += 1
 
         self.Sign = Label(dataContainer)
@@ -189,7 +201,7 @@ class Overview(Frame):
         row += 1
 
         # ROW 14
-        Label(dataContainer, text="Date of Expiry", font=titleFont).grid(row=row, column=0, columnspan=3, sticky=W)
+        Label(dataContainer, text="Date of Expiry", font=titleFont, fg='blue').grid(row=row, column=0, columnspan=3, sticky=W)
         row += 1
         Label(dataContainer, textvariable=fields['expiryDate'], font=font).grid(row=row, column=0, columnspan=3, sticky=W)
 
@@ -259,7 +271,7 @@ class Overview(Frame):
         if data.has_key('5F35'):
             fields['sex'].set(getItem(data['5F35']))
         if data.has_key('59'):
-            fields['expiryDate'].set(getItem(data['59']))
+            fields['expiryDate'].set(getItem("20" + data['59'])) # 20 make a "real" date
 
     def loadDG2(self, fields, data):
         tag = None
@@ -281,8 +293,19 @@ class Overview(Frame):
                 tkMessageBox.showwarning("Image Error", str(msg))
 
     def loadDG11(self, fields, data):
+        if data.has_key("5F2B"):
+            fields['birthDate'].set(getItem(data['5F2B']))
         if data.has_key("5F11"):
             fields['birthPlace'].set(getItem(data['5F11']))
+        # This DG keep the accents, contrary to the DG1
+        if data.has_key("5F0E"):
+            name = (data['5F0E']).split("<<")
+            fields['name'].set(getItem(name[0]))
+            fields['surname'].set(getItem(name[1]))
+        if data.has_key("A0"): # French, nom d'usage, http://fr.wikipedia.org/wiki/Nom_d'usage_en_France
+            old = fields['name'].get()
+            fields['name'].set(old + ", " + getItem(data['A0']))
+
 
     def loadDG12(self, fields, data):
         if data.has_key("5F19"):
@@ -290,14 +313,22 @@ class Overview(Frame):
         if data.has_key("5F26"):
             fields['issueDate'].set(getItem(data['5F26']))
 
-    def loadDG(self, dg, data):
+    def loadDG13(self, fields, data):
+        if data.has_key("9F01"):
+            fields['height'].set(getItem(data['9F01']) + " m")
+        if data.has_key("9F02"):
+            fields['eyesColour'].set(getItem(data['9F02']))
+        if data.has_key("9F03"):
+            fields['residence'].set(getItem(data['9F03']))
 
-        if dg in ["61", "67", "6B", "6C", "75"]:
+    def loadDG(self, dg, data):
+        if dg in ["61", "67", "6B", "6C", "75", "6D"]:
             if dg == "61": self.loadDG1(self.fields, data)
             elif dg == "75": self.loadDG2(self.fields, data)
             elif dg == "67": self.loadDG7(self.fields, data)
             elif dg == "6B": self.loadDG11(self.fields, data)
             elif dg == "6C": self.loadDG12(self.fields, data)
+            elif dg == "6D": self.loadDG13(self.fields, data)
 
         self.update()
 

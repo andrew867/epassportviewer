@@ -28,7 +28,7 @@ from Crypto.Cipher import DES
 from pypassport.logger import Logger
 from pypassport.iso7816 import Iso7816, Iso7816Exception
 from pypassport.iso9797 import *
-from pypassport.doc9303.bac import BAC
+#from pypassport.doc9303.bac import BAC
 from pypassport.reader import PcscReader, ReaderException
 from pypassport.doc9303.mrz import MRZ
 from pypassport import apdu
@@ -58,7 +58,7 @@ class BruteForce(Logger):
 
         self._iso7816.rstConnection()
 
-        self._bac = BAC(iso7816)
+        #self._bac = BAC(iso7816)
 
         self._id_low = None
         self._id_high = None
