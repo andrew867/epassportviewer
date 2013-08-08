@@ -207,9 +207,9 @@ class BruteForce(Logger):
 
         check = True
         error = ''
-
         pattern_id = '^[0-9A-Z<]{1,9}$'
-        reg=re.compile(pattern_id)
+        reg = re.compile(pattern_id)
+
         if not reg.match(self._id_low):
             check = False
             error += "Wrong parameter (ID low: {0})\n".format(self._id_low)
@@ -219,20 +219,20 @@ class BruteForce(Logger):
             error += "Wrong parameter (ID high: {0})\n".format(self._id_high)
             self.log("\tWrong ID high")
 
-        if type(self._dob_low)!=type(datetime.date.today()):
+        if type(self._dob_low) != type(datetime.date.today()):
             check = False
             error += "dob l\n"
             error += "Wrong parameter (date of birth low: {0})\n".format(self._dob_low)
-        if type(self._dob_high)!=type(datetime.date.today()):
+        if type(self._dob_high) != type(datetime.date.today()):
             check = False
             error += "dob h\n"
             error += "Wrong parameter (date of birth high: {0})\n".format(self._dob_high)
 
-        if type(self._exp_date_low)!=type(datetime.date.today()):
+        if type(self._exp_date_low) != type(datetime.date.today()):
             check = False
             error += "Wrong parameter (Expiratin date low: {0})\n".format(self._exp_date_low)
             self.log("\tWrong expiration date low")
-        if type(self._exp_date_high)!=type(datetime.date.today()):
+        if type(self._exp_date_high) != type(datetime.date.today()):
             check = False
             error += "Wrong parameter (Expiratin date high: {0})\n".format(self._exp_date_high)
             self.log("\tWrong expiration date high")

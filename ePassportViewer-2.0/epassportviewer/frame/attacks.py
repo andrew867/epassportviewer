@@ -944,6 +944,7 @@ message regarding the country.\n"
 
             r = reader.ReaderManager().waitForCard()
             bf = bruteForce.BruteForce(Iso7816(r))
+        
             if self.verboseBruteVar.get():
                 bf.register(self.writeToLogBF)
 
@@ -975,12 +976,13 @@ message regarding the country.\n"
     def checkData(self):
         try:
             bf = self.initData()
+            if not bf:
+                return
             chk, err = bf.check()
             if chk:
                 self.writeToLogBF("Format values are correct")
             else:
                 self.writeToLogBF(err)
-
         except Exception, msg:
             tkMessageBox.showerror("Error: Initialisation data", str(msg))
 
@@ -988,6 +990,8 @@ message regarding the country.\n"
     def getStats(self):
         try:
             bf = self.initData()
+            if not bf:
+                return
             chk, err = bf.check()
             if chk:
                 (id_low, id_high, entropy_id) = bf.getIdStat()
@@ -1017,6 +1021,8 @@ message regarding the country.\n"
     def live(self):
         try:
             bf = self.initData()
+            if not bf:
+                return
             chk, err = bf.check()
             if chk:
                 found = bf.exploit(self.rstBruteVar.get())
@@ -1034,6 +1040,8 @@ message regarding the country.\n"
     def offline(self):
         try:
             bf = self.initData()
+            if not bf:
+                return
             chk, err = bf.check()
             if chk and self.response:
                 found = bf.exploitOffline(self.response)
