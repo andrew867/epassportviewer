@@ -385,7 +385,7 @@ The derrivation of the keys used during the session keys establishment require o
 characteres) and two dates (6 digits). The - low - entropy could be reduced if the attacker has \n\
 personnal information about the bearer. Therefore a brute force on the MRZ might be possible.\n\
 The attack concist of trying one by one each possible MRZ in the range set by the attacker. \n\
-Whenever a BAC succeed, this means the MRZ tried is correct one.\n"
+Whenever a BAC succeeds, this means the MRZ tried is the correct one.\n"
 
         self.writeToLogBF(bfDescription)
 
@@ -562,11 +562,11 @@ Whenever a BAC succeed, this means the MRZ tried is correct one.\n"
         aaDescription = "\
 DESCRIPTION:\n\
 \n\
-In some case, it is possible to execute an active authentication before the BAC and thus geting a \n\
+In some case, it is possible to execute an active authentication before the BAC and thus getting a \n\
 signature. In RSA algorythm, the signature cannot be higher than the modulo. Therefore, after a \n\
 couple of test, by keeping the highest signature, we know that we are more and more close to the \n\
 modulo. Since the modulo is unique it is possible to identify (with a little lack of accuracy) a \n\
-passport. If the highest signature is higher than the modulo of a passport (avaible in DG15), we \n\
+passport. If the highest signature is higher than the modulo of a passport (available in DG15), we \n\
 know for sure that the passport scanned is NOT the one that generated the modulo.\n"
 
         self.writeToLogAA(aaDescription)
@@ -796,7 +796,7 @@ message regarding the country.\n"
     # IS VULNERABLE?
     def isVulnerable(self):
         pleasewait = dialog.WaitDialog(self.mrz)
-        pleasewait.setMessage("Please wait. Depending on the security measures implemented \non the passport, the verification may takes from few seconds to \nfew minutes if \"Reach max\" is checked.")
+        pleasewait.setMessage("Please wait. Depending on the security measures implemented \non the passport, the verification may take from few seconds to \nfew minutes if \"Reach max\" is checked.")
         try:
             if self.mrz.buildMRZ():
                 if self.coForm.get(): co = self.coForm.get()
@@ -815,7 +815,7 @@ message regarding the country.\n"
                 else:
                     tkMessageBox.showerror("Error: Wrong MRZ", "The check digits are not correct")
             else:
-                tkMessageBox.showinfo("MRZ not set", "You have to set the MRZ in order to verify is the passport is vulnerable.")
+                tkMessageBox.showinfo("MRZ not set", "You have to set the MRZ in order to verify if the passport is vulnerable.")
 
         except Exception, msg:
             tkMessageBox.showerror("Error: is vulnerable", str(msg))
@@ -864,7 +864,7 @@ message regarding the country.\n"
                     if self.verboseMACVar.get():
                         attack.register(self.writeToLogMAC)
                     if self.frenchVar.get(): self.reachMaxDelay(attack)
-                    self.writeToLogMAC("Does the pair belongs the the passport scanned: {0}".format(attack.checkFromFile(directory, co)))
+                    self.writeToLogMAC("Does the pair belong to the passport scanned: {0}".format(attack.checkFromFile(directory, co)))
                 else:
                     tkMessageBox.showerror("Error: save", "The path you selected is not a file")
         except Exception, msg:
@@ -873,7 +873,7 @@ message regarding the country.\n"
     # TEST
     def test(self):
         pleasewait = dialog.WaitDialog(self.mrz)
-        pleasewait.setMessage("Please wait. Depending on the security measures implemented \non the passport, the test may takes from few seconds to \nfew minutes regarding what you set.")
+        pleasewait.setMessage("Please wait. Depending on the security measures implemented \non the passport, the test may take from few seconds to \nfew minutes regarding what you set.")
         try:
             if self.mrz.buildMRZ():
                 r = reader.ReaderManager().waitForCard()
@@ -895,7 +895,7 @@ message regarding the country.\n"
                 else:
                     tkMessageBox.showerror("Error: Wrong MRZ", "The check digits are not correct")
             else:
-                tkMessageBox.showinfo("MRZ not set", "You have to set the MRZ in order to verify is the passport is vulnerable.")
+                tkMessageBox.showinfo("MRZ not set", "You have to set the MRZ in order to verify if the passport is vulnerable.")
         except Exception, msg:
             tkMessageBox.showerror("Error: is vulnerable", str(msg))
         finally:
@@ -914,7 +914,7 @@ message regarding the country.\n"
             else:
                 tkMessageBox.showerror("Error: Wrong MRZ", "The check digits are not correct")
         except Exception, msg:
-            tkMessageBox.showerror("Error: reseting", str(msg))
+            tkMessageBox.showerror("Error: resetting", str(msg))
 
     # DEMO
     def demo(self):
@@ -1067,8 +1067,8 @@ message regarding the country.\n"
             attack = aaTraceability.AATraceability(Iso7816(r))
             if self.verboseAAVar.get():
                 attack.register(self.writeToLogAA)
-            if attack.isVulnerable(): result = "True: The passport allow to proceed the active authentication before the the BAC."
-            else: result = "False: The passport does not implement the AA or require a to execute a BAC first."
+            if attack.isVulnerable(): result = "True: The passport allows to proceed the active authentication before the BAC."
+            else: result = "False: The passport does not implement the AA or requires to execute a BAC first."
             self.writeToLogAA("Is vulnerable?\n{0}".format(result))
         except Exception, msg:
             tkMessageBox.showerror("Error: Is vulnerable", str(msg))
@@ -1099,7 +1099,7 @@ message regarding the country.\n"
                     attack.register(self.writeToLogAA)
                 self.writeToLogAA("Modulo: {0}".format(attack.getModulo(self.mrz.buildMRZ())))
             else:
-                tkMessageBox.showinfo("MRZ not set", "You have to set the MRZ in order to verify is the passport is vulnerable.")
+                tkMessageBox.showinfo("MRZ not set", "You have to set the MRZ in order to verify if the passport is vulnerable.")
         except Exception, msg:
             tkMessageBox.showerror("Error: Get modulo", str(msg))
 
@@ -1125,10 +1125,10 @@ message regarding the country.\n"
             attack = aaTraceability.AATraceability(Iso7816(r))
             if self.verboseAAVar.get():
                 attack.register(self.writeToLogAA)
-            self.writeToLogAA("May belongs to? : {0}".format(attack.mayBelongsTo(self.moduloMatchForm.get(), self.signMatchForm.get())))
+            self.writeToLogAA("May belong to? : {0}".format(attack.mayBelongsTo(self.moduloMatchForm.get(), self.signMatchForm.get())))
 
         except Exception, msg:
-            tkMessageBox.showerror("Error: May belongs to?", str(msg))
+            tkMessageBox.showerror("Error: May belong to?", str(msg))
 
     # SAVE
     def saveSign(self):
@@ -1174,7 +1174,7 @@ message regarding the country.\n"
                     if accuracy:
                         self.writeToLogAA("Difference: {0}%".format(attack.checkFromFile(self.moduloFileForm.get(), directory, accuracy)))
                     else:
-                        self.writeToLogAA("May belongs to? : {0}".format(attack.checkFromFile(self.moduloFileForm.get(), directory, accuracy)))
+                        self.writeToLogAA("May belong to? : {0}".format(attack.checkFromFile(self.moduloFileForm.get(), directory, accuracy)))
                 else:
                     tkMessageBox.showerror("Error: save", "The path you selected is not a file")
         except Exception, msg:
@@ -1327,7 +1327,7 @@ assessed without raising low rate of false-positive and false-negative"
         text = "\
 \"Save pair...\" stores a ciphertext with its valid MAC in a file. The pair can be used later, in a \n\
 futur attack to define if the passport is the one that creates the pair (See Check from file). \n\
-If the path doesn't exist, the folders and sub-folders will be create. If the file exist, a number will \n\
+If the path doesn't exist, the folders and sub-folders will be created. If the file exist, a number will \n\
 be add automatically.\n\
 \n\
 Note: You need to set the correct MRZ."
@@ -1443,7 +1443,7 @@ MAX:\n\
 
     def helpCheckDialog(self):
         title = "Check"
-        text = "Set and check if all input (e.i. document #, DOB and DOE)\nare correct value."
+        text = "Set and check if all inputs (e.i. document #, DOB and DOE)\nhave a correct value."
         InfoBoxWindows(self, title, text)
 
     def helpStatsDialog(self):
@@ -1468,7 +1468,7 @@ could capture."
         title = "Live brute force"
         text = "\
 Live brute force uses the range set for the document #, the DOB and the DOE\n\
-and attemp a BAC with every possibilities until the process succeed.\n\
+and attempts a BAC with every possibilities until the process succeeds.\n\
 Couple of passport (such as the belgian one) 'block' the passport after a wrong external\n\
 external authentication (i.e. any external authentication even correct will raise an error).\n\
 This means with those passports, a reset is needed after each attempt.\n\

@@ -76,7 +76,7 @@ class CAManager(object):
             if data: break
 
         if not data:
-            raise Exception("The certificate format is unknow for file: " + str(file) + "\nor OpenSSL is not set")
+            raise Exception("The certificate format is unknown for file: " + str(file) + "\nor OpenSSL is not set")
         return (data, format)
 
     def _toPEM(self, certif, format, name, path):

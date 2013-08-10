@@ -24,7 +24,7 @@ Errors = {  # APDU PROBLEMS
              # READER ISSUES
              "Failed to transmit with protocol TO. Card was reset.": 'Error #201: An error occured with the reader.',
              # UNCLASSIFIED ERRORS
-             "Wrong MRZ": 'Check the correct MRZ is set.',
+             "Wrong MRZ": 'Check that the correct MRZ is set.',
              "sodObj must be a sod object": "Error #301: Internal error.",
              "'NoneType' object has no attribute '__getitem__'": "Error #302: Internal error."
 }

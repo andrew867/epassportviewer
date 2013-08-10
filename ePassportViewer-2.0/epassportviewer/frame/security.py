@@ -69,17 +69,17 @@ class securityFrame(Frame):
         if BAC != None:
             if BAC == False:
                 self.BAC.configure(fg='red')
-                self.tipBAC = Tooltip(parent=self.BAC, tip="The BAC failed. Check you wrote the correct MRZ.")
+                self.tipBAC = Tooltip(parent=self.BAC, tip="The BAC failed. Check that you wrote the correct MRZ.")
             else:
                 self.BAC.configure(fg=green)
-                self.tipBAC = Tooltip(parent=self.BAC, tip="The BAC succeed")
+                self.tipBAC = Tooltip(parent=self.BAC, tip="The BAC succeeded")
 
         # Active Authentication label
         if AA != None:
             self.AA.configure(fg='black')
             if AA == True:
                 self.AA.configure(fg=green)
-                self.tipAA = Tooltip(parent=self.AA, tip="The active authentication succeed")
+                self.tipAA = Tooltip(parent=self.AA, tip="The active authentication succeeded")
             elif AA == "NO_OPENSSL":
                 self.AA.configure(fg=orange)
                 self.tipAA = Tooltip(parent=self.AA, tip="Cannot use OpenSSL.")
@@ -103,7 +103,7 @@ class securityFrame(Frame):
                     if PA[dg] == True:
                         self.dg[str(dg)].configure(fg=green)
                         self.tips[str(dg)].destroy()
-                        self.tips[str(dg)] = Tooltip(parent=self.dg[str(dg)], tip="Intergrity verified with the SOD")
+                        self.tips[str(dg)] = Tooltip(parent=self.dg[str(dg)], tip="Integrity verified with the SOD")
                     elif PA[dg] == False:
                         hashfail = True
                         self.PA.configure(fg='red')
@@ -122,32 +122,32 @@ class securityFrame(Frame):
             if not hashfail:
                 if CA == "OPENSSL_ERROR":
                     self.PA.configure(fg=orange)
-                    self.tipsPA = Tooltip(parent=self.PA, tip="SOD not verify with CSCA.\nCheck you load the correct certificate")
+                    self.tipsPA = Tooltip(parent=self.PA, tip="SOD not verified with CSCA.\nCheck that you loaded the correct certificate")
                 elif CA == "CA_NOT_SET":
                     self.PA.configure(fg=orange)
                     self.tipPA = Tooltip(parent=self.PA, tip='No CSCA certificate loaded. Cannot verify the SOD.\nPlease go to "Configure > Import root certificate..."')
                 elif CA == True:
                     self.PA.configure(fg=green)
-                    self.tipPA = Tooltip(parent=self.PA, tip="The PA succeed")
+                    self.tipPA = Tooltip(parent=self.PA, tip="The PA succeeded")
                 else:
                     self.PA.configure(fg='red')
-                    self.tipPA = Tooltip(parent=self.PA, tip="SOD not verify with CSCA")
+                    self.tipPA = Tooltip(parent=self.PA, tip="SOD not verified with CSCA")
             else:
                 self.PA.configure(fg='red')
                 self.tipPA = Tooltip(parent=self.PA, tip="One or more hash does not match with the SOD")
 
             if CA == "OPENSSL_ERROR":
                 self.dg['SOD'].configure(fg=orange)
-                self.tips['SOD'] = Tooltip(parent=self.dg['SOD'], tip="SOD not verify with CSCA.\nCheck you load the correct certificate")
+                self.tips['SOD'] = Tooltip(parent=self.dg['SOD'], tip="SOD not verified with CSCA.\nCheck that you loaded the correct certificate")
             elif CA == "CA_NOT_SET":
                 self.dg['SOD'].configure(fg=orange)
                 self.tips['SOD'] = Tooltip(parent=self.dg['SOD'], tip='No CSCA certificate loaded. Cannot verify the SOD.\nPlease go to "Configure > Import root certificate..."')
             elif CA == True:
                 self.dg['SOD'].configure(fg=green)
-                self.tips['SOD'] = Tooltip(parent=self.dg['SOD'], tip="Intergrity verified with the CSCA")
+                self.tips['SOD'] = Tooltip(parent=self.dg['SOD'], tip="Integrity verified with the CSCA")
             else:
                 self.dg['SOD'].configure(fg='red')
-                self.tips['SOD'] = Tooltip(parent=self.dg['SOD'], tip="SOD not verify with CSCA")
+                self.tips['SOD'] = Tooltip(parent=self.dg['SOD'], tip="SOD not verified with CSCA")
 
 
         if EAC != None:

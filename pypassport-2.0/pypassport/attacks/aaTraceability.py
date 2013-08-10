@@ -175,7 +175,7 @@ class AATraceability(Logger):
     def save(self, modulo, path=".", filename="modulo"):
         """
         Save a modulo or a signature for persistant analysis
-        If the path doesn't exist, the folders and sub-folders will be created.
+        If the path doesn't exist, the folders and sub-folders will be created..
         If the file exists, a number will be add automatically.
 
         @param modulo: Modulo (or signature to save)

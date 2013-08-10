@@ -353,7 +353,7 @@ class About(Toplevel):
 
     DESCRIPTION = """ePassport Viewer is a biometric passport viewer.\n\
 This application is based on the pyPassport Project\n\
-and illustrate how to use it.\n\
+and illustrates how to use it.\n\
 Features include viewing data, fingerprinting and\n\
 performing e-Passport security mechanisms."""
 
@@ -698,7 +698,7 @@ class ReadingDialog(threading.Thread, Toplevel):
             self.doc.getCommunicationLayer().rstConnection()
             self.doc.doBasicAccessControl()
         except Exception, msg:
-            tkMessageBox.showerror("Error while reseting", "{}\nPlease try to read the passport again.".format(errorhandler.getID(msg)))
+            tkMessageBox.showerror("Error while resetting", "{}\nPlease try to read the passport again.".format(errorhandler.getID(msg)))
 
     def startReading(self):
 
@@ -1256,7 +1256,7 @@ class FingerPrintDialog(Toplevel):
         self.txt += "   Passive Authentication   \n"
         self.txt += "============================\n"
         self.txt += "\n"
-        self.txt += "SOD verify by CSCA: " + str(data["verifySOD"]) + "\n"
+        self.txt += "SOD verified by CSCA: " + str(data["verifySOD"]) + "\n"
         self.txt += "\n"
         self.txt += "DG integrity\n"
         self.txt += "============\n"

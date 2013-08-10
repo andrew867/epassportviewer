@@ -59,7 +59,7 @@ class MacTraceability(Logger):
             - Reset a BAC with a random number for mutual authentication and store the answer together with the response time
             - Reset a BAC and use the pair of message/MAC from step 1 and store the answer together with the response time
 
-        If answers are different, this means the the passport is vulnerable.
+        If answers are different, this means the passport is vulnerable.
         If not, the response time is compared. If the gap is wide enough, the passport might be vulnerable.
 
         Note: The French passport (and maybe others) implemented a security against brute forcing:
@@ -139,7 +139,7 @@ class MacTraceability(Logger):
     def savePair(self, path=".", filename="pair"):
         """savePair stores a message with its valid MAC in a file.
         The pair can be used later, in a futur attack, to define if the passport is the one that creates the pair (See checkFromFile()).
-        If the path doesn't exist, the folders and sub-folders will be created.
+        If the path doesn't exist, the folders and sub-folders will be created..
         If the file exists, a number will be add automatically.
 
         @param path: The path where the file has to be created. It can be relative or absolute.

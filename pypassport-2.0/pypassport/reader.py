@@ -215,8 +215,8 @@ class Acr122(PcscReader):
                 }
 
     Errors = {0x61: 'SW2 Bytes left to read',
-              0x63:{0x00:'The operation is failed.',
-                    0x01:'The PN532 does not response.',
+              0x63:{0x00:'The operation failed.',
+                    0x01:'The PN532 does not respond.',
                     0x27: 'Command not acceptable in context of PN532',
                     #0x27:'The checksum of the Contactless Response is wrong.',
                     0x7F:'The PNNAME = "GENERIC PC/SC"532_Contactless Command is wrong.'},
