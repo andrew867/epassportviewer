@@ -39,10 +39,10 @@ class SecureMessagingException(Exception):
 
 class SecureMessaging(Ciphering):
     """
-    This class implement the secure messaging protocol.
+    This class implements the secure messaging protocol.
     The class is a new layer that comes between the reader and the iso7816.
     It gives a new transmit method that takes an APDU object formed by the iso7816 layer,
-    ciphers it following the doc9303 specification, send the ciphered APDU to the reader layer and returns the unciphered APDU.
+    ciphers it following the doc9303 specification, sends the ciphered APDU to the reader layer and returns the unciphered APDU.
     """
     def __init__(self, ksenc, ksmac, ssc):
         Ciphering.__init__(self)

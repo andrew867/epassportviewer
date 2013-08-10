@@ -94,7 +94,7 @@ class Iso7816(Logger):
             self.setCiphering()
             self.selectFile("04", "0C", "A0000002471001")
         except Exception:
-            raise Iso7816Exception("An error occur while reseting the connection")
+            raise Iso7816Exception("An error occured while resetting the connection")
 
     def getTypeReader(self):
         return type(self._reader)
@@ -115,7 +115,7 @@ class Iso7816(Logger):
             self._reader.connect(rn)
             self.setCiphering()
         except Exception:
-            raise Iso7816Exception("An error occur while reseting the connection")
+            raise Iso7816Exception("An error occured while resetting the connection")
     ################################################
 
     def transmit(self, toSend, logMsg):
@@ -127,12 +127,12 @@ class Iso7816(Logger):
         @return: The result field of the responseAPDU object
 
         The P1 and P2 fields are checked after each transmit.
-        If they don't mean succes, the appropriate error string is retrieved
+        If they don't mean success, the appropriate error string is retrieved
         from the Error dictionary and an APDUException is raised.
         The Iso7816Exception is composed of three fields: ('error message', p1, p2)
 
         To access these fields when the exception is raised,
-        acces the APDUException object like a list::
+        access the APDUException object like a list::
 
             try:
                 x.apduTransmit(commandAPDU(..))

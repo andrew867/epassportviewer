@@ -134,5 +134,5 @@ if DUMP:
     epc.toDisk("GRT", ".bin", WORKING_DIR)
 
 if JCOP:
-    print 'Writting...'
+    print 'Writing...'
     print "MRZ: " + epc.toJCOP()

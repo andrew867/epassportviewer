@@ -72,7 +72,7 @@ class OpenSSL(Logger):
 
     def retrievePkcs7Certificate(self, derFile):
         """
-        Retrieve the certificate from the binary string, and returns it
+        Retrieve the certificate from the binary string, and return it
         into a human readable format.
         @param derFile: The certificate in der format
         @return: The certificate in a human readable format

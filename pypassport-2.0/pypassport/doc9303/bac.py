@@ -37,7 +37,7 @@ class BACException(Exception):
 class BAC(Logger):
 
     """
-    This class perform the Basic Acces Control.
+    This class performs the Basic Acces Control.
     The main method is I{authenticationAndEstablishmentOfSessionKeys}, it will execute the whole protocol and return the set of keys.
     """
 
@@ -60,7 +60,7 @@ class BAC(Logger):
     def authenticationAndEstablishmentOfSessionKeys(self, mrz):
         """
         Execute the complete BAC process:
-            - Derivation of the document basic acces keys
+            - Derivation of the document basic access keys
             - Mutual authentication
             - Derivation of the session keys
 
@@ -120,7 +120,7 @@ class BAC(Logger):
 
     def derivationOfDocumentBasicAccesKeys(self, mrz):
         """
-        Take the MRZ object, constrct the mrz_information out of the MRZ (kmrz),
+        Take the MRZ object, construct the mrz_information out of the MRZ (kmrz),
         generate the Kseed and compute the kenc and Kmac keys from the Kseed.
 
         @param mrz: The machine readable zone of the passport.
@@ -197,7 +197,7 @@ class BAC(Logger):
         Calculate the session keys (KSenc, KSmac) and the SSC from the data
         received by the mutual authenticate command.
 
-        @param data: the data received from the mutual authenticate command send to the chip.
+        @param data: the data received from the mutual authenticate command sent to the chip.
         @type data: a binary string
         @return: A set of two 16 bytes keys (KSenc, KSmac) and the SSC
         """
@@ -288,7 +288,7 @@ class BAC(Logger):
 
         @param kseed: The Kseed
         @type kseed: a 16 bytes string
-        @param c: specify is it derives KENC (c=0) of KMAC (c=1)
+        @param c: specify if it derives KENC (c=0) of KMAC (c=1)
         @type c: a byte
         @return: Return a 16 bytes key
         """

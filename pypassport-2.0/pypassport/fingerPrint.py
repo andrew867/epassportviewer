@@ -109,9 +109,9 @@ class FingerPrint(object):
         except Exception, msg:
             pass
 
-        # Check if passport block after the BAC fail
+        # Check if passport blocks after the BAC failed
         if self.callback:
-            self.callback.put((None, 'slfp', "Check if block after BAC failed"))
+            self.callback.put((None, 'slfp', "Check if it blocks after BAC failed"))
             self.callback.put((None, 'fp', 15))
 
         try:
@@ -295,7 +295,7 @@ class FingerPrint(object):
                 res["generation"] = 4
 
 
-        # Check if passport implement delay security
+        # Check if passport implements delay security
         if self.callback:
             self.callback.put((None, 'slfp', "Check delay security is implemented"))
             self.callback.put((None, 'fp', 90))

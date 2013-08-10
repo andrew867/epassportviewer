@@ -283,7 +283,7 @@ class DataGroup5(DataGroup):
             - {'02': [2], '5F40' : [[0x..,0x..,0x..], [0x..,0x..,0x..]]}
             - {'02': [1], '5F43' : [[0x..,0x..,0x..]]}
 
-        Each values of the dictionnary are in a list of hexadecimal/decimal values.
+        Each values of the dictionary are in a list of hexadecimal/decimal values.
         """
 
         self._byteNb = 0
@@ -434,7 +434,7 @@ class Events(object):
         self._listeners = []
 
     def register(self, fct):
-        """the listener gives the method he want as callback"""
+        """the listener gives the method it wants as callback"""
         self._listeners.append(fct)
 
     def unregister(self, listener):

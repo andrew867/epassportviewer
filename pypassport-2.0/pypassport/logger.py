@@ -22,7 +22,7 @@ class Logger(object):
         self._name = name
 
     def register(self, fct):
-        """the listener gives the method he want as callback"""
+        """the listener gives the method it wants as callback"""
         self._listeners.append(fct)
 
     def unregister(self, listener):

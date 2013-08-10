@@ -55,7 +55,7 @@ class Reader(Logger):
 
     def transmit(self, APDU):
         """
-        The method send the apdu to the reader and return the ICC answer
+        The method sends the apdu to the reader and returns the ICC answer
 
         @param APDU: The apdu to transmit to the reader
         @type APDU: A commandAPDU object
@@ -345,16 +345,16 @@ class ReaderManager(Singleton):
 
         """
         Wait until a card is put on a reader.
-        After I{timeout} seconds, the loop is break and an TimeOutException is raised
-        If I{driver} and I{readerNum} are let to none, the wait for loop will pool on every reader with every driver until a match is found.
-        If I{driver} and I{readerNum} are both set, the loop  will pool on the specified reader with the specified driver.
+        After I{timeout} seconds, the loop is broken and an TimeOutException is raised
+        If I{driver} and I{readerNum} are let to none, the wait for loop will poll on every reader with every driver until a match is found.
+        If I{driver} and I{readerNum} are both set, the loop will poll on the specified reader with the specified driver.
         By default, the time-out is set to 15 seconds.
 
         @param timeout: The timeout in second the loop wait for a card before being interrupted.
         @type timeout: Integer
-        @param driver: The driver to use during the pooling
+        @param driver: The driver to use during the polling
         @type driver: A class inheriting from Reader
-        @param readerNum: The reader to pool on
+        @param readerNum: The reader to poll on
         @type readerNum: Integer
 
         @raise TimeOutException: Is the time-out expires, the exception is raised.

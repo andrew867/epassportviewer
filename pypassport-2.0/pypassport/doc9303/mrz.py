@@ -23,7 +23,7 @@ class MRZException(Exception):
 class MRZ(object):
 
     """
-    This class implement the mrz check digit test.
+    This class implements the mrz check digit test.
     The class is used when the mrz is encoded by the user, to verify the mrz validity.
     The method I{checkMRZ} must be called before any further use of this class because
     it will populate the fields of the class.
@@ -61,8 +61,8 @@ class MRZ(object):
 
     def checkMRZ(self):
         """
-        The method verify the check digits of the encoded MRZ.
-        It handle two kind of MRZ: TD1 and TD2.
+        The method verifies the check digits of the encoded MRZ.
+        It handles two kind of MRZ: TD1 and TD2.
         The method retrieves the fields used by the bac protocol, so this method
         must be called after the mrz object initialization.
 
@@ -166,10 +166,10 @@ class MRZ(object):
             @note: sex and nat field are not necessary to BAC and are then
                    replaced by '<' characters
 
-            @attention: this method build a 44 characters MRZ based on TD2 specs
+            @attention: this method builds a 44 characters MRZ based on TD2 specs
             @attention: if passport number is larger than its reserved space
-                        the rest il put in the optional field with the check digit
-                        initial check digit il replaced by a '<' character
+                        the rest is put in the optional field with the check digit
+                        initial check digit is replaced by a '<' character
         """
         type = self._transformField(type, 2)
         issuer = self._transformField(issuer, 3)

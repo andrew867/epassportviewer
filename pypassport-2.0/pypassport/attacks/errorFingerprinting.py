@@ -35,8 +35,8 @@ class ErrorFingerprinting(Logger):
     """
     ICAO described minimum required instruction for the communication between the reader and the passport.
     Therefore, regarding features implemented, a passport might behave in a different way with a different error message
-    This lack of a standartisation create a fingerprint an attacker could use to identify the issuer and the version of the passport.
-    This class implement methods in order to store error regarding the country and the version and identify a passport.
+    This lack of standardisation creates a fingerprint an attacker could use to identify the issuer and the version of the passport.
+    This class implements methods in order to store error regarding the country and the version and identify a passport.
     """
 
     def __init__(self, iso7816, path="error.dat"):
@@ -82,7 +82,7 @@ class ErrorFingerprinting(Logger):
 
     def addError(self, new_query, ans, new_country, year=str(datetime.datetime.today().year)):
         """
-        Add in the error dictionnary (self.errors + save in file) a set composed of:
+        Add in the error dictionary (self.errors + save in file) a set composed of:
          - The APDU sent
          - The error received
          - Issuer (country)
@@ -113,7 +113,7 @@ class ErrorFingerprinting(Logger):
                             if country==new_country:
                                 for date in self.errors[query][error][country]:
                                     if date==year:
-                                        self.log("The entry already exist")
+                                        self.log("The entry already exists")
                                         i=False
                                 if i:
                                     self.errors[new_query][new_error][new_country].append(year)
@@ -133,20 +133,20 @@ class ErrorFingerprinting(Logger):
             i=False
 
         with open(self._path, 'wb') as file_errors:
-            self.log("Save the dictionnary")
+            self.log("Save the dictionary")
             my_pickler = pickle.Pickler(file_errors)
             my_pickler.dump(self.errors)
 
     def identify(self, cla="00", ins="00", p1="00", p2="00", lc="", data="", le="00"):
         """
-        Identify a passport by sending a custom APDU and checking the answer in the error dictionnary
+        Identify a passport by sending a custom APDU and checking the answer in the error dictionary
 
         @param cla, ins, p1, p2, lc, data, le: APDU value
         @type cla, ins, p1, p2, lc, data, le: String of 2hex (from 00 to FF) except lc and date that may be an empty String
 
-        @raise ErrorFingerprintingException: If the query triggered no error, it raise an error
+        @raise ErrorFingerprintingException: If the query triggered no error, it raises an error
 
-        @return: Return all the possible issuer-version the passport might belongs to.
+        @return: Return all the possible issuer-version the passport might belong to.
         """
 
         cur_query = cla + ins + p1 + p2 + lc + data + le

@@ -34,12 +34,12 @@ class AATraceabilityException(Exception):
 
 class AATraceability(Logger):
     """
-    This class help to identify a passport thanks to the misuses of the active authentication.
-    In some case, it is possible to execute an active authentication before the BAC and therefore geting a signature
-    In RSA algorythm, the signature can't be higher thant the modulo.
-    Therefore, after a couple of test, by keeping the highest signature, we know that we are more and more close  to the modulo
+    This class helps to identify a passport thanks to the misuses of the active authentication.
+    In some case, it is possible to execute an active authentication before the BAC and therefore getting a signature
+    In RSA algorythm, the signature can't be higher than the modulo.
+    Therefore, after a couple of test, by keeping the highest signature, we know that we are more and more close to the modulo
     Since the modulo is unique it is possible to identify (with a little lack of accuracy) a passport
-    If the highest signature is higher than the modulo of a passport (avaible in DG15), we know that the passport scanned is NOT the one to which belongs the modulo
+    If the highest signature is higher than the modulo of a passport (available in DG15), we know that the scanned passport is NOT the one to which belongs the modulo
     """
 
     def __init__(self, iso7816):
@@ -55,7 +55,7 @@ class AATraceability(Logger):
 
     def isVulnerable(self):
         """
-        This method verify if it is possible to execute a internal authentication BEFORE a BAC
+        This method verifies if it is possible to execute an internal authentication BEFORE a BAC
 
         @return: A boolean stating whether the passport is vulnerable or not
         """
@@ -104,7 +104,7 @@ class AATraceability(Logger):
 
     def getModulo(self, mrz_value):
         """
-        If an attacker eavesdrop a legitimate communication between a passport and a reader
+        If an attacker eavesdrops a legitimate communication between a passport and a reader
         it is possible to get the public key used during the AA
 
         @param mrz_value: A MRZ
@@ -132,16 +132,16 @@ class AATraceability(Logger):
 
     def compare(self, modulo, highest, accuracy=6):
         """
-        Get the difference between two signature in pourcentage
+        Get the difference between two signatures in percentage
 
         @param modulo: The first signature (or modulo) to compare
         @type modulo: String of 256 hex (1024bits)
         @param highest: The second signature to compare
         @type highest: String of 256 hex (1024bits)
-        @param accuracy: Number of hex to concidare (6 by default)
+        @param accuracy: Number of hex to consider (6 by default)
         @type accuraty: int <1
 
-        @return: The difference in pourcentage
+        @return: The difference in percentage
         """
 
         modulo = hexRepToHex(modulo[:accuracy])
@@ -152,8 +152,8 @@ class AATraceability(Logger):
 
     def mayBelongsTo(self, modulo, highest):
         """
-        If the signature is higher than the modulo, this means they both doesn't belong to the same passport
-        If it is lower, they both MAY belongs to the same passport
+        If the signature is higher than the modulo, this means they both don't belong to the same passport
+        If it is lower, they both MAY belong to the same passport
 
         @param modulo: The first signature (or modulo) to compare
         @type modulo: String of 256 hex (1024bits)
@@ -174,13 +174,13 @@ class AATraceability(Logger):
 
     def save(self, modulo, path=".", filename="modulo"):
         """
-        Save a modulo or a signature for peristant analysis
-        If the path doesn't exist, the folders and sub-folders will be create.
-        If the file exist, a number will be add automatically.
+        Save a modulo or a signature for persistant analysis
+        If the path doesn't exist, the folders and sub-folders will be created.
+        If the file exists, a number will be add automatically.
 
         @param modulo: Modulo (or signature to save)
         @type modulo: String of 256 hex (1024bits)
-        @param path: The path where the file has to be create. It can be relative or absolute.
+        @param path: The path where the file has to be created. It can be relative or absolute.
         @type path: A string (e.g. "/home/doe/" or "foo/bar")
         @param filename: The name of the file where the modulo will be saved
         @type filename: A string (e.g. "john-modulo" or "doe.data")
@@ -213,10 +213,10 @@ class AATraceability(Logger):
         @type highest: String of 256 hex (1024bits)
         @param path: The path of the file where the modulo has been saved.
         @type path: A string (e.g. "/home/doe/modulo" or "foo/bar/modulo.data")
-        @param accuracy: Number of hex to concidare (6 by default)
+        @param accuracy: Number of hex to consider (6 by default)
         @type accuraty: int <1
 
-        @return: pourcentage (if accuracy set) OR boolean
+        @return: percentage (if accuracy set) OR boolean
         """
 
         if not os.path.exists(path): raise MacTraceabilityException("The signature file doesn't exist (path={0})".format(path))

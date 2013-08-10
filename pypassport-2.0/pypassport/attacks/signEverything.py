@@ -52,14 +52,14 @@ class SignEverything(Logger):
     def sign(self, message_to_sign="1122334455667788", mrz_value=None):
         """
         Get the signature of a 64bits message from the reader.
-        In order to prevent ICC cloning, the passport implement a Active Authentication (AA) security.
-        The passport sign the 64bits message sent by the reader thanks to its Private key store in secured memory.
-        This method let the user decide the 64bits and check (if MRZ set) with the public key if the message has been signed properly
+        In order to prevent ICC cloning, the passport implements an Active Authentication (AA) security.
+        The passport signs the 64bits message sent by the reader thanks to its Private key stored in secured memory.
+        This method lets the user decide the 64bits and checks (if MRZ set) with the public key if the message has been signed properly
 
         @params message_to_sign: 64bits message to sign
         @type message_to_sign: String (16 HEX values)
 
-        @return: A set composed of (The signature, Boolean that state if the signature has been checked)
+        @return: A set composed of (The signature, Boolean that states if the signature has been checked)
         """
         validated = False
         if mrz_value:

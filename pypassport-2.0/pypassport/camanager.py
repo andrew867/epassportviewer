@@ -26,7 +26,7 @@ CertFormat = ["DER", "PEM"]
 class CAManager(object):
     """
     This object is used for the certificate validation.
-    It encapsulates the certificates directory and perform the certificate name conversion in its hash.0 format.
+    It encapsulates the certificates directory and performs the certificate name conversion in its hash.0 format.
     """
     def __init__(self, dir):
         """
@@ -37,7 +37,7 @@ class CAManager(object):
 
     def toHashes(self):
         """
-        For each certificate, create  a new certificate named with the hash value of the issuer followed with .0
+        For each certificate, create a new certificate named with the hash value of the issuer followed with .0
         By this way, the corresponding CSCA certificate of the DS certificate can be found easily by openSSL.
         """
         #TODO See c_rehash what it does and implement the same...

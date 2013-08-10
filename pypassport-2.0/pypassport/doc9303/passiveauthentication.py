@@ -39,10 +39,10 @@ class PassiveAuthenticationException(Exception):
 class PassiveAuthentication(Logger):
 
     """
-    This class implement the passive authentication protocol.
-    The two main methods are I{verifySODandCDS} and I{executePA}. The first verify the SOD and the CDS and retrieve the relevant dataGroups
-    from the LDS, that's why this method must be called before I{executePA} that uses these exctracted informations to calculate the hashes.
-    Even if the Certificate validation failed, it does not mean that the data could not been retrieved from the LDS.
+    This class implements the passive authentication protocol.
+    The two main methods are I{verifySODandCDS} and I{executePA}. The first verifies the SOD and the CDS and retrieves the relevant dataGroups
+    from the LDS, that's why this method must be called before I{executePA} that uses these extracted informations to calculate the hashes.
+    Even if the Certificate validation failed, it does not mean that the data could not be retrieved from the LDS.
     """
 
     def __init__(self, openssl=None):
@@ -66,14 +66,14 @@ class PassiveAuthentication(Logger):
         Once the hashing processing is done, the I{toHash} method does not need to be called again.
 
         @param sodObj: An initialized security data object
-        @type sodObj: An sod object
-        @param CSCADirectory: The object representing the CSCA directory.
+        @type sodObj: A sod object
+        @param CSCADirectory: The object represents ing the CSCA directory.
         @type CSCADirectory: A CAManager object
 
         @return: True if the DS Certificate is valided
 
         @raise PassiveAuthenticationException: I{sodObj must be a sod object}: the sodObj parameter must be a sod object.
-        @raise PassiveAuthenticationException: I{sodObj object is not initialized}: the sodobj parameter is a sod object, but is not initialized.
+        @raise PassiveAuthenticationException: I{sodObj object is not initialized}: the sodObj parameter is a sod object, but is not initialized.
         @raise PassiveAuthenticationException: I{CSCADirectory is not set}
         @raise openSSLException: See the openssl documentation
         """
@@ -105,12 +105,12 @@ class PassiveAuthentication(Logger):
             - Compare the calculated hashes with the corresponding hash values in the SOD.
 
         @param sodObj: An initialized security data object
-        @type sodObj: An sod object
+        @type sodObj: A sod object
         @param dgs: A list of dataGroup objects to verify
         @type dgs: A list of dataGroup
-        @return: The dictionnary is indexed with the DataGroup name (DG1...DG15) and the value is a boolean: True if the check is ok.
+        @return: The dictionary is indexed with the DataGroup name (DG1...DG15) and the value is a boolean: True if the check is ok.
         @raise PassiveAuthenticationException: I{sodObj must be a sod object}: the sodObj parameter must be a sod object.
-        @raise PassiveAuthenticationException: I{sodObj object is not initialized}: the sodobj parameter is a sod object, but is not initialized.
+        @raise PassiveAuthenticationException: I{sodObj object is not initialized}: the sodObj parameter is a sod object, but is not initialized.
         @raise openSSLException: See the openssl documentation
         """
 
@@ -137,10 +137,10 @@ class PassiveAuthentication(Logger):
         Verify SOD by using Document Signer Public Key (KPuDS))
 
         @param sodObj: A filled SOD object
-        @type sodObj: An SOD object
-        @return: The data (a binary string) if the verifucation is ok, else an PassiveAuthentication is raised.
+        @type sodObj: A sod object
+        @return: The data (a binary string) if the verification is ok, else an PassiveAuthentication is raised.
         @raise PassiveAuthenticationException: I{sodObj must be a sod object}: the sodObj parameter must be a sod object.
-        @raise PassiveAuthenticationException: I{sodObj object is not initialized}: the sodobj parameter is a sod object, but is not initialized.
+        @raise PassiveAuthenticationException: I{sodObj object is not initialized}: the sodObj parameter is a sod object, but is not initialized.
         @raise openSSLException: See the openssl documentation
         """
         self.log("Verify SOD by using Document Signer Public Key (KPuDS))")
@@ -180,10 +180,10 @@ class PassiveAuthentication(Logger):
 
     def getCertificate(self, sodObj):
         """
-        Retrieve de DocumentSiner certificate out of the SOD.
-        @return: A PEM represenation of the certificate or None is not present.
+        Retrieve de DocumentSigner certificate out of the SOD.
+        @return: A PEM represents ation of the certificate or None if not present.
         @raise PassiveAuthenticationException: I{sodObj must be a sod object}: the sodObj parameter must be a sod object.
-        @raise PassiveAuthenticationException: I{sodObj object is not initialized}: the sodobj parameter is a sod object, but is not initialized.
+        @raise PassiveAuthenticationException: I{sodObj object is not initialized}: the sodObj parameter is a sod object, but is not initialized.
         @raise openSSLException: See the openssl documentation
         """
         if type(sodObj) != type(datagroup.SOD(None)):
@@ -200,7 +200,7 @@ class PassiveAuthentication(Logger):
 
         @param data: The content of the verified signature.
         @type data:  A binary string
-        @return: A dictionnary with the parsed data of the signature (version, hashAlgorithm and dataGrouphashValues)
+        @return: A dictionary with the parsed data of the signature (version, hashAlgorithm and dataGrouphashValues)
         """
         self.log("Read the relevant Data Groups from the LDS")
 
@@ -226,7 +226,7 @@ class PassiveAuthentication(Logger):
 
         @param dgs: A list of dataGroup objects to calculate the hash values.
         @type dgs: A list.
-        @return: A dictionnary indexed with DG1..DG15 with the calculated hashes of the DGs.
+        @return: A dictionary indexed with DG1..DG15 with the calculated hashes of the DGs.
         """
         self.log("Calculate the hashes of the relevant Data Groups")
         hashes = {}
@@ -242,9 +242,9 @@ class PassiveAuthentication(Logger):
         """
         Compare the calculated hashes with the corresponding hashes present in the SOD.
 
-        @param hashes: A dictionnary of hashes to compare with the security object hashes.
+        @param hashes: A dictionary of hashes to compare with the security object hashes.
         @type hashes: A dictionary
-        @return: A dictionnary indexed with the DG name (DG1..DG15) and with the result of the hash comparison (True or False, None if the DG is not present in the SOD)
+        @return: A dictionary indexed with the DG name (DG1..DG15) and with the result of the hash comparison (True or False, None if the DG is not present in the SOD)
         """
         self.log("Compare the calculated hashes with the corresponding hash values in the SOD")
 

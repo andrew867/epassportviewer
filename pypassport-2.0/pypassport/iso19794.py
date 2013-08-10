@@ -277,7 +277,7 @@ class ISO19794_5:
         """ create a simple CBEFF header based on image information
 
             @param imageType: Format of the image
-            @type imageType: string from IMAGETYPE dictionnary
+            @type imageType: string from IMAGETYPE dictionary
             @param imageHeight: Height of the image in pixels
             @type imageHeight: int
             @param imageWidth: Width of the image in pixels

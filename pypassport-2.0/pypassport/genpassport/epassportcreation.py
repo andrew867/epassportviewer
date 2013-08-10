@@ -52,8 +52,8 @@ class EPassportCreator(Logger):
         """
         Write the forged passport into a JCOP (with the JMRTD applet installed).
         @param reader: The reader object connected to the JCOP.
-        @passport: If not specified, write the passport forger with the previous call of the forge method.
-                    Else, install the given passport on the JCOP. (must contains at least the keys DG1, DG2, Common, SecurityData).
+        @passport: If not specified, write the passport forged with the previous call of the forge method.
+                    Else, install the given passport on the JCOP. (must contain at least the keys DG1, DG2, Common, SecurityData).
         """
 
         if not self._forged:

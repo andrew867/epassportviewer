@@ -34,8 +34,8 @@ class ActiveAuthenticationException(Exception):
 
 class ActiveAuthentication(Logger):
     """
-    This class implement the Active Authentication protocol.
-    The main method is I{executeAA} that return True is the verification is ok or False.
+    This class implements the Active Authentication protocol.
+    The main method is I{executeAA} that returns True if the verification is ok or False.
     """
     def __init__(self, iso7816, openssl=None):
         """
@@ -65,12 +65,12 @@ class ActiveAuthentication(Logger):
         Perform the Active Authentication protocol.
         Work only with RSA, modulus length of 1024 and with SHA1.
 
-        @param dg15: A initialized dataGroup15 object
+        @param dg15: An initialized dataGroup15 object
         @type dg15: dataGroup15
-        @return: True if the authentication succeed, else False.
+        @return: True if the authentication succeeded, else False.
         @rtype: Boolean
         @raise ActiveAuthenticationException: If the Active Authentication is not supported (The DG15 is not found or the hash algo is not supported).
-        @raise ActiveAuthenticationException: If the parameter is not set or invalid.
+        @raise ActiveAuthenticationException: If the parameter is not set or is invalid.
         @raise ActiveAuthenticationException: If OpenSSL is not installed.
         @raise ActiveAuthenticationException: If the public key cannot be recovered from the DG15.
         @raise ActiveAuthenticationException: If the DG15 is invalid and the signature cannot be verified.
@@ -110,9 +110,9 @@ class ActiveAuthentication(Logger):
         """
         Retrieve the public key in PEM format from the dataGroup15
 
-        @return: A PEM reprensation of the public key
+        @return: A PEM represents ation of the public key
         @rtype: A string
-        @raise ActiveAuthenticationException: I{The parameter type is not valid, must be a dataGroup15 object}: The parameter dg15 is not set or invalid.
+        @raise ActiveAuthenticationException: I{The parameter type is not valid, must be a dataGroup15 object}: The parameter dg15 is not set or is invalid.
         @raise ActiveAuthenticationException: I{The public key could not be recovered from the DG15}: Is open SSL installed?
         """
 
@@ -183,9 +183,9 @@ class ActiveAuthentication(Logger):
     def algorithm(self, dg15):
         """
         Return the algorithm name used to store the signature
-        @return: A string from the OID dictionnary.
+        @return: A string from the OID dictionary.
         @raise ActiveAuthenticationException: I{Unsupported algorithm}: The algorithm does not exist in the OID enumeration.
-        @raise ActiveAuthenticationException: I{The parameter type is not valid, must be a dataGroup15 object}: The parameter dg15 is not set or invalid.
+        @raise ActiveAuthenticationException: I{The parameter type is not valid, must be a dataGroup15 object}: The parameter dg15 is not set or is invalid.
         """
         if type(dg15) != type(datagroup.DataGroup15(None)):
             raise ActiveAuthenticationException("The parameter type is not valid, must be a dataGroup15 object")

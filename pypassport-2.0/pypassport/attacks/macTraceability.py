@@ -38,7 +38,7 @@ class MacTraceability(Logger):
     This attack can identify a passport based on a message/MAC APDU forged during a legitimate BAC.
     The two main methods are:
         - I{isVUlnerable}, it checks whether a passport is vulnerable to this attack or not.
-        - I{exploit}, it exploit the vulnerability.
+        - I{exploit}, it exploits the vulnerability.
     """
 
     def __init__(self, iso7816, mrz=None):
@@ -63,16 +63,16 @@ class MacTraceability(Logger):
         If not, the response time is compared. If the gap is wide enough, the passport might be vulnerable.
 
         Note: The French passport (and maybe others) implemented a security against brute forcing:
-        anytime the BAC fail, an incremented delay occur before responsding.
+        anytime the BAC fails, an incremented delay occurs before responding.
         That's the reson why we need to establish a proper BAC to reset the delay to 0
-        Note 2: The default cut off set to 1.7ms is based on the paper from Tom Chotia and Vitaliy Smirnov:
-        A traceability Attack Against e-Pasport.
-        They figured out a 1.7 cut-off suit for every country they assessed without raising low rate of false-positive and false-negative
+        Note 2: The default cut-off set to 1.7ms is based on the paper from Tom Chotia and Vitaliy Smirnov:
+        A traceability Attack Against e-Passport.
+        They figured out a 1.7 cut-off suits for every country they assessed without raising low rate of false-positive and false-negative
 
-        @param CO: The cut off used to determine whether the response time is long enough to considerate the passport as vulnerable
-        @type CO: an integer that represent the cut off in milliseconds
+        @param CO: The cut-off used to determine whether the response time is long enough to considerate the passport as vulnerable
+        @type CO: an integer that represents  the cut-off in milliseconds
 
-        @return: A boolean where True means that the passport seems to be vulnerable and False means doesn't
+        @return: A boolean where True means that the passport seems to be vulnerable and False means it doesn't
         """
         cmd_data = self._getPair()
         self.rstBAC()
@@ -100,10 +100,10 @@ class MacTraceability(Logger):
         """Here is a little demo to show how accurate is the traceability attack.
         Please note that the French passport will most likely output a false positive because of the anti brute forcing delay.
 
-        @param CO: The cut off used to determine whether the response time is long enough to considerate the passport as vulnerable
-        @type CO: an integer that represent the cut off in milliseconds
+        @param CO: The cut-off used to determine whether the response time is long enough to considerate the passport as vulnerable
+        @type CO: an integer that represents  the cut-off in milliseconds
         @param valisate: check 3 time before validate the passport as identified
-        @type validate: An integer that represent the number of validation
+        @type validate: An integer that represents  the number of validation
 
         @return: A boolean True whenever the initial passport is on the reader
         """
@@ -139,10 +139,10 @@ class MacTraceability(Logger):
     def savePair(self, path=".", filename="pair"):
         """savePair stores a message with its valid MAC in a file.
         The pair can be used later, in a futur attack, to define if the passport is the one that creates the pair (See checkFromFile()).
-        If the path doesn't exist, the folders and sub-folders will be create.
-        If the file exist, a number will be add automatically.
+        If the path doesn't exist, the folders and sub-folders will be created.
+        If the file exists, a number will be add automatically.
 
-        @param path: The path where the file has to be create. It can be relative or absolute.
+        @param path: The path where the file has to be created. It can be relative or absolute.
         @type path: A string (e.g. "/home/doe/" or "foo/bar")
         @param filename: The name of the file where the pair will be saved
         @type filename: A string (e.g. "belgian-pair" or "pair.data")
@@ -170,10 +170,10 @@ class MacTraceability(Logger):
 
         @param path: The path of the file where the pair has been saved.
         @type path: A string (e.g. "/home/doe/pair" or "foo/bar/pair.data")
-        @param CO: The cut off used to determine whether the response time is long enough to considerate the passport as vulnerable
-        @type CO: an integer that represent the cut off in milliseconds
+        @param CO: The cut-off used to determine whether the response time is long enough to considerate the passport as vulnerable
+        @type CO: an integer that represents  the cut-off in milliseconds
 
-        @return: A boolean where True means that the passport is the one who create the pair in the file.
+        @return: A boolean where True means that the passport is the one who creates the pair in the file.
         """
         if not os.path.exists(path): raise MacTraceabilityException("The pair file doesn't exist (path={0})".format(path))
         with open(path, 'rb') as pair:
@@ -194,11 +194,11 @@ class MacTraceability(Logger):
 
     def test(self, j, per_delay=10):
         """test is a method developped for analysing the response time of password whenever a wrong command is sent
-        French passport has an anti MRZ brute forcing. This method help to highlight the behaviour
+        French passport has an anti MRZ brute forcing. This method helps to highlight the behaviour
 
-        @param until: Number of wrong message to send before comparing the time delay
+        @param until: Number of wrong messages to send before comparing the time delay
         @type until: An integer
-        @param per_delay: how result per delay you want to output
+        @param per_delay: How many results to average
         @type per_delay: An integer
         """
 
@@ -275,7 +275,7 @@ class MacTraceability(Logger):
 
     def _sendPair(self, cmd_data="\x55"*40):
         """Send a message/MAC.
-        If the cmd_data is not set, it send a random pair in order to make sure the MAC check fail
+        If the cmd_data is not set, it sends a random pair in order to make sure the MAC check fails
         If set, a wrong message is sent together with a valid MAC in order to pass the MAC check
 
         @param cmd_data: pair to send
