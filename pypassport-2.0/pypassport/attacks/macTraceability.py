@@ -70,7 +70,7 @@ class MacTraceability(Logger):
         They figured out a 1.7 cut-off suits for every country they assessed without raising low rate of false-positive and false-negative
 
         @param CO: The cut-off used to determine whether the response time is long enough to considerate the passport as vulnerable
-        @type CO: an integer that represents  the cut-off in milliseconds
+        @type CO: an integer that represents the cut-off in milliseconds
 
         @return: A boolean where True means that the passport seems to be vulnerable and False means it doesn't
         """
@@ -101,9 +101,9 @@ class MacTraceability(Logger):
         Please note that the French passport will most likely output a false positive because of the anti brute forcing delay.
 
         @param CO: The cut-off used to determine whether the response time is long enough to considerate the passport as vulnerable
-        @type CO: an integer that represents  the cut-off in milliseconds
+        @type CO: an integer that represents the cut-off in milliseconds
         @param valisate: check 3 time before validate the passport as identified
-        @type validate: An integer that represents  the number of validation
+        @type validate: An integer that represents the number of validation
 
         @return: A boolean True whenever the initial passport is on the reader
         """
@@ -171,7 +171,7 @@ class MacTraceability(Logger):
         @param path: The path of the file where the pair has been saved.
         @type path: A string (e.g. "/home/doe/pair" or "foo/bar/pair.data")
         @param CO: The cut-off used to determine whether the response time is long enough to considerate the passport as vulnerable
-        @type CO: an integer that represents  the cut-off in milliseconds
+        @type CO: an integer that represents the cut-off in milliseconds
 
         @return: A boolean where True means that the passport is the one who creates the pair in the file.
         """

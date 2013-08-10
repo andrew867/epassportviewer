@@ -110,7 +110,7 @@ class ActiveAuthentication(Logger):
         """
         Retrieve the public key in PEM format from the dataGroup15
 
-        @return: A PEM represents ation of the public key
+        @return: A PEM representation of the public key
         @rtype: A string
         @raise ActiveAuthenticationException: I{The parameter type is not valid, must be a dataGroup15 object}: The parameter dg15 is not set or is invalid.
         @raise ActiveAuthenticationException: I{The public key could not be recovered from the DG15}: Is open SSL installed?

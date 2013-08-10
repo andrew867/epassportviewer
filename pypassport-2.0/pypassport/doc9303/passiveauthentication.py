@@ -67,7 +67,7 @@ class PassiveAuthentication(Logger):
 
         @param sodObj: An initialized security data object
         @type sodObj: A sod object
-        @param CSCADirectory: The object represents ing the CSCA directory.
+        @param CSCADirectory: The object representing the CSCA directory.
         @type CSCADirectory: A CAManager object
 
         @return: True if the DS Certificate is valided
@@ -181,7 +181,7 @@ class PassiveAuthentication(Logger):
     def getCertificate(self, sodObj):
         """
         Retrieve de DocumentSigner certificate out of the SOD.
-        @return: A PEM represents ation of the certificate or None if not present.
+        @return: A PEM representation of the certificate or None if not present.
         @raise PassiveAuthenticationException: I{sodObj must be a sod object}: the sodObj parameter must be a sod object.
         @raise PassiveAuthenticationException: I{sodObj object is not initialized}: the sodObj parameter is a sod object, but is not initialized.
         @raise openSSLException: See the openssl documentation

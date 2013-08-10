@@ -33,9 +33,9 @@ def ConvertJp2(input):
     If the input is a jp2 picture, the image is transformed into bmp,
     else the image is returned without any modifications.
 
-    @param input: A binary string represents ing the picture to convert
+    @param input: A binary string representing the picture to convert
     @type input: A string
-    @return: A binary string represents ing the picture in bmp, or the original input if the input is not a jp2 stream.
+    @return: A binary string representing the picture in bmp, or the original input if the input is not a jp2 stream.
     """
 
     jp2 = open("tmp.jp2", "wb")

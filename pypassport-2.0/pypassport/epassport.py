@@ -152,7 +152,7 @@ class EPassport(dict, logger.Logger):
         @type reader: A reader object, then it will use the specified rfid reader.
                       A string, then the simulator will read the dumps from the specified url.
 
-        @param mrz: An object represents ing the passport MRZ.
+        @param mrz: An object representing the passport MRZ.
         @type mrz: An MRZ object
         """
         logger.Logger.__init__(self, "EPassport")
@@ -362,9 +362,9 @@ class EPassport(dict, logger.Logger):
     #Dict overwriting
     def __getitem__(self, tag):
         """
-        @param tag: A Valid tag represents ing a dataGroup
+        @param tag: A Valid tag representing a dataGroup
         @type tag: A string
-        @return: The datagroup object represents ing this dataGroup
+        @return: The datagroup object representing this dataGroup
 
         @raise DataGroupException: If the tag is not linked to any dataGroup, or if an error occurs during the parsing
         @raise APDUException: If an error occurs during the APDU transmit.
@@ -408,7 +408,7 @@ class EPassport(dict, logger.Logger):
         The dataGroup object is then stored in the object dictionary.
 
 
-        @param tag: The dataGroup identifier to read (see the dataGroups.converter for all valid represents ations)
+        @param tag: The dataGroup identifier to read (see the dataGroups.converter for all valid representations)
         @type tag: A string
 
         @return: A dataGroup object if the file is read with success.

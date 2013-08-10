@@ -54,7 +54,7 @@ def toDISP(data):
 
 def toDG(data):
     """
-    Transform the data value to its DG represents ation
+    Transform the data value to its DG representation
     If the data value does not come from the Table A1 from the doc9303,
     an exception is raised
     """
@@ -62,7 +62,7 @@ def toDG(data):
 
 def toEF(data):
     """
-    Transform the data value to its EF represents ation
+    Transform the data value to its EF representation
     If the data value does not come from the Table A1 from the doc9303,
     an exception is raised
     """
@@ -70,7 +70,7 @@ def toEF(data):
 
 def toSEF(data):
     """
-    Transform the data value to its SEF represents ation
+    Transform the data value to its SEF representation
     If the data value does not come from the Table A1 from the doc9303,
     an exception is raised
     """
@@ -78,7 +78,7 @@ def toSEF(data):
 
 def toFID(data):
     """
-    Transform the data value to its FID represents ation
+    Transform the data value to its FID representation
     If the data value does not come from the Table A1 from the doc9303,
     an exception is raised
     """
@@ -86,7 +86,7 @@ def toFID(data):
 
 def toTAG(data):
     """
-    Transform the data value to its TAG represents ation
+    Transform the data value to its TAG representation
     If the data value does not come from the Table A1 from the doc9303,
     an exception is raised
     """
@@ -102,7 +102,7 @@ def toClass(data):
 
 def toOther(data):
     """
-    Transform the data value to its OTHER represents ation
+    Transform the data value to its OTHER representation
     If the data value does not come from the Table A1 from the doc9303,
     an exception is raised
     """
@@ -110,7 +110,7 @@ def toOther(data):
 
 def toOrder(data):
     """
-    Transform the data value to its ORDER represents ation (0 to 17)
+    Transform the data value to its ORDER representation (0 to 17)
     If the data value does not come from the Table A1 from the doc9303,
     an exception is raised
     """
@@ -118,7 +118,7 @@ def toOrder(data):
 
 def toGRT(data):
     """
-    Transform the data value to its GoldenReaderTool represents ation
+    Transform the data value to its GoldenReaderTool representation
     """
     return to(types.GRT, data)
 
