@@ -288,7 +288,7 @@ class ReaderManager(Singleton):
     #The driver for a kind of reader. The ACR122 is a special case of the PCSC Reader
     readers = {
             PcscReader.__name__: PcscReader,
-            Acr122.__name__: Acr122,
+            #Acr122.__name__: Acr122,
             DumpReader.__name__ : DumpReader
         }
 

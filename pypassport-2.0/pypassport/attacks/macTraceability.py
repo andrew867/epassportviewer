@@ -151,18 +151,16 @@ class MacTraceability(Logger):
         """
         if not os.path.exists(path): os.makedirs(path)
         if os.path.exists(os.path.join(path, filename)):
-            i=0
+            i = 0
             while os.path.exists(os.path.join(path, filename+str(i))):
-                i+=1
-            fullpath = os.path.exists(os.path.join(path, filename+str(i)))
+                i += 1
+            fullpath = os.path.join(path, filename+str(i))
         else:
-            fullpath = os.path.exists(os.path.join(path, filename))
-
+            fullpath = os.path.join(path, filename)
+        
         cmd_data = self._getPair()
-
         with open(fullpath, 'wb') as pair:
             pair.write(cmd_data)
-
         return fullpath
 
     def checkFromFile(self, path=os.path.join(".", "pair"), CO=1.7):

@@ -824,7 +824,6 @@ message regarding the country.\n"
 
     # SAVE
     def save(self):
-
         try:
             formats = [('Raw text','*.txt')]
             fileName = asksaveasfilename(parent=self, filetypes=formats, title="Save as...")
@@ -834,16 +833,18 @@ message regarding the country.\n"
                 fn = s[-1]
                 directory = fileName[0:len(fileName)-len(fn)]
                 if os.path.isdir(directory):
-
-                    r = reader.ReaderManager().waitForCard()
-                    attack = macTraceability.MacTraceability(Iso7816(r))
-                    if self.verboseMACVar.get():
-                        attack.register(self.writeToLogMAC)
-                    if attack.setMRZ(self.mrz.buildMRZ()):
-                        attack.savePair(directory, fn)
-                        tkMessageBox.showinfo("Save successful", "The pair has ben saved as:\n{0}".format(fileName))
+                    if self.mrz.buildMRZ():
+                        r = reader.ReaderManager().waitForCard()
+                        attack = macTraceability.MacTraceability(Iso7816(r))
+                        if self.verboseMACVar.get():
+                            attack.register(self.writeToLogMAC)
+                        if attack.setMRZ(self.mrz.buildMRZ()):
+                            attack.savePair(directory, fn)
+                            tkMessageBox.showinfo("Save successful", "The pair has ben saved as:\n{0}".format(fileName))
+                        else:
+                            tkMessageBox.showerror("Error: Wrong MRZ", "The check digits are not correct")
                     else:
-                        tkMessageBox.showerror("Error: Wrong MRZ", "The check digits are not correct")
+                        tkMessageBox.showinfo("MRZ not set", "You have to set the MRZ in order to save a pair.")
                 else:
                     tkMessageBox.showerror("Error: save", "The path you selected is not a directory")
         except Exception, msg:

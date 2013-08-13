@@ -1003,11 +1003,12 @@ class AdditionalDialog:
         self.window.connect("delete_event", self.delete_event)
 
         self.doc = dgs
-
+        
         # create a TreeStore with one string column to use as the model
         self.treestore = gtk.TreeStore(str)
 
         #for item in self.doc.keys():
+        #print type(self.doc.keys), self.doc.keys
         orderedlist = list()
         for val in self.doc.keys():
             orderedlist.append(toOrder(val))
@@ -1017,13 +1018,14 @@ class AdditionalDialog:
             root = self.treestore.append(None, [toDG(item)])
             for value in self.doc[item]:
                 branch = self.treestore.append(root, [str(value)])
+
                 if type(self.doc[item][value]) == str:
                     leave = self.treestore.append(branch, [self.doc[item][value]])
                 elif type(self.doc[item][value]) == list:
                     for data in self.doc[item][value]:
-                        self.treestore.append(leave, [data])
-                elif type(self.doc[item][value]) == type(datagroup.DataGroup()):
-                    self.treestore.append(leave, [str(self.doc[item][value])])
+                        self.treestore.append(branch, [data])
+                elif type(self.doc[item][value]) == type(datagroup.DataGroup()): # the picure (binary)
+                    self.treestore.append(branch, [str(self.doc[item][value])])
 
         # create the TreeView using treestore
         self.treeview = gtk.TreeView(self.treestore)
