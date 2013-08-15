@@ -298,11 +298,24 @@ class Overview(Frame):
         if data.has_key("5F11"):
             fields['birthPlace'].set(getItem(data['5F11']))
         # This DG keep the accents, contrary to the DG1
-        if data.has_key("5F0E"):
-            name = (data['5F0E']).split("<<")
-            fields['name'].set(getItem(name[0]))
-            fields['surname'].set(getItem(name[1]))
-        if data.has_key("A0"): # French, nom d'usage, http://fr.wikipedia.org/wiki/Nom_d'usage_en_France
+        # but beware some passports contain an empty or almost empty 5F0E (e.g. BE: 5F0E0120 or 5F0E00)
+        if data.has_key("5F0E") and \
+           len(data['5F0E']) > len(fields['name'].get()) + len(fields['surname'].get()):
+            if "<<" in data['5F0E']:
+              tmpname = (data['5F0E']).split("<<")
+              fields['name'].set(getItem(tmpname[0]))
+              fields['surname'].set(getItem(tmpname[1]))
+            else:
+              # no specific separator between name(s) and surname(s)
+              tmpname = (data['5F0E']).split(" ")
+              namewords = len(fields['name'].get().split(" "))
+              fields['name'].set(getItem(' '.join(tmpname[:namewords])))
+              fields['surname'].set(getItem(' '.join(tmpname[namewords:])))
+        # French, nom d'usage, http://fr.wikipedia.org/wiki/Nom_d'usage_en_France
+        if data.has_key("A0") and getItem(data['A0'])[0] != '\x02':
+            # TODO: some Belgian passports contain
+            # 5F0E 00 A0 06020101 5F0F 00
+            # is there a better way to discard their A0??
             old = fields['name'].get()
             fields['name'].set(old + ", " + getItem(data['A0']))
 
