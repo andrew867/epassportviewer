@@ -1018,7 +1018,7 @@ class AdditionalDialog:
             root = self.treestore.append(None, [toDG(item)])
             for value in self.doc[item]:
                 branch = self.treestore.append(root, [str(value)])
-
+                # leave => nouvelle position
                 if type(self.doc[item][value]) == str:
                     leave = self.treestore.append(branch, [self.doc[item][value]])
                 elif type(self.doc[item][value]) == list:

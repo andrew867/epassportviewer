@@ -26,11 +26,11 @@ import pickle
 from tkFileDialog import askdirectory, askopenfilename, asksaveasfilename
 
 from pypassport.attacks import macTraceability, bruteForce, aaTraceability, signEverything, errorFingerprinting
-from pypassport import reader
 from pypassport.iso7816 import Iso7816
 from pypassport.doc9303.mrz import MRZ
 
 from epassportviewer.util.image import ImageFactory
+from epassportviewer.util import readerAbstract
 from epassportviewer.dialog import InfoBoxWindows
 from epassportviewer.const import *
 from epassportviewer.errorhandler import *
@@ -802,7 +802,7 @@ message regarding the country.\n"
                 if self.coForm.get(): co = self.coForm.get()
                 else: co = 1.7
 
-                r = reader.ReaderManager().waitForCard()
+                r = readerAbstract.waitForCard()
                 attack = macTraceability.MacTraceability(Iso7816(r))
                 if self.verboseMACVar.get():
                     attack.register(self.writeToLogMAC)
@@ -834,7 +834,7 @@ message regarding the country.\n"
                 directory = fileName[0:len(fileName)-len(fn)]
                 if os.path.isdir(directory):
                     if self.mrz.buildMRZ():
-                        r = reader.ReaderManager().waitForCard()
+                        r = readerAbstract.waitForCard()
                         attack = macTraceability.MacTraceability(Iso7816(r))
                         if self.verboseMACVar.get():
                             attack.register(self.writeToLogMAC)
@@ -860,7 +860,7 @@ message regarding the country.\n"
                 if os.path.isfile(directory):
                     if self.coForm.get(): co = self.coForm.get()
                     else: co = 1.7
-                    r = reader.ReaderManager().waitForCard()
+                    r = readerAbstract.waitForCard()
                     attack = macTraceability.MacTraceability(Iso7816(r))
                     if self.verboseMACVar.get():
                         attack.register(self.writeToLogMAC)
@@ -877,7 +877,7 @@ message regarding the country.\n"
         pleasewait.setMessage("Please wait. Depending on the security measures implemented \non the passport, the test may take from few seconds to \nfew minutes regarding what you set.")
         try:
             if self.mrz.buildMRZ():
-                r = reader.ReaderManager().waitForCard()
+                r = readerAbstract.waitForCard()
                 attack = macTraceability.MacTraceability(Iso7816(r))
                 if self.verboseMACVar.get():
                     attack.register(self.writeToLogMAC)
@@ -905,7 +905,7 @@ message regarding the country.\n"
     # BAC RESET
     def reset(self):
         try:
-            r = reader.ReaderManager().waitForCard()
+            r = readerAbstract.waitForCard()
             attack = macTraceability.MacTraceability(Iso7816(r))
             if self.verboseMACVar.get():
                 attack.register(self.writeToLogMAC)
@@ -920,7 +920,7 @@ message regarding the country.\n"
     # DEMO
     def demo(self):
         try:
-            r = reader.ReaderManager().waitForCard()
+            r = readerAbstract.waitForCard()
             attack = macTraceability.MacTraceability(Iso7816(r))
             if self.verboseMACVar.get():
                 attack.register(self.writeToLogMAC)
@@ -939,12 +939,15 @@ message regarding the country.\n"
     ####################
 
     # Init Data
-    def initData(self):
+    def initData(self, activateReader=True):
         try:
             non_decimal = re.compile(r'[^\d]+')
 
-            r = reader.ReaderManager().waitForCard()
-            bf = bruteForce.BruteForce(Iso7816(r))
+            if activateReader:
+                r = readerAbstract.waitForCard()
+                bf = bruteForce.BruteForce(Iso7816(r), activateReader)
+            else:
+                bf = bruteForce.BruteForce(None, activateReader)
         
             if self.verboseBruteVar.get():
                 bf.register(self.writeToLogBF)
@@ -976,9 +979,7 @@ message regarding the country.\n"
     # CHECK
     def checkData(self):
         try:
-            bf = self.initData()
-            if not bf:
-                return
+            bf = self.initData(False)
             chk, err = bf.check()
             if chk:
                 self.writeToLogBF("Format values are correct")
@@ -990,9 +991,7 @@ message regarding the country.\n"
     #GET STATS
     def getStats(self):
         try:
-            bf = self.initData()
-            if not bf:
-                return
+            bf = self.initData(False)
             chk, err = bf.check()
             if chk:
                 (id_low, id_high, entropy_id) = bf.getIdStat()
@@ -1009,7 +1008,9 @@ message regarding the country.\n"
     def generate(self):
         try:
             if self.mrz.buildMRZ():
-                bf = self.initData()
+                bf = self.initData(True)
+                if not bf:
+                    return
                 self.response = bf.initOffline(self.mrz.buildMRZ())
                 self.offlineButton.config(state=NORMAL)
                 self.writeToLogBF("Nonce and response/MAC from {0} loaded".format(self.mrz.buildMRZ()[0:9]))
@@ -1021,7 +1022,7 @@ message regarding the country.\n"
     # LIVE BRUTE FORCE
     def live(self):
         try:
-            bf = self.initData()
+            bf = self.initData(True)
             if not bf:
                 return
             chk, err = bf.check()
@@ -1040,9 +1041,7 @@ message regarding the country.\n"
     # OFFLINE BRUTE FORCE
     def offline(self):
         try:
-            bf = self.initData()
-            if not bf:
-                return
+            bf = self.initData(False)
             chk, err = bf.check()
             if chk and self.response:
                 found = bf.exploitOffline(self.response)
@@ -1052,7 +1051,7 @@ message regarding the country.\n"
                     self.writeToLogBF("MRZ not found")
             else:
                 self.writeToLogBF(err)
-
+            #self.offlineButton.config(state=DISABLED)
         except Exception, msg:
             tkMessageBox.showerror("Error: Initialisation data", str(msg))
 
@@ -1064,7 +1063,7 @@ message regarding the country.\n"
     # IS VULNERABLE?
     def isVulnerableAA(self):
         try:
-            r = reader.ReaderManager().waitForCard()
+            r = readerAbstract.waitForCard()
             attack = aaTraceability.AATraceability(Iso7816(r))
             if self.verboseAAVar.get():
                 attack.register(self.writeToLogAA)
@@ -1080,7 +1079,7 @@ message regarding the country.\n"
             if self.maxHighestForm.get() == '': max_loop = 100
             else: max_loop = int(self.maxHighestForm.get())
 
-            r = reader.ReaderManager().waitForCard()
+            r = readerAbstract.waitForCard()
             attack = aaTraceability.AATraceability(Iso7816(r))
             if self.verboseAAVar.get():
                 attack.register(self.writeToLogAA)
@@ -1094,7 +1093,7 @@ message regarding the country.\n"
     def getModulo(self):
         try:
             if self.mrz.buildMRZ():
-                r = reader.ReaderManager().waitForCard()
+                r = readerAbstract.waitForCard()
                 attack = aaTraceability.AATraceability(Iso7816(r))
                 if self.verboseAAVar.get():
                     attack.register(self.writeToLogAA)
@@ -1110,7 +1109,7 @@ message regarding the country.\n"
             if self.accCompareForm.get() == '': accuracy = 6
             else: accuracy = int(self.accCompareForm.get())
 
-            r = reader.ReaderManager().waitForCard()
+            r = readerAbstract.waitForCard()
             attack = aaTraceability.AATraceability(Iso7816(r))
             if self.verboseAAVar.get():
                 attack.register(self.writeToLogAA)
@@ -1122,7 +1121,7 @@ message regarding the country.\n"
     # MAY BELONGS TO
     def mayBelongsTo(self):
         try:
-            r = reader.ReaderManager().waitForCard()
+            r = readerAbstract.waitForCard()
             attack = aaTraceability.AATraceability(Iso7816(r))
             if self.verboseAAVar.get():
                 attack.register(self.writeToLogAA)
@@ -1138,7 +1137,7 @@ message regarding the country.\n"
             if directory:
                 directory = str(directory)
                 if os.path.isdir(directory):
-                    r = reader.ReaderManager().waitForCard()
+                    r = readerAbstract.waitForCard()
                     attack = aaTraceability.AATraceability(Iso7816(r))
                     if self.verboseAAVar.get():
                         attack.register(self.writeToLogAA)
@@ -1168,7 +1167,7 @@ message regarding the country.\n"
                 if os.path.isfile(directory):
                     if self.accFileForm.get()!='': accuracy = int(self.accFileForm.get())
                     else: accuracy = None
-                    r = reader.ReaderManager().waitForCard()
+                    r = readerAbstract.waitForCard()
                     attack = aaTraceability.AATraceability(Iso7816(r))
                     if self.verboseAAVar.get():
                         attack.register(self.writeToLogAA)
@@ -1189,7 +1188,7 @@ message regarding the country.\n"
             if not reg.match(self.nonceToSignForm.get()):
                 raise Exception("The message to sign must be 16 HEX [0-9A-F]")
 
-            r = reader.ReaderManager().waitForCard()
+            r = readerAbstract.waitForCard()
             attack = signEverything.SignEverything(Iso7816(r))
             if self.verboseAAVar.get():
                 attack.register(self.writeToLogAA)
@@ -1209,7 +1208,7 @@ message regarding the country.\n"
 
     def sendCustom(self):
         try:
-            r = reader.ReaderManager().waitForCard()
+            r = readerAbstract.waitForCard()
             attack = errorFingerprinting.ErrorFingerprinting(Iso7816(r))
             if self.verboseErrorVar.get():
                 attack.register(self.writeToLogERR)
@@ -1230,7 +1229,7 @@ message regarding the country.\n"
     # ADD ERROR
     def addError(self):
         try:
-            r = reader.ReaderManager().waitForCard()
+            r = readerAbstract.waitForCard()
             attack = errorFingerprinting.ErrorFingerprinting(Iso7816(r))
             if self.verboseErrorVar.get():
                 attack.register(self.writeToLogERR)
@@ -1263,7 +1262,7 @@ message regarding the country.\n"
     # IDENTIFY
     def identify(self):
         try:
-            r = reader.ReaderManager().waitForCard()
+            r = readerAbstract.waitForCard()
             attack = errorFingerprinting.ErrorFingerprinting(Iso7816(r))
             if self.verboseErrorVar.get():
                 attack.register(self.writeToLogERR)

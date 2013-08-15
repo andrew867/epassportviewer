@@ -49,16 +49,15 @@ class BruteForce(Logger):
     KENC= '\0\0\0\1'
     KMAC= '\0\0\0\2'
 
-    def __init__(self, iso7816):
+    def __init__(self, iso7816, activateReader=True):
         Logger.__init__(self, "BRUTE FORCE")
-        self._iso7816 = iso7816
 
-        if type(self._iso7816) != type(Iso7816(None)):
-            raise MacTraceabilityException("The sublayer iso7816 is not available")
-
-        self._iso7816.rstConnection()
-
-        #self._bac = BAC(iso7816)
+        if activateReader:
+            self._iso7816 = iso7816
+            if type(self._iso7816) != type(Iso7816(None)):
+                raise MacTraceabilityException("The sublayer iso7816 is not available")
+            self._iso7816.rstConnection()
+            #self._bac = BAC(iso7816)
 
         self._id_low = None
         self._id_high = None

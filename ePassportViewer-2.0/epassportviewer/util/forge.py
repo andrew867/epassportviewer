@@ -20,10 +20,10 @@ import datetime
 
 from pypassport import pki
 from pypassport import hexfunctions
-from pypassport import reader
 from pypassport.genpassport import datagroupcreation
 from pypassport.genpassport import jcop
 from pypassport.doc9303 import datagroup, converter
+from epassportviewer.util import readerAbstract
 
 def generate(   firstname,
                 surname,
@@ -187,7 +187,7 @@ def generate(   firstname,
         jc = jcop.GPlatform(reader_nb)
         jc.install(cap_path)
 
-    r = reader.ReaderManager().waitForCard()
+    r = readerAbstract.waitForCard()
     jcw = jcop.JavaCardWritter(r)
 
 

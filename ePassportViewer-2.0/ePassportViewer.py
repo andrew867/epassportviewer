@@ -44,12 +44,12 @@ class dummyStream(object):
     def close(self):
         self.f.close()
 
-sys.stdout = dummyStream()
-sys.stderr = dummyStream()
-sys.stdin = dummyStream()
-sys.__stdout__ = dummyStream()
-sys.__stderr__ = dummyStream()
-sys.__stdin__ = dummyStream()
+# sys.stdout = dummyStream()
+# sys.stderr = dummyStream()
+# sys.stdin = dummyStream()
+# sys.__stdout__ = dummyStream()
+# sys.__stderr__ = dummyStream()
+# sys.__stdin__ = dummyStream()
 
 def run():
 
@@ -63,8 +63,8 @@ def run():
     # some files will be written temporarily in the current path:
     os.chdir(TMPDIR)
     # remove console on osx from http://mail.python.org/pipermail/python-list/2006-October/578318.html
-    if (sys.platform != "win32") and hasattr(sys, 'frozen'):
-        root.tk.call('console', 'hide')
+    # if (sys.platform != "win32") and hasattr(sys, 'frozen'):
+    #     root.tk.call('console', 'hide')
     app = Controller(parent=root)
     root.title(TITLE)
     root.mainloop()

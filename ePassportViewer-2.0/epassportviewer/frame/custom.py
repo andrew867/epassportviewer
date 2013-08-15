@@ -28,11 +28,12 @@ from Crypto.Cipher import DES3
 from Crypto.Cipher import DES
 from hashlib import sha1
 
-from pypassport import reader, apdu, iso9797, asn1
+from pypassport import apdu, iso9797, asn1
 from pypassport.hexfunctions import hexToHexRep, binToHexRep, hexRepToBin
 from pypassport.iso7816 import Iso7816, Iso7816Exception
 from pypassport.doc9303 import bac, mrz, securemessaging
 
+from epassportviewer.util import readerAbstract
 from epassportviewer.util.image import ImageFactory
 from epassportviewer.frame.attacks import ScrollFrame
 from epassportviewer.dialog import Tooltip, WaitDialog
@@ -404,7 +405,7 @@ class CustomFrame(Frame):
     def initIso7816(self):
         try:
             if not self._iso7816:
-                r = reader.ReaderManager().waitForCard()
+                r = readerAbstract.waitForCard()
                 self._iso7816 = Iso7816(r)
         except Exception, msg:
             tkMessageBox.showerror("Error: Initialisation of ISO7816", str(msg))

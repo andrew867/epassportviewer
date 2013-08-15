@@ -37,7 +37,7 @@ except:
 
 from epassportviewer.const import *
 from epassportviewer.frame import mrzInput, overview, security, toolbar, attacks, custom
-from epassportviewer.util import configManager, callback, image, inOut, helper
+from epassportviewer.util import configManager, readerAbstract, callback, image, inOut, helper
 from epassportviewer import dialog
 from pypassport.doc9303 import converter
 from pypassport import epassport
@@ -267,17 +267,19 @@ class View(Frame):
 
     def refreshReaders(self):
         self.readerMenu.delete(0, END)
-
+        
+        # Auto detect
+        self.readerMenu.add_radiobutton(label='Auto-Detect', underline=0, variable=configManager.configManager().getVariable('Options','reader'), value='Auto')
+        
+        # Readers list from pcsc
         try:
-            readers = pypassport.reader.ReaderManager().getReaderList()
+            readers = readerAbstract.getReaderList()
             i = 0
             for r in readers:
-                self.readerMenu.add_radiobutton(label=r, variable=configManager.configManager().getVariable('Options','reader'), value=i, state=DISABLED)
+                self.readerMenu.add_radiobutton(label=r, variable=configManager.configManager().getVariable('Options','reader'), value=i)#, state=DISABLED)
                 i += 1
         except NameError, msg:
             pass
-
-        self.readerMenu.add_radiobutton(label='Auto-Detect', underline=0, variable=configManager.configManager().getVariable('Options','reader'), value='Auto')
 
     def setPath(self, variable, menu):
         directory = askdirectory(title="Select directory", mustexist=1)
@@ -453,9 +455,8 @@ class View(Frame):
 
     def _detectReader(self, mrz):
         reader = None
-
         try:
-            reader = pypassport.reader.ReaderManager().waitForCard()
+            reader = readerAbstract.waitForCard()
             return pypassport.epassport.EPassport(reader, mrz)
         except Exception, msg:
             tkMessageBox.showerror("ePassport not found", "{0}.\nPlease check your passport is on the reader".format(str(msg)))
