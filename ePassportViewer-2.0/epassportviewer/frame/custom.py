@@ -217,17 +217,15 @@ class CustomFrame(Frame):
         reabilitateButton = Button(menuRequestsFrame, text="Rehabilitate", width=13, command=self.setRehabilitate)
         reabilitateButton.grid(row=1, column=4, padx=5, pady=5)
 
-        getATRButton2 = Button(menuRequestsFrame, text="Get ATR", width=13, command=self.setGetATR)
-        getATRButton2.grid(row=2, column=0, padx=5, pady=5)
+
+        getUIDButton = Button(menuRequestsFrame, text="Get UID", width=13, command=self.setGetUID)
+        getUIDButton.grid(row=2, column=0, padx=5, pady=5)
 
         getATSButton = Button(menuRequestsFrame, text="Get ATS", width=13, command=self.setGetATS)
         getATSButton.grid(row=2, column=1, padx=5, pady=5)
 
-        getUIDButton = Button(menuRequestsFrame, text="Get UID", width=13, command=self.setGetUID)
-        getUIDButton.grid(row=2, column=2, padx=5, pady=5)
-
         getchallengeButton = Button(menuRequestsFrame, text="Get challenge", width=13, command=self.setGetChallenge)
-        getchallengeButton.grid(row=2, column=3, padx=5, pady=5)
+        getchallengeButton.grid(row=2, column=2, padx=5, pady=5)
 
 
 
@@ -626,17 +624,11 @@ class CustomFrame(Frame):
     def setRehabilitate(self):
         self.setRequest(ins="44")
 
-# BUG
-    def setGetATR(self):
-        self.setRequest(cla="FF", ins="CA", p1="01", p2="00")
-
-    def setGetATS(self):
+    def setGetUID(self):
         self.setRequest(cla="FF", ins="CA", p1="00", p2="00")
 
-    def setGetUID(self):
-        self.setRequest(cla="FF", ins="CA")
-# /BUG
-
+    def setGetATS(self):
+        self.setRequest(cla="FF", ins="CA", p1="01", p2="00")
 
     def setGetChallenge(self):
         self.setRequest(ins="84", le="08")
