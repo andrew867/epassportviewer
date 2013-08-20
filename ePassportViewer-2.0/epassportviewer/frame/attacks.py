@@ -905,31 +905,37 @@ message regarding the country.\n"
     # BAC RESET
     def reset(self):
         try:
-            r = readerAbstract.waitForCard()
-            attack = macTraceability.MacTraceability(Iso7816(r))
-            if self.verboseMACVar.get():
-                attack.register(self.writeToLogMAC)
-            if attack.setMRZ(self.mrz.buildMRZ()):
-                attack.rstBAC()
-                self.writeToLogMAC("BAC reset")
+            if self.mrz.buildMRZ():
+                r = readerAbstract.waitForCard()
+                attack = macTraceability.MacTraceability(Iso7816(r))
+                if self.verboseMACVar.get():
+                    attack.register(self.writeToLogMAC)
+                if attack.setMRZ(self.mrz.buildMRZ()):
+                    attack.rstBAC()
+                    self.writeToLogMAC("BAC reset")
+                else:
+                    tkMessageBox.showerror("Error: Wrong MRZ", "The check digits are not correct")
             else:
-                tkMessageBox.showerror("Error: Wrong MRZ", "The check digits are not correct")
+                tkMessageBox.showinfo("MRZ not set", "You have to set the MRZ in order to reset the passport.")
         except Exception, msg:
             tkMessageBox.showerror("Error: resetting", str(msg))
 
     # DEMO
     def demo(self):
         try:
-            r = readerAbstract.waitForCard()
-            attack = macTraceability.MacTraceability(Iso7816(r))
-            if self.verboseMACVar.get():
-                attack.register(self.writeToLogMAC)
-            if attack.setMRZ(self.mrz.buildMRZ()):
-                tkMessageBox.showinfo("Passport scanned", "Press ok then remove your passport from the reader.\nWait 5s before testing if a passport match.")
-                if attack.demo():
-                    self.writeToLogMAC("This passport matches the one scanned")
+            if self.mrz.buildMRZ():
+                r = readerAbstract.waitForCard()
+                attack = macTraceability.MacTraceability(Iso7816(r))
+                if self.verboseMACVar.get():
+                    attack.register(self.writeToLogMAC)
+                if attack.setMRZ(self.mrz.buildMRZ()):
+                    tkMessageBox.showinfo("Passport scanned", "Press ok then remove your passport from the reader.\nWait 5s before testing if a passport match.")
+                    if attack.demo():
+                        self.writeToLogMAC("This passport matches the one scanned")
+                else:
+                    tkMessageBox.showerror("Error: Wrong MRZ", "The check digits are not correct")
             else:
-                tkMessageBox.showerror("Error: Wrong MRZ", "The check digits are not correct")
+                tkMessageBox.showinfo("MRZ not set", "You have to set the MRZ to launch the demo.")
         except Exception, msg:
             tkMessageBox.showerror("Error: demo", str(msg))
 
