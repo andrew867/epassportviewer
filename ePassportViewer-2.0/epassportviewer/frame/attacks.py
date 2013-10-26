@@ -202,19 +202,19 @@ class AttacksFrame(Frame):
         macDescription = "\
 DESCRIPTION:\n\
 \n\
-During the BAC process, the IFD send an encrypted message that contains a random number formely \n\
-send by the ICC. The Message is concatenated with its MAC. Upon reception, the ICC first check the \n\
-MAC is the proper one regarding the ciphertext. If it does not, the ICC sent an error, else it \n\
-decrypt the message and check if the random number is the same than the one it sent previously. If \n\
-it does not, it send an error.\n\
-The attack concist of capturing a correct pair (ciphertext || MAC) from a legitimate communication \n\
+During the BAC process, the IFD sends an encrypted message that contains a random number formerly \n\
+sent by the ICC. The Message is concatenated with its MAC. Upon reception, the ICC first checks the \n\
+MAC is the proper one regarding the ciphertext. If it is not, the ICC sends an error, else it \n\
+decrypts the message and checks if the random number is the same than the one it sent previously. If \n\
+it does not, it sends an error.\n\
+The attack consists of capturing a correct pair (ciphertext || MAC) from a legitimate communication \n\
 between an IFD and the passport (using the correct MRZ). The decryption and the nonce verification \n\
-lasting couple of miliseconds, the difference of reponse time between a wrong MAC and a wrong \n\
-nonce is big enough to be measured and deduce if the MAC is correct (meaning the passport is the \n\
-same than the one that was in the communication that generated the pair).\n\
-The attacker must send a random pair and store the reponse time (RT1), then send the pair captured \n\
+lasting a couple of milliseconds, the difference of response time between a wrong MAC and a wrong \n\
+nonce is large enough to be measured and to deduce whether the MAC is correct (meaning the passport \n\
+is the same than the one involved in the communication that generated the pair).\n\
+The attacker must send a random pair and store the response time (RT1), then send the pair captured \n\
 previously and store the response time (RT2). If (RT1 - RT2) > cut off (usually 1.7ms), this means \n\
-the MAC of the pair captured is correct.\n"
+the MAC of the captured pair is correct.\n"
 
         self.writeToLogMAC(macDescription)
 
@@ -381,11 +381,11 @@ the MAC of the pair captured is correct.\n"
         bfDescription = "\
 DESCRIPTION:\n\
 \n\
-The derrivation of the keys used during the session keys establishment require one ID (8 \n\
-characteres) and two dates (6 digits). The - low - entropy could be reduced if the attacker has \n\
-personnal information about the bearer. Therefore a brute force on the MRZ might be possible.\n\
-The attack concist of trying one by one each possible MRZ in the range set by the attacker. \n\
-Whenever a BAC succeeds, this means the MRZ tried is the correct one.\n"
+The derivation of the keys used during the session key establishment requires a 8-charater ID \n\
+and two 6-digit dates. The - low - entropy could be reduced if the attacker has personal \n\
+information about the bearer. Therefore a brute force on the MRZ might be possible.\n\
+The attack consists of trying one by one each possible MRZ in the range set by the attacker. \n\
+Whenever a BAC succeeds, this means the tried MRZ is the correct one.\n"
 
         self.writeToLogBF(bfDescription)
 
@@ -562,12 +562,12 @@ Whenever a BAC succeeds, this means the MRZ tried is the correct one.\n"
         aaDescription = "\
 DESCRIPTION:\n\
 \n\
-In some case, it is possible to execute an active authentication before the BAC and thus getting a \n\
-signature. In RSA algorythm, the signature cannot be higher than the modulo. Therefore, after a \n\
-couple of test, by keeping the highest signature, we know that we are more and more close to the \n\
-modulo. Since the modulo is unique it is possible to identify (with a little lack of accuracy) a \n\
+In some cases, it is possible to execute an active authentication before the BAC, getting so a \n\
+signature. With RSA, the signature cannot be higher than the modulo. Therefore, after a \n\
+couple of tests, by keeping the highest signature, we know that we are more and more close to the \n\
+modulo. Since the modulo is unique it is possible to identify pretty accurately a \n\
 passport. If the highest signature is higher than the modulo of a passport (available in DG15), we \n\
-know for sure that the passport scanned is NOT the one that generated the modulo.\n"
+know for sure that the scanned passport is NOT the one that generated the modulo.\n"
 
         self.writeToLogAA(aaDescription)
 
@@ -697,8 +697,8 @@ know for sure that the passport scanned is NOT the one that generated the modulo
         errDescription = "\
 DESCRIPTION:\n\
 \n\
-ICAO did not defined the message to send regarding the error triggered. Therefore, each country \n\
-has to decide which message to send (among the SW1|SW2 list). Due to this non-standardization, it \n\
+ICAO did not define the message to be sent regarding the error triggered. Therefore, each country \n\
+decides which message should be sent (among the SW1|SW2 list). Due to this non-standardization, it \n\
 is possible to identify the issuing country by triggering an error on purpose that has a different \n\
 message regarding the country.\n"
 
