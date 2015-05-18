@@ -19,7 +19,7 @@
 from time import time
 from Tkinter import *
 import tkMessageBox
-import Image, ImageTk
+from PIL import Image, ImageTk
 import os
 import re
 import pickle

@@ -17,8 +17,8 @@
 # If not, see <http://www.gnu.org/licenses/>.
 
 from Tkinter import *
-import tkMessageBox
-import Image, ImageTk, tkFont
+import tkMessageBox, tkFont
+from PIL import Image, ImageTk
 
 from string import replace
 

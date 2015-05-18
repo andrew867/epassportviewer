@@ -28,7 +28,7 @@ import tkMessageBox
 import thread
 import threading
 import tkFont
-import Image, ImageTk
+from PIL import Image, ImageTk
 import Queue
 import time
 import re

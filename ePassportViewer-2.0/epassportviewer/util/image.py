@@ -18,7 +18,7 @@
 
 import os
 import base64, zlib
-import Image
+from PIL import Image
 import cStringIO
 
 from epassportviewer.util.singleton import Singleton

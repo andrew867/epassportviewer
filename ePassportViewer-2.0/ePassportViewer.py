@@ -23,7 +23,7 @@ import os
 import tkMessageBox
 try:
     from Tkinter import *
-    import Image, ImageTk
+    from PIL import Image, ImageTk
     from epassportviewer.const import *
     from epassportviewer.mvc import Controller
     from epassportviewer.util.image import ImageFactory

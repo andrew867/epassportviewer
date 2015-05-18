@@ -21,7 +21,7 @@ import os
 from Tkinter import *
 import tkFont
 import tkMessageBox
-import Image, ImageTk
+from PIL import Image, ImageTk
 from tkFileDialog import askdirectory, askopenfilename, asksaveasfilename
 
 from Crypto.Cipher import DES3
